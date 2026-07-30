@@ -15,6 +15,8 @@
   <PackageReference Include="MimeKit" Version="4.16.0" />
   <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
   <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
   </ItemGroup>
 <ItemGroup>
   <ProjectReference Include="..\Onion.CleanArchitecture.Infrastructure.Shared\Onion.CleanArchitecture.Infrastructure.Shared.csproj" />

@@ -71,7 +71,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Identity
         //    }
         //}
 
-        public static void AddNpgSqlPersistenceInfrastructure(this IServiceCollection services)
+        public static void AddNpgSqlPersistenceInfrastructureIdentity(this IServiceCollection services)
         {
             // Build the intermediate service provider
             var sp = services.BuildServiceProvider();
