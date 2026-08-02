@@ -12,6 +12,11 @@ using System.Threading.Tasks;
 
 namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
 {
+    /// <summary>
+    /// nơi EF CORE "Nhìn thấy" entity nào để C/R dữ liệu trong DB
+    /// 1.EF CORE map entity -> bảng qua  DbSet. Nếu không khai báo DbSet<Order>, EF không biết Order là một bảng → không thể context.Orders.ToListAsync(), và migration (dotnet ef migrations add) sẽ không tạo bảng Order/OrderItem/... trong DB.
+    /// 2. Các Consumer cần DB. OrderAcceptConsumer/OrderCompleteConsumer phải load/update Order, trừ SLTKho của Product, ghi OrderHistory, tạo OrderTimer → tất cả cần có bảng → cần DbSet + migration.
+    /// </summary>
     public class ApplicationDbContext : DbContext
     {
         private readonly IDateTimeService _dateTime;
@@ -23,7 +28,16 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
             _dateTime = dateTime;
             _authenticatedUser = authenticatedUser;
         }
-        public DbSet<Product> Products { get; set; }
+
+        // 
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<OrderHistory> OrderHistories => Set<OrderHistory>();
+        public DbSet<OrderTimer> OrderTimers => Set<OrderTimer>();
+        public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<EventStore> EventStores => Set<EventStore>();
+        public DbSet<Product> Product => Set<Product>();
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -32,11 +46,11 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.Created = _dateTime.Now;
+                        entry.Entity.CreatedAt = _dateTime.Now;
                         entry.Entity.CreatedBy = _authenticatedUser.UserId;
                         break;
                     case EntityState.Modified:
-                        entry.Entity.LastModified = _dateTime.Now;
+                        entry.Entity.LastModifiedAt = _dateTime.Now;
                         entry.Entity.LastModifiedBy = _authenticatedUser.UserId;
                         break;
                 }

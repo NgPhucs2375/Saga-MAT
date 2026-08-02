@@ -5,6 +5,8 @@ export interface IProduct {
   Rate: number;
   Price: number;
   Id: number;
+  ProductId: string;
+  SLTKho: number;
   CreatedBy: string;
   Created: string;
   LastModifiedBy: string;

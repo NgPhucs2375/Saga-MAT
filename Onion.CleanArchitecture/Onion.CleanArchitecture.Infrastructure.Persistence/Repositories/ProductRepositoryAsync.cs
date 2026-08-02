@@ -6,6 +6,7 @@ using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Repository;
 using Onion.CleanArchitecture.Infrastructure.Shared.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,10 +22,10 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             _products = dbContext.Set<Product>();
         }
 
-        public Task<bool> IsUniqueBarcodeAsync(string barcode)
+        public Task<bool> IsUniqueBarcodeAsync(string code)
         {
             return _products
-                .AllAsync(p => p.Barcode != barcode);
+                .AllAsync(p => p.Code != code);
         }
 
         public async Task<int> DeleteRangeAsync(List<int> ids)
@@ -43,6 +44,16 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             }
 
             return await PagedList<Product>.ToPagedList(productQuery.OrderByDynamic(request._sort, request._order).AsNoTracking(), request._start, request._end);
+        }
+
+        public Task<Product> GetByProductIdAsync(Guid productId)
+        {
+            return _products.FirstOrDefaultAsync(p => p.ProductId == productId);
+        }
+
+        public async Task<Product> GetProductByIdAsync(Guid productId)
+        {
+            return await _products.FirstOrDefaultAsync(p => p.ProductId == productId);
         }
     }
 }

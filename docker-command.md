@@ -1,3 +1,9 @@
+dotnet ef migrations remove --context ApplicationDbContext --project Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Persistence --startup-project Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server
+dotnet ef migrations remove --context IdentityContext --project Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Identity --startup-project Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server
+dotnet ef migrations add InitialCreate --context ApplicationDbContext --project Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Persistence --startup-project Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server
+dotnet ef migrations add InitialCreate --context IdentityContext --project Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Identity --startup-project Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server
+
+
 dotnet ef database update --context ApplicationDbContext
 dotnet ef database update --context IdentityContext
 
@@ -19,7 +25,7 @@ p, SuperAdmin, roleclaims, show
 p, SuperAdmin, roleclaims, edit
 p, SuperAdmin, roleclaims, delete
 
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=sql@pa22w0rd" -p 1433:1433 -d --name=sqlserver mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
+docker run -e POSTGRES_PASSWORD=2375 -p 5432:5432 -d --name=postgres postgres:16
 
 git rm --cached Onion.CleanArchitecture/Onion.CleanArchitecture.WebApp.Client/Onion.CleanArchitecture.WebApp.Client.esproj
 git rm --cached ./Onion.CleanArchitecture/Onion.CleanArchitecture.WebApp.Client/Onion.CleanArchitecture.WebApp.Client.esproj

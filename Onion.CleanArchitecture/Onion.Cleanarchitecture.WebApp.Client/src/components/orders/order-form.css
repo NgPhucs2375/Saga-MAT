@@ -1,0 +1,25 @@
+/* CSS Library for Order Form Components */
+
+.order-form-container {
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.order-item-row {
+  margin-bottom: 12px;
+  border-bottom: 1px dashed #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.order-total-section {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 4px;
+  border: 1px solid #f0f0f0;
+}
+
+.order-submit-button {
+  width: 100%;
+}

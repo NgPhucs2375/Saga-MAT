@@ -1,5 +1,18 @@
 version: '3.0'
 services:
+  postgres:
+    image: postgres:16
+    container_name: LearnSaga
+    environment:
+      POSTGRES_DB: LearnSaga
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2375
+    ports:
+      - 5432:5432
+    networks:
+      - learn-saga
+    volumes:
+      - portgres_data:/var/lib/portgresql/data
   webapp:
     container_name: webapp
     image: onion.clean:v.0.1
@@ -7,11 +20,13 @@ services:
       - 8080:8080
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      SQLSERVER_CONNECTION_STRING: Server=sqlserver;Database=Ecommerce;User Id=sa;Password=sql@pa22w0rd; TrustServerCertificate=Yes;
+      SQLSERVER_CONNECTION_STRING: Host=postgres;Port=5432;Database=LearnSaga;Username=postgres;Password=2375;
     networks:
-      - ecommerce
+      - learn-saga
 networks:
-  ecommerce:
+  learn-saga:
     driver: bridge
-    name: ecommerce
+    name: learn-saga
     external: true
+volumes:
+  portgres_data:

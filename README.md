@@ -1,3 +1,20 @@
+# tạo services
+# Console service (Submit/Accept/Complete)
+dotnet new console -f net10.0 -o OrderSubmitService    -n OrderSubmitService
+dotnet new console -f net10.0 -o OrderAcceptService    -n OrderAcceptService
+dotnet new console -f net10.0 -o OrderCompleteService  -n OrderCompleteService
+
+dotnet new web -f net10.0 -o NotificationService -n NotificationService
+
+# Thêm vô solution
+dotnet sln Onion.CleanArchitecture.sln add OrderSubmitService/OrderSubmitService.csproj
+dotnet sln Onion.CleanArchitecture.sln add OrderAcceptService/OrderAcceptService.csproj
+dotnet sln Onion.CleanArchitecture.sln add OrderCompleteService/OrderCompleteService.csproj
+dotnet sln Onion.CleanArchitecture.sln add NotificationService/NotificationService.csproj
+
+# add reference mẫu 
+dotnet add OrderSubmitService\OrderSubmitService.csproj reference Onion.CleanArchitecture\Onion.CleanArchitecture.Application\Onion.CleanArchitecture.Application.csproj Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Persistence\Onion.CleanArchitecture.Infrastructure.Persistence.csproj Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Shared\Onion.CleanArchitecture.Infrastructure.Shared.csproj
+
 # Onion Architecture In ASP.NET Core With CQRS
 
 https://craftbakery.dev/make-your-own-custom-netcore-template/

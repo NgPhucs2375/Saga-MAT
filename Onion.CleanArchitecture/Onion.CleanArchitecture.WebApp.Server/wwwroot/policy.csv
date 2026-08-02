@@ -9,3 +9,11 @@ p, SuperAdmin, roleclaims, edit
 p, SuperAdmin, roleclaims, delete
 p, SuperAdmin, users, list
 p, SuperAdmin, users, create
+p, SuperAdmin, products, list
+p, SuperAdmin, products, show
+p, SuperAdmin, products, create
+p, SuperAdmin, products, create-range
+p, SuperAdmin, products, edit
+p, SuperAdmin, products, delete
+p, SuperAdmin, products, delete-range
+p, SuperAdmin, orders, create

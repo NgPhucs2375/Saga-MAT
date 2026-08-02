@@ -29,9 +29,9 @@ namespace Onion.CleanArchitecture.WebApp.Server.Initializer
             try
             {
                 var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
+                dbContext.Database.EnsureCreated();
                 var identityDbContext = _serviceProvider.GetRequiredService<IdentityContext>();
-                identityDbContext.Database.Migrate();
+                identityDbContext.Database.EnsureCreated();
 
                 var userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -39,12 +39,12 @@ namespace Onion.CleanArchitecture.WebApp.Server.Initializer
                 await Infrastructure.Identity.Seeds.DefaultRoles.SeedAsync(userManager, roleManager);
                 await Infrastructure.Identity.Seeds.DefaultSuperAdmin.SeedAsync(userManager, roleManager);
                 await Infrastructure.Identity.Seeds.DefaultBasicUser.SeedAsync(userManager, roleManager);
-                Log.Information("Finished Seeding Default Data");
-                Log.Information("Application Starting");
+                Log.Information("Hoàn thành khởi tạo dữ liệu mặc định");
+                Log.Information("BẮT ĐẦU KHỞI TẠO DỮ LIỆU MẪU");
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "An error occurred seeding the DB");
+                Log.Warning(ex, "Lỗi khi khởi tạo dữ liệu mặc định");
             }
             finally
             {

@@ -1,3 +1,4 @@
+using MassTransit;
 using Onion.CleanArchitecture.Application;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Infrastructure.Identity;
@@ -18,9 +19,27 @@ _services.AddApplicationLayer();
 _services.AddNpgSqlPersistenceInfrastructure();
 _services.AddNpgSqlPersistenceInfrastructureIdentity();
 _services.AddIdentityRepositories(_config);
-_services.AddSqlServerPersistenceInfrastructure(typeof(Program).Assembly.FullName);
-_services.AddPersistenceRepositories();
+//_services.AddSqlServerPersistenceInfrastructure(typeof(Program).Assembly.FullName); // Vô hiệu hóa dòng này
+_services.AddPersistenceRepositories(); // Đảm bảo dòng này vẫn được giữ lại nếu cần
 _services.AddSharedInfrastructure(_config);
+
+_services.Configure<SqlTransportOptions>(options =>
+{
+    options.ConnectionString = _config.GetConnectionString("PostgresConnection");
+});
+// Đăng ký MassTransit để WebApp có thể publish events (khởi tạo Saga)
+_services.AddMassTransit(x =>
+{
+    // x.SetLicense("developer"); 
+    x.SetKebabCaseEndpointNameFormatter();
+   
+        x.UsingPostgres((context, cfg) =>
+    {        
+        // Tự động khởi tạo cấu trúc bảng queue/transport nếu chưa có
+        cfg.AutoStart = true;
+    });
+});
+
 if (_env.IsDevelopment())
 {
     _services.AddSwaggerExtension();
@@ -58,7 +77,6 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseAuthorization();
 app.UseAuthorization();
 
 app.UseErrorHandlingMiddleware();

@@ -13,10 +13,14 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Commands.UpdateP
     public class UpdateProductCommand : IRequest<Response<int>>
     {
         public int Id { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Rate { get; set; }
+        public int SLTKho { get; set; }
         public decimal Price { get; set; }
+        public bool IsActive { get; set; } = true;
+
         public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, Response<int>>
         {
             private readonly IProductRepositoryAsync _productRepository;
@@ -34,10 +38,13 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Commands.UpdateP
                 }
                 else
                 {
+                    product.Code = command.Code;
                     product.Name = command.Name;
                     product.Rate = command.Rate;
                     product.Description = command.Description;
+                    product.SLTKho = command.SLTKho;
                     product.Price = command.Price;
+                    product.IsActive = command.IsActive;
                     await _productRepository.UpdateAsync(product);
                     return new Response<int>(product.Id);
                 }

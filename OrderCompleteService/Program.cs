@@ -1,0 +1,44 @@
+﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Nest;
+using Onion.CleanArchitecture.Application.Interfaces;
+using Onion.CleanArchitecture.Infrastructure.Persistence;
+using Onion.CleanArchitecture.Infrastructure.Shared;
+using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
+using OrderCompleteService;
+using OrderCompleteService.Services;
+
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((ctx, services) =>
+    {
+        //1. Đăng ký Provider trước khi AddNpgSqlPersistenceInfrastructure
+        services.AddTransient<IDatabaseSettingsProvider,DatabaseSettingsProvider>();
+        services.AddScoped<IAuthenticatedUserService, SystemUserService>();
+        // DI ApplicationDbContext + Repositories + EF Core
+        services.AddNpgSqlPersistenceInfrastructure();
+        services.AddPersistenceRepositories();
+        services.AddSharedInfrastructure(ctx.Configuration);
+        services.Configure<SqlTransportOptions>(options =>
+        {
+            options.ConnectionString = ctx.Configuration.GetConnectionString("PostgresConnection");
+        });
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<ShippingFailedConsumer>();
+            x.AddConsumer<OrderCompleteConsumer>();
+            x.SetKebabCaseEndpointNameFormatter();
+            x.UsingPostgres((context, cfg) =>
+            {
+                // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
+                cfg.AutoStart = true;
+
+                // BẮT BUỘC: Đăng ký Endpoint cho Consumer xử lý message
+                cfg.ConfigureEndpoints(context);            });
+        });
+        // Đăng ký EF + repositories + stub IAuthenticatedUserService
+    })
+    .Build();
+
+await host.RunAsync();
