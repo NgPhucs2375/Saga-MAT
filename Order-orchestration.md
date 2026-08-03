@@ -1,199 +1,228 @@
-# TÀI LIỆU CHUYỂN ĐỔI HỆ THỐNG XỬ LÝ ĐƠN HÀNG SANG ORCHESTRATION
-## SAGA PATTERN (ORCHESTRATION) + MASSTRANSIT SAGASTATEMACHINE
+# Order Orchestration (Saga) — Bản cập nhật đúng với code hiện tại
+
+## 1) Mục tiêu và phạm vi
+
+Hệ thống đang dùng **MassTransit SagaStateMachine** để orchestration vòng đời đơn hàng:
+
+`OrderCreated -> Validate -> Accept -> Complete -> Done/Rejected`
+
+Mục tiêu hiện tại:
+
+- Dùng **PostgreSQL transport** thay RabbitMQ cho message bus.
+- Giữ cách gửi bằng URI `queue:...` trong activity (đây là cách đúng và chuẩn với MassTransit, không phụ thuộc Rabbit riêng).
+- Saga state được lưu bằng **EF Core + PostgreSQL** để resume được sau crash.
 
 ---
 
-## 1. TỔNG QUAN
+## 2) Thành phần chính
 
-### 1.1. Mục tiêu
-Chuyển hệ thống hiện tại từ **Choreography** (mỗi consumer tự publish bước tiếp) sang **Orchestration** (1 orchestrator trung tâm quyết định thứ tự, gửi command, nhận response, xử lý compensate). Orchestrator được triển khai bằng **MassTransit SagaStateMachine** lưu saga instance xuống PostgreSQL để có thể resume sau crash.
+### 2.1 Orchestrator
 
-### 1.2. Nguyên tắc cốt lõi thay đổi
-| | Choreography (cũ) | Orchestration (mới) |
-|:--|:-------------------|:---------------------|
-| Consumer làm gì | Làm việc rồi **tự publish** bước tiếp | Chỉ **thi hành lệnh** (consume Command) rồi **báo kết quả** (publish Response) |
-| Ai chọn bước kế | Từng consumer | `OrderSagaStateMachine` |
-| Auto-timeout | Worker quét + consumer tự xử lý | Worker quét → báo saga → saga xử lý `DuringAny` |
-| Trạng thái quy trình | Cột `Order.Status` | Saga instance `OrderState` + `Order.Status` |
-| Notification UI | Từng consumer publish `*Response` | Saga publish `*Response` |
+- Project: [OrderOrchestration/](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration)
+- State machine: [OrderSagaStateMachine.cs](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration/OrderSagaStateMachine.cs)
+- Activities: [OrderSagaActivities.cs](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration/Activities/OrderSagaActivities.cs)
+- Transport config: [Program.cs](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration/Program.cs) (`UsingPostgres`)
 
----
+### 2.2 Worker services (consume command, publish event)
 
-## 2. KIẾN TRÚC ĐÍCH
+- `OrderSubmitService`: xử lý `ValidateOrderCommand`
+- `OrderAcceptService`: xử lý `AcceptOrderCommand`, `CancelOrderCommand`, timeout watcher
+- `OrderCompleteService`: xử lý `CompleteOrderCommand`
 
-```
-[WebApp] --OrderCreatedEvent--> [OrderOrchestratorService] (MỚI)
-                                 OrderSagaStateMachine<OrderState>
-                                 │ Send Command / Receive Response
-       ┌─────────────────────────┼──────────────────────────┐
-       ▼                         ▼                          ▼
-[OrderSubmitService]      [OrderAcceptService]       [OrderCompleteService]
- ValidateOrderCommand     AcceptOrderCommand          CompleteOrderCommand
- → OrderValidatedEvent    → OrderAcceptedEvent        → OrderCompletedEvent
- (ValidationFailedEvent)  (AcceptFailedEvent)         (CompleteFailedEvent)
-                              ▲    │
-                              │    └── CancelOrderCommand (compensate) ──┘
-       └───────────────────────┴──────────────────────────┘
-                              ▼  (saga publish các *Response)
-                   [NotificationService] (GIỮ NGUYÊN) → SignalR → UI
-```
+### 2.3 Notification
+
+- `NotificationService` consume các `*Response` để đẩy SignalR.
 
 ---
 
-## 3. SERVICE MAP (CHUYỂN ĐỔI TỪNG SERVICE)
+## 3) Transport & routing (đã chuẩn hóa PostgreSQL)
 
-| Service | Consumer cũ | Chuyển thành | Đầu vào | Đầu ra |
-|:--------|:-------------|:-------------|:--------|:-------|
-| **OrderOrchestratorService** | — (mới) | `OrderSagaStateMachine` + `OrderState` | `OrderCreatedEvent` | Command + `*Response` |
-| **OrderSubmitService** | `OrderSubmitConsumer : IConsumer<OrderSubmittedEvent>` | `IConsumer<ValidateOrderCommand>` | `ValidateOrderCommand` | `OrderValidatedEvent` / `OrderValidationFailedEvent` |
-| **OrderAcceptService** | `OrderAcceptConsumer : IConsumer<ProcessOrderAcceptCommand>` | `IConsumer<AcceptOrderCommand>` | `AcceptOrderCommand` | `OrderAcceptedEvent` / `OrderAcceptFailedEvent` |
-| **OrderAcceptService** | `OrderTimeoutConsumer` | **Xóa** (saga xử lý timeout) | — | — |
-| **OrderAcceptService** | — | **Thêm** `CancelOrderConsumer : IConsumer<CancelOrderCommand>` | `CancelOrderCommand` (compensate) | `OrderCancelledEvent` |
-| **OrderCompleteService** | `OrderCompleteConsumer : IConsumer<OrderCompleteEvent>` | `IConsumer<CompleteOrderCommand>` | `CompleteOrderCommand` | `OrderCompletedEvent` / `OrderCompleteFailedEvent` |
-| **NotificationService** | — | **Giữ nguyên** | các `*Response` | SignalR → UI |
+### 3.1 Transport
 
----
+Tất cả service liên quan orchestration dùng `UsingPostgres(...)` với `SqlTransportOptions.ConnectionString = PostgresConnection`.
 
-## 4. SAGA STATE MACHINE
+### 3.2 Routing bằng URI queue
 
-### 4.1. States
-`Submitted → Validating → Accepting → Completing → Completed` / `Rejected` (final)
+Trong saga activity, cách gọi sau **đúng và nên giữ**:
 
-### 4.2. Sơ đồ
-```
- OrderCreated ──► Submitted ──(Send Validate)──► Validating
-                                                    │
-                               Validated ──────────┘   ValidationFailed ──► Rejected
-                                                    ▼
-                                                  Accepting
-                               Accepted ───────────┘   AcceptFailed ────► Rejected
-                                                    ▼
-                                                  Completing
-                               Completed ──────────┘   CompleteFailed ──► Compensate ──► Rejected
-                                                    ▼
-                                                 Completed
-      (DuringAny: OrderTimeoutExpired ──► Compensate ──► Rejected)
-```
+- `new Uri("queue:order-validation-queue")`
+- `new Uri("queue:order-accept-queue")`
+- `new Uri("queue:order-complete-queue")`
+- `new Uri("queue:order-cancel-queue")`
 
-### 4.3. Bảng transition
-| State | Event đến | Saga gửi / làm | Transition tới |
-|:------|:-----------|:----------------|:---------------|
-| Submitted | OrderCreatedEvent | Send `ValidateOrderCommand` | Validating |
-| Validating | OrderValidatedEvent | Send `AcceptOrderCommand` | Accepting |
-| | OrderValidationFailedEvent | Publish `OrderSubmitFailedResponse` | Rejected |
-| Accepting | OrderAcceptedEvent | Send `CompleteOrderCommand` | Completing |
-| | OrderAcceptFailedEvent | Publish `OrderAcceptFailedResponse` | Rejected |
-| Completing | OrderCompletedEvent | Publish `OrderCompleteSuccessResponse` | Completed |
-| | OrderCompleteFailedEvent | Send `CancelOrderCommand` + Publish `OrderCompleteFailedResponse` | Rejected |
-| Any (DuringAny) | OrderTimeoutExpiredEvent | Send `CancelOrderCommand` + Publish noti | Rejected |
-
-> Tất cả event `CorrelateById(x => x.Message.OrderId)`; `InstanceState(x => x.CurrentState)`.
+`queue:` là logical address của MassTransit endpoint, không khóa vào RabbitMQ; đổi transport sang PostgreSQL vẫn chạy đúng.
 
 ---
 
-## 5. EVENT / COMMAND CATALOG
+## 4) State machine thực tế (theo code hiện tại)
 
-### 5.1. Thêm mới (Domain)
-| Event | Dữ liệu |
-|:------|:--------|
-| **OrderCreatedEvent** | EventId, OrderId, CustomerId, Items, TotalAmount, Timestamp |
-| **ValidateOrderCommand** | EventId, OrderId, CustomerId, Items, Timestamp |
-| **AcceptOrderCommand** | EventId, OrderId, CustomerId, Timestamp |
-| **CompleteOrderCommand** | EventId, OrderId, CustomerId, Items, Timestamp |
-| **CancelOrderCommand** | EventId, OrderId, CustomerId, Reason, Timestamp |
-| **OrderValidatedEvent** | EventId, OrderId, CustomerId, Items, Timestamp |
-| **OrderValidationFailedEvent** | EventId, OrderId, CustomerId, ErrorMessage, Timestamp |
-| **OrderCompletedEvent** | EventId, OrderId, CustomerId, Timestamp |
-| **OrderCompleteFailedEvent** | EventId, OrderId, CustomerId, ErrorReason, Timestamp |
-| **OrderCancelledEvent** | EventId, OrderId, CustomerId, Reason, Timestamp |
-| **OrderTimeoutExpiredEvent** | CorrelationId, OrderId, Timestamp |
+Tham chiếu: [OrderSagaStateMachine.cs](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration/OrderSagaStateMachine.cs)
 
-### 5.2. Giữ nguyên (saga dùng báo UI)
-`OrderSubmitSuccessResponse`, `OrderSubmitFailedResponse`, `OrderAcceptSuccessResponse`, `OrderAcceptFailedResponse`, `OrderCompleteSuccessResponse`, `OrderCompleteFailedResponse`, `OrderAcceptedEvent`, `OrderAcceptFailedEvent`, `NotificationPayLoad`.
+## 4.1 States đang khai báo
 
-### 5.3. Ngừng dùng (giữ file, đánh dấu obsolete)
-`OrderSubmittedEvent`, `ProcessOrderAcceptCommand`, `OrderCompleteEvent`, `OrderAutoTimeoutExpiredEvent`.
+- `Submitted` (đang khai báo nhưng **chưa dùng trong transition**)
+- `Validating`
+- `Accepting`
+- `Completing`
+- `Completed`
+- `Rejected`
 
----
+## 4.2 Correlation
 
-## 6. SAGA REPOSITORY — `OrderState`
+Toàn bộ event đều `CorrelateById(m => m.Message.OrderId)`.
 
-- Package `MassTransit.EntityFrameworkCore` **9.2.0** (khớp các service).
-- Entity `OrderState : SagaStateMachineInstance`: `CorrelationId` (=OrderId, PK), `CurrentState`, `CustomerId`, `TotalAmount`, `CreatedAt`.
-- `OrderStateMap : SagaClassMap<OrderState>` → table `OrderState`, `CurrentState` max 64.
-- DbContext `OrderSagaDbContext` (Npgsql) + `DesignTimeDbContextFactory` → tạo migration + `dotnet ef database update`.
+=> `OrderId` là correlation key xuyên suốt luồng.
 
----
+## 4.3 Transition table (đúng với code)
 
-## 7. THAY ĐỔI THEO TỪNG FILE
-
-| File | Thay đổi |
-|:-----|:---------|
-| `Onion.CleanArchitecture.Domain/Events/*` | Thêm 11 event mới (5.1); obsolete 4 event cũ |
-| `Onion.CleanArchitecture.Domain/Entities/OrderState.cs` | Mới |
-| `Onion.CleanArchitecture.Infrastructure.Persistence/Migrations/*` | Migration `OrderState` |
-| `OrderOrchestratorService/**` (mới) | Program.cs + `OrderSagaStateMachine.cs` + `OrderStateMap.cs` + `OrderSagaDbContext.cs` + `SystemUserService.cs` + appsettings.json |
-| `OrderSubmitService/OrderSubmitConsumer.cs` | Đổi message type, bỏ publish bước tiếp |
-| `OrderSubmitService/Program.cs` | Endpoint `order-validation-queue` |
-| `OrderAcceptService/OrderAcceptConsumer.cs` | Đổi message type, bỏ publish `OrderCompleteEvent` |
-| `OrderAcceptService/OrderTimeoutConsumer.cs` | Xóa |
-| `OrderAcceptService/TimerWatcherBackgroundService.cs` | Đổi publish → `OrderTimeoutExpiredEvent` |
-| `OrderAcceptService/Services/CancelOrderConsumer.cs` | Mới (compensate) |
-| `OrderAcceptService/Program.cs` | Bỏ `OrderTimeoutConsumer`, thêm `CancelOrderConsumer` |
-| `OrderCompleteService/OrderCompleteConsumer.cs` | Đổi message type, bỏ publish `*Response` |
-| `OrderCompleteService/ShippingFailedConsumer.cs` | Xóa (file rỗng) |
-| `OrderCompleteService/Program.cs` | Endpoint `order-complete-queue` |
-| `Onion.CleanArchitecture.WebApp.Server/Controllers/v1/OrdersController.cs` | Publish `OrderCreatedEvent` |
+| Current state | Incoming event | Activity xử lý | Outgoing action | Next state |
+|---|---|---|---|---|
+| `Initially` | `OrderCreatedEvent` | `OrderCreatedActivity` | Send `ValidateOrderCommand` -> `queue:order-validation-queue` | `Validating` |
+| `Validating` | `OrderValidatedEvent` | `OrderValidatedActivity` | Send `AcceptOrderCommand` -> `queue:order-accept-queue` | `Accepting` |
+| `Validating` | `OrderValidationFailedEvent` | `OrderValidationFailedActivity` | Publish `OrderSubmitFailedResponse` | `Rejected` |
+| `Accepting` | `OrderAcceptedEvent` | `OrderAcceptedActivity` | Send `CompleteOrderCommand` -> `queue:order-complete-queue` | `Completing` |
+| `Accepting` | `OrderAcceptFailedEvent` | `OrderAcceptFailedActivity` | Publish `OrderAcceptFailedResponse` | `Rejected` |
+| `Completing` | `OrderCompletedEvent` | `OrderCompletedActivity` | Publish `OrderCompleteSuccessResponse` | `Completed` |
+| `Completing` | `OrderCompleteFailedEvent` | `OrderCompleteFailedActivity` | Send `CancelOrderCommand` -> `queue:order-cancel-queue`, rồi publish `OrderCompleteFailedResponse` | `Rejected` |
+| `DuringAny` | `OrderTimeoutExpiredEvent` | `OrderTimeoutExpiredActivity` | Send `CancelOrderCommand` -> `queue:order-cancel-queue`, rồi publish `OrderAcceptFailedResponse` (reason: Timeout) | `Rejected` |
 
 ---
 
-## 8. COMPENSATION (BỒI HOÀN)
+## 5) Activity behavior chi tiết
 
-| Bước đã thành công | Khi bước kế fail | Compensation |
-|:--------------------|:------------------|:-------------|
-| Validate | Validation fail | Không cần (chưa side-effect) |
-| Accept (`Accepted` + tạo timer) | Complete fail / Timeout | `CancelOrderCommand` → set `Rejected` + `RejectedAt` + hủy timer pending |
-| Complete (trừ kho) | Không có bước sau | Không cần |
+Tham chiếu: [OrderSagaActivities.cs](D:/Univer/Nam_4/VB/Demo-Saga/OrderOrchestration/Activities/OrderSagaActivities.cs)
+
+### 5.1 OrderCreatedActivity
+
+- Gán dữ liệu vào saga instance:
+  - `CorrelationId = OrderId`
+  - `CustomerId`, `TotalAmount`, `Items`, `CreatedAt`
+- Gửi `ValidateOrderCommand` sang `order-validation-queue`.
+
+### 5.2 OrderValidatedActivity
+
+- Gửi `AcceptOrderCommand` sang `order-accept-queue`.
+
+### 5.3 OrderValidationFailedActivity
+
+- Publish `OrderSubmitFailedResponse` (kèm `NotificationPayLoad`).
+
+### 5.4 OrderAcceptedActivity
+
+- Gửi `CompleteOrderCommand` sang `order-complete-queue`.
+- Dùng `context.Saga.Items` để đảm bảo item theo state đã lưu.
+
+### 5.5 OrderAcceptFailedActivity
+
+- Publish `OrderAcceptFailedResponse` (kèm `NotificationPayLoad`).
+
+### 5.6 OrderCompletedActivity
+
+- Publish `OrderCompleteSuccessResponse` (kèm `NotificationPayLoad`).
+
+### 5.7 OrderCompleteFailedActivity
+
+- Gửi compensate `CancelOrderCommand` sang `order-cancel-queue`.
+- Publish `OrderCompleteFailedResponse`.
+
+### 5.8 OrderTimeoutExpiredActivity
+
+- Gửi compensate `CancelOrderCommand` (reason timeout).
+- Publish `OrderAcceptFailedResponse` với nội dung timeout cho UI.
 
 ---
 
-## 9. AUTO-TIMEOUT (SAU CHUYỂN ĐỔI)
+## 6) Queue / endpoint map
 
-- `TimerWatcherBackgroundService` **giữ ở OrderAcceptService**: quét timer `Pending & hết hạn`, publish `OrderTimeoutExpiredEvent`.
-- Saga `DuringAny(When(OrderTimeoutExpiredEvent))` → gửi `CancelOrderCommand` (compensate) + publish noti → `Rejected`.
-
----
-
-## 10. THỨ TỰ THỰC HIỆN
-
-1. Domain: thêm event mới + obsolete event cũ
-2. `OrderState` + `OrderSagaDbContext` + migration (`dotnet ef database update`)
-3. Tạo `OrderOrchestratorService` (project mới, thêm vào .sln)
-4. Sửa 3 consumer + Program.cs + thêm `CancelOrderConsumer`; xóa `OrderTimeoutConsumer` + `ShippingFailedConsumer`
-5. Sửa WebApp publish `OrderCreatedEvent`
-6. Build toàn solution
-7. Test 3 kịch bản: thành công / validation fail / auto-timeout reject
+| Queue | Producer | Consumer |
+|---|---|---|
+| `order-validation-queue` | Saga (`OrderCreatedActivity`) | `OrderSubmitService` |
+| `order-accept-queue` | Saga (`OrderValidatedActivity`) | `OrderAcceptService` |
+| `order-complete-queue` | Saga (`OrderAcceptedActivity`) | `OrderCompleteService` |
+| `order-cancel-queue` | Saga (`OrderCompleteFailedActivity`, `OrderTimeoutExpiredActivity`) | `OrderAcceptService` (`CancelOrderConsumer`) |
+| `notification-queue` | Các luồng publish `*Response` | `NotificationService` |
 
 ---
 
-## 11. RỦI RO & CẠM BẪY
+## 7) Luồng nghiệp vụ end-to-end
 
-1. **MassTransit version**: saga repo phải 9.2.0 (tránh NU1605 với 7.3.0 transitive từ Application).
-2. **Correlation**: mọi event phải có `OrderId` + `CorrelateById`; thiếu → saga không match instance.
-3. **Migration saga table**: phải update DB trước khi start orchestrator.
-4. **Message tăng gấp đôi**: mỗi bước = command + response (chấp nhận, bản chất orchestration).
-5. **`Order.CustomerId` là string** nhưng event dùng `Guid` → khi saga publish noti phải `Guid.Parse`.
+### 7.1 Happy path
+
+1. Web/App publish `OrderCreatedEvent`
+2. Saga -> send `ValidateOrderCommand`
+3. Submit service publish `OrderValidatedEvent`
+4. Saga -> send `AcceptOrderCommand`
+5. Accept service publish `OrderAcceptedEvent`
+6. Saga -> send `CompleteOrderCommand`
+7. Complete service publish `OrderCompletedEvent`
+8. Saga publish `OrderCompleteSuccessResponse`
+9. NotificationService đẩy SignalR cho UI
+
+### 7.2 Validation fail
+
+1. Sau validate, submit service publish `OrderValidationFailedEvent`
+2. Saga publish `OrderSubmitFailedResponse`
+3. Saga chuyển `Rejected`
+
+### 7.3 Accept fail
+
+1. Accept service publish `OrderAcceptFailedEvent`
+2. Saga publish `OrderAcceptFailedResponse`
+3. Saga chuyển `Rejected`
+
+### 7.4 Complete fail
+
+1. Complete service publish `OrderCompleteFailedEvent`
+2. Saga send `CancelOrderCommand`
+3. Saga publish `OrderCompleteFailedResponse`
+4. Saga chuyển `Rejected`
+
+### 7.5 Timeout (DuringAny)
+
+1. Timeout watcher publish `OrderTimeoutExpiredEvent`
+2. Saga send `CancelOrderCommand`
+3. Saga publish `OrderAcceptFailedResponse` (timeout)
+4. Saga chuyển `Rejected`
 
 ---
 
-## 12. ĐỐI CHIẾU SAU KHI CHUYỂN ĐỔI
+## 8) Điểm cần lưu ý kỹ thuật
 
-| Đặc điểm | Trước (Choreography) | Sau (Orchestration) |
-|:---------|:---------------------|:---------------------|
-| Số service | 3 + Notification | 4 + Notification |
-| Ai quyết định bước kế | Từng consumer | `OrderSagaStateMachine` |
-| Trạng thái quy trình | `Order.Status` | `OrderState` + `Order.Status` |
-| Compensation | Thủ công trong consumer | Tập trung trong saga |
-| Debug / retry | Khó | Dễ (1 nơi) |
-| Resume sau crash | Không | Có (saga instance) |
-| Message / bước | 1 event | 1 command + 1 response |
+1. **`Submitted` đang không dùng**
+   - State có khai báo nhưng không transition tới.
+   - Nếu muốn dùng, cần đổi `Initially` thành `TransitionTo(Submitted)` rồi tách bước tiếp theo.
+
+2. **Idempotency**
+   - Vì distributed system có thể redelivery, các consumer command nên idempotent theo `OrderId`.
+
+3. **Retry / outbox**
+   - Nên bật retry policy và (nếu cần) outbox theo từng service để tránh duplicate side-effect.
+
+4. **Schema Postgres transport**
+   - `cfg.AutoStart = true` giúp auto-init transport objects.
+   - Môi trường production nên kiểm soát migration/DDL rõ ràng.
+
+5. **Observability**
+   - Log phải luôn chứa `OrderId` (correlation id) để trace full flow.
+
+---
+
+## 9) Checklist xác nhận sau khi đổi Rabbit -> PostgreSQL transport
+
+- [ ] Không còn `UsingRabbitMq` trong các service orchestration.
+- [ ] `OrderOrchestration` và `NotificationService` đã có `UsingPostgres`.
+- [ ] `SqlTransportOptions.ConnectionString` map đúng `PostgresConnection`.
+- [ ] Queue URI `queue:...` giữ nguyên (không cần đổi).
+- [ ] Build thành công các project liên quan.
+- [ ] Test đủ 5 luồng: happy / validation fail / accept fail / complete fail / timeout.
+
+---
+
+## 10) Kết luận
+
+Thiết kế hiện tại đã đúng hướng doanh nghiệp:
+
+- Orchestration tập trung bằng Saga state machine.
+- Compensation rõ ràng (`CancelOrderCommand`).
+- Transport đã chuyển về PostgreSQL và vẫn dùng tốt `queue:` URI chuẩn của MassTransit.
+- Dễ mở rộng retry, observability và kiểm soát trạng thái toàn cục theo `OrderId`.

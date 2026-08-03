@@ -45,13 +45,15 @@ if (!string.IsNullOrWhiteSpace(postgresConn))
 }
 builder.Services.AddPersistenceRepositories();
 builder.Services.AddSharedInfrastructure(builder.Configuration);
+builder.Services.Configure<SqlTransportOptions>(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("PostgresConnection");
+});
 
 // === DI Notification Dispatcher === //
 builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
 // === MassTransit: consume các Response event === //
-// MassTransit 9.x yêu cầu license. Ưu tiên từ appsettings MassTransit:License, fallback env MT_LICENSE.
-var massTransitLicense = builder.Configuration["MassTransit:License"] ?? Environment.GetEnvironmentVariable("MT_LICENSE");
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<OrderSubmitSuccessConsumer>();
@@ -60,13 +62,9 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<OrderAcceptFailedConsumer>();
     x.AddConsumer<OrderCompleteSuccessConsumer>();
     x.AddConsumer<OrderCompleteFailedConsumer>();
-    x.UsingRabbitMq((context, cfg) =>
+    x.UsingPostgres((context, cfg) =>
     {
-        if (!string.IsNullOrWhiteSpace(massTransitLicense))
-        {
-            cfg.SetLicense(massTransitLicense);
-        }
-        cfg.Host("rabbitmq://localhost");
+        cfg.AutoStart = true;
         cfg.ReceiveEndpoint("notification-queue", e =>
         {
             e.ConfigureConsumer<OrderSubmitSuccessConsumer>(context);

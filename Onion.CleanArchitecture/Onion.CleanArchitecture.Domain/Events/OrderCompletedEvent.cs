@@ -3,16 +3,16 @@ using System;
 namespace Onion.CleanArchitecture.Domain.Events
 {
     /// <summary>
-    /// Event tự động kích hoạt bởi Timer Job sau N phút nếu không có ai thao tác
+    /// Event thông báo Complete THÀNH CÔNG -> Saga chuyển Completed
     /// </summary>
     /// <param name="EventId"></param>
     /// <param name="OrderId"></param>
-    /// <param name="TargetAction"></param>
+    /// <param name="CustomerId"></param>
     /// <param name="Timestamp"></param>
-    public record OrderAutoTimeoutExpiredEvent(
+    public record OrderCompletedEvent(
         Guid EventId,
         Guid OrderId,
-        string TargetAction,
+        Guid CustomerId,
         DateTime Timestamp
     ):IOrderEvent;
 }

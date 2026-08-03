@@ -9,9 +9,9 @@ using Onion.CleanArchitecture.Domain.Events;
 namespace OrderCompleteService
 {
     /// <summary>
-    /// Consumer xử lý OrderCompleteEvent từ OrderCompleteService
+    /// Consumer xử lý CompleteOrderCommand từ Saga để hoàn tất đơn & trừ kho
     /// </summary>
-    public class OrderCompleteConsumer : IConsumer<OrderCompleteEvent>
+    public class OrderCompleteConsumer : IConsumer<CompleteOrderCommand>
     {
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
@@ -39,14 +39,14 @@ namespace OrderCompleteService
             _configuration = configuration;
         }
 
-        // === Hàm Tiêu thụ OrderCompleteEvent === //
-        public async Task Consume(ConsumeContext<OrderCompleteEvent> context)
+        // === Hàm Tiêu thụ CompleteOrderCommand === //
+        public async Task Consume(ConsumeContext<CompleteOrderCommand> context)
         {
-            // message = OrderCompleteEvent
+            // message = CompleteOrderCommand
             var message = context.Message;
             var order = await _orderRepository.GetByIdAsync(message.OrderId);
-            // Log cho ra string Nhận được event với ID 
-            _logger.LogInformation("Nhận OrderCompleteEvent OrderId={OrderId}", message.OrderId);
+            // Log cho ra string Nhận được command với ID
+            _logger.LogInformation("Nhận CompleteOrderCommand OrderId={OrderId}", message.OrderId);
 
             // check chống trùng (idempotency) - nếu đã xử lý rồi (retry/duplicate)
             if (order.Status != OrderStatus.Accepted)
@@ -54,14 +54,11 @@ namespace OrderCompleteService
                 _logger.LogError("OrderId={OrderId} không ở trạng thái Accepted.", message.OrderId);
                 return;
             }
-            // Log cho ra string Nhận được event với ID 
-            _logger.LogInformation("Nhận OrderCompleteEvent OrderId={OrderId}", message.OrderId);
-
 
             // === Re-validate và chuẩn bị các entity để update === //
             var errors = new List<string>();
             var productsToUpdate = new Dictionary<Guid, Product>();
-            foreach (var item in order.OrderItems) // Lặp qua all Items trong OrderCompleteEvent
+            foreach (var item in message.Items) // Lặp qua all Items trong CompleteOrderCommand
             {
                 var product = await _productRepository.GetProductByIdAsync(item.ProductId);
                 if (product == null || !product.IsActive)
@@ -88,17 +85,10 @@ namespace OrderCompleteService
             if (!isSuccess)
             {
                 var errorReason = string.Join("; ", errors);
-                var validationFailureNoti = new NotificationPayLoad(
-                    message.CustomerId,
-                    "Hoàn tất đơn hàng thất bại",
-                    "Hoàn tất đơn hàng thất bại do vấn đề tồn kho.",
-                    "Error",
-                    DateTime.UtcNow);
 
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderCompleteEvent", string.Join("; ", errors));
-                await context.Publish(new OrderCompleteFailedResponse(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId,
-                    errorReason, validationFailureNoti, DateTime.UtcNow));
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", string.Join("; ", errors));
+                await context.Publish(new OrderCompleteFailedEvent(
+                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
                 _logger.LogWarning("Complete thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
             }
@@ -108,7 +98,7 @@ namespace OrderCompleteService
                 // === XỬ LÝ KHI THÀNH CÔNG (TRONG CÙNG 1 TRANSACTION) ===
 
                 // 1. Trừ tồn kho (trên các entity đã được EF Core theo dõi)
-                foreach (var item in order.OrderItems)
+                foreach (var item in message.Items)
                 {
                     if (productsToUpdate.TryGetValue(item.ProductId, out var product))
                     {
@@ -131,23 +121,20 @@ namespace OrderCompleteService
                 // UpdateAsync sẽ tự động set LastModifiedAt (tức UpdatedAt) do cấu hình AuditableBaseEntity
                 await _orderRepository.UpdateAsync(order);
 
-                // 5. Ghi lịch sử và publish events sau khi DB đã được cập nhật thành công
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "OrderCompleteEvent", "Đơn hàng hoàn tất, đã trừ kho và vô hiệu hóa timer.");
-                var successNoti = new NotificationPayLoad(
-                    message.CustomerId, "Đơn hàng hoàn tất", "Đơn hàng của bạn đã hoàn tất thành công.", "Success", DateTime.UtcNow);
-                await context.Publish(new OrderCompleteSuccessResponse(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, successNoti, DateTime.UtcNow));
+                // 5. Ghi lịch sử và publish event cho Saga sau khi DB đã được cập nhật thành công
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "CompleteOrderCommand", "Đơn hàng hoàn tất, đã trừ kho và vô hiệu hóa timer.");
+
+                await context.Publish(new OrderCompletedEvent(
+                    Guid.NewGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
                 _logger.LogInformation("Complete thành công OrderId={OrderId}. Đã trừ kho và vô hiệu hóa timer.", message.OrderId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi hoàn tất OrderId={OrderId}. Kích hoạt bồi hoàn.", message.OrderId);
                 var errorReason = $"Lỗi hệ thống khi hoàn tất: {ex.Message}";
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderCompleteEvent", errorReason);
-                var exceptionNoti = new NotificationPayLoad(
-                    message.CustomerId, "Hoàn tất đơn hàng thất bại", "Đã có lỗi hệ thống xảy ra khi hoàn tất đơn hàng của bạn.", "Error", DateTime.UtcNow);
-                await context.Publish(new OrderCompleteFailedResponse(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, exceptionNoti, DateTime.UtcNow));
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", errorReason);
+                await context.Publish(new OrderCompleteFailedEvent(
+                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
             }
         }
 

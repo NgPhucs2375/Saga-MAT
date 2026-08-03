@@ -8,9 +8,9 @@ using Onion.CleanArchitecture.Domain.Events;
 namespace OrderSubmitService
 {
     /// <summary>
-    /// Consumer xử lý OrderSubmittedEvent từ OrderSubmitService
+    /// Consumer xử lý ValidateOrderCommand từ Saga để validate sản phẩm & tồn kho
     /// </summary>
-    public class OrderSubmitConsumer : IConsumer<OrderSubmittedEvent>
+    public class OrderSubmitConsumer : IConsumer<ValidateOrderCommand>
     {
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
@@ -28,17 +28,17 @@ namespace OrderSubmitService
             _logger = logger;
         }
 
-        // === Hàm Tiêu thụ OrderSubmittedEvent === //
-        public async Task Consume(ConsumeContext<OrderSubmittedEvent> context)
+        // === Hàm Tiêu thụ ValidateOrderCommand === //
+        public async Task Consume(ConsumeContext<ValidateOrderCommand> context)
         {
-            // message = OrderSubmittedEvent
+            // message = ValidateOrderCommand
             var message = context.Message;
-            // Log cho ra string Nhận được event với ID 
-            _logger.LogInformation("Nhận OrderSubmittedEvent OrderId={OrderId}", message.OrderId);
+            // Log cho ra string Nhận được command với ID
+            _logger.LogInformation("Nhận ValidateOrderCommand OrderId={OrderId}", message.OrderId);
 
             // 1-2. Validate sản phẩm tồn tại (+ IsActive) và tồn kho đủ
-            var errors = new List<string>(); // biến chứ list lỗi 
-            foreach (var item in message.Items) // Lặp qua all Items trong OrderSubmittedEvent
+            var errors = new List<string>(); // biến chứ list lỗi
+            foreach (var item in message.Items) // Lặp qua all Items trong ValidateOrderCommand
             {
                 // biến hứng dữ liệu của sản phẩm theo ID
                 var product = await _productRepository.GetProductByIdAsync(item.ProductId);
@@ -54,32 +54,23 @@ namespace OrderSubmitService
 
             // Biến check xem có lỗi hay không, nếu errors.Count > 0 thì là có lỗi
             var isSuccess = errors.Count == 0;
-            // === Noti === //
-            var noti = new NotificationPayLoad(
-                message.CustomerId,
-                "Đơn hàng",
-                isSuccess ? "Đơn hàng đã được xác nhận." : "Đơn hàng đã bị từ chối.",
-                isSuccess ? "Success" : "Error",
-                DateTime.UtcNow);
 
             if (!isSuccess)
             {
-                // 4. Fail
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderSubmittedEvent", string.Join("; ", errors));
-                await context.Publish(new OrderSubmitFailedResponse(
+                // Fail -> OrderValidationFailedEvent để Saga chuyển Rejected
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ValidateOrderCommand", string.Join("; ", errors));
+                await context.Publish(new OrderValidationFailedEvent(
                     Guid.NewGuid(), message.OrderId, message.CustomerId,
-                    string.Join("; ", errors), noti, DateTime.UtcNow));
-                _logger.LogWarning("Submit thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
+                    string.Join("; ", errors), DateTime.UtcNow));
+                _logger.LogWarning("Validate thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
             }
 
-            // 3. Pass -> Success Response + kích hoạt Accept
-            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "OrderSubmittedEvent", "Validate thành công.");
-            await context.Publish(new OrderSubmitSuccessResponse(
-                Guid.NewGuid(), message.OrderId, message.CustomerId, noti, DateTime.UtcNow));
-            await context.Publish(new ProcessOrderAcceptCommand(
-                Guid.NewGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
-            _logger.LogInformation("Submit thành công OrderId={OrderId}, chuyển tiếp OrderAcceptService", message.OrderId);
+            // Pass -> OrderValidatedEvent để Saga gửi AcceptOrderCommand
+            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "ValidateOrderCommand", "Validate thành công.");
+            await context.Publish(new OrderValidatedEvent(
+                Guid.NewGuid(), message.OrderId, message.CustomerId, message.Items, DateTime.UtcNow));
+            _logger.LogInformation("Validate thành công OrderId={OrderId}, Saga sẽ gửi AcceptOrderCommand", message.OrderId);
         }
 
         // === Hàm ghi OrderHistory === //
