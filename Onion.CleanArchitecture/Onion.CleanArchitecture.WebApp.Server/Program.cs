@@ -30,7 +30,6 @@ _services.Configure<SqlTransportOptions>(options =>
 // Đăng ký MassTransit để WebApp có thể publish events (khởi tạo Saga)
 _services.AddMassTransit(x =>
 {
-    // x.SetLicense("developer"); 
     x.SetKebabCaseEndpointNameFormatter();
    
         x.UsingPostgres((context, cfg) =>

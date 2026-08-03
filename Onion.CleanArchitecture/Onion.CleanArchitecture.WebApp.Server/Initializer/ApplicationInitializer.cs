@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Onion.CleanArchitecture.Infrastructure.Identity.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Identity.Models;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
+using Dapper;
+using Npgsql;
 using Serilog;
 
 namespace Onion.CleanArchitecture.WebApp.Server.Initializer
@@ -29,9 +31,9 @@ namespace Onion.CleanArchitecture.WebApp.Server.Initializer
             try
             {
                 var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.EnsureCreated();
+                await dbContext.Database.MigrateAsync();
                 var identityDbContext = _serviceProvider.GetRequiredService<IdentityContext>();
-                identityDbContext.Database.EnsureCreated();
+                await identityDbContext.Database.MigrateAsync();
 
                 var userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -41,6 +43,10 @@ namespace Onion.CleanArchitecture.WebApp.Server.Initializer
                 await Infrastructure.Identity.Seeds.DefaultBasicUser.SeedAsync(userManager, roleManager);
                 Log.Information("Hoàn thành khởi tạo dữ liệu mặc định");
                 Log.Information("BẮT ĐẦU KHỞI TẠO DỮ LIỆU MẪU");
+                using (var conn = new NpgsqlConnection(config.GetConnectionString("PostgresConnection")))
+                {
+                    await conn.ExecuteAsync("CREATE SCHEMA IF NOT EXISTS transport;");
+                }
             }
             catch (Exception ex)
             {
