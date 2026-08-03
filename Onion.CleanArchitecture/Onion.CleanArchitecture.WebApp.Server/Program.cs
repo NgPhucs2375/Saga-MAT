@@ -27,7 +27,10 @@ _services.Configure<SqlTransportOptions>(options =>
 {
     options.ConnectionString = _config.GetConnectionString("PostgresConnection");
 });
-// Đăng ký MassTransit để WebApp có thể publish events (khởi tạo Saga)
+// Tự động tạo schema transport (bảng, queues, functions như create_queue_v2...) cho MassTransit
+// BẮT BUỘC phải đăng ký TRƯỚC AddMassTransit để DB sẵn sàng trước khi bus khởi động
+_services.AddPostgresMigrationHostedService();
+// Đăng ký MassTransit để WebApp có thể publish events (kế tạo Saga)
 _services.AddMassTransit(x =>
 {
     x.SetKebabCaseEndpointNameFormatter();
@@ -42,6 +45,8 @@ _services.AddMassTransit(x =>
 if (_env.IsDevelopment())
 {
     _services.AddSwaggerExtension();
+    // 1 lenh `dotnet run` -> tu dong spawn cac microservice con lai (Saga + Notification)
+    _services.AddHostedService<MicroserviceLauncherHostedService>();
 }
 
 _services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
