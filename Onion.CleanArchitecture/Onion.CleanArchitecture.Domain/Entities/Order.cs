@@ -2,11 +2,13 @@ using Onion.CleanArchitecture.Domain.Common;
 using Onion.CleanArchitecture.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Onion.CleanArchitecture.Domain.Entities
 {
     public class Order : AuditableBaseEntity
     {
+        [Key]
         public Guid OrderId { get; set; }
         public string OrderCode { get; set; }
         public string CustomerId { get; set; }

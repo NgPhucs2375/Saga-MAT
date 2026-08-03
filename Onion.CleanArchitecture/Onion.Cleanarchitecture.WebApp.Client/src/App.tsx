@@ -27,6 +27,7 @@ import {
   CloneProduct,
   CloneRole,
   CloneRoleClaim,
+  CreateOrder,
   CreateProduct,
   CreateRangeProduct,
   CreateRole,
@@ -35,6 +36,7 @@ import {
   EditProduct,
   EditRole,
   EditRoleClaim,
+  ListOrder,
   ListProduct,
   ListRole,
   ListRoleClaim,
@@ -102,6 +104,32 @@ const App: React.FC = () => {
                         fallback={<Unauthorized />}
                       >
                         <Dashboard />
+                      </CanAccess>
+                    }
+                  />
+                </Route>
+                <Route path="orders">
+                  <Route
+                    index
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="list"
+                        fallback={<Unauthorized />}
+                      >
+                        <ListOrder />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path="create"
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="create"
+                        fallback={<Unauthorized />}
+                      >
+                        <CreateOrder />
                       </CanAccess>
                     }
                   />

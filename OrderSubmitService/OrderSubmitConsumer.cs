@@ -8,9 +8,9 @@ using Onion.CleanArchitecture.Domain.Events;
 namespace OrderSubmitService
 {
     /// <summary>
-    /// Consumer xử lý OrderSubmittedEvent từ OrderSubmitService
+    /// Consumer xử lý ValidateOrderCommand từ OrderSubmitService
     /// </summary>
-    public class OrderSubmitConsumer : IConsumer<OrderSubmittedEvent>
+    public class OrderSubmitConsumer : IConsumer<ValidateOrderCommand>
     {
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
@@ -54,30 +54,22 @@ namespace OrderSubmitService
 
             // Biến check xem có lỗi hay không, nếu errors.Count > 0 thì là có lỗi
             var isSuccess = errors.Count == 0;
-            // === Noti === //
-            var noti = new NotificationPayLoad(
-                message.CustomerId,
-                "Đơn hàng",
-                isSuccess ? "Đơn hàng đã được xác nhận." : "Đơn hàng đã bị từ chối.",
-                isSuccess ? "Success" : "Error",
-                DateTime.UtcNow);
+
 
             if (!isSuccess)
             {
                 // 4. Fail
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderSubmittedEvent", string.Join("; ", errors));
-                await context.Publish(new OrderSubmitFailedResponse(
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderValidationFailedEvent", string.Join("; ", errors));
+                await context.Publish(new OrderValidationFailedEvent(
                     Guid.NewGuid(), message.OrderId, message.CustomerId,
-                    string.Join("; ", errors), noti, DateTime.UtcNow));
+                    string.Join("; ", errors), DateTime.UtcNow));
                 _logger.LogWarning("Submit thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
             }
 
             // 3. Pass -> Success Response + kích hoạt Accept
-            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "OrderSubmittedEvent", "Validate thành công.");
-            await context.Publish(new OrderSubmitSuccessResponse(
-                Guid.NewGuid(), message.OrderId, message.CustomerId, noti, DateTime.UtcNow));
-            await context.Publish(new ProcessOrderAcceptCommand(
+            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "OrderValidatedEvent", "Validate thành công.");
+            await context.Publish(new OrderValidatedEvent(
                 Guid.NewGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
             _logger.LogInformation("Submit thành công OrderId={OrderId}, chuyển tiếp OrderAcceptService", message.OrderId);
         }

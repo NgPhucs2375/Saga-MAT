@@ -108,8 +108,8 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Environments
             try
             {
                 var connectionFactory = GetConnectionFactory();
-                using (var connection = connectionFactory.CreateConnection())
-                using (var channel = connection.CreateModel())
+                using (var connection = connectionFactory.CreateConnectionAsync().GetAwaiter().GetResult())
+                using (var channel = connection.CreateChannelAsync().GetAwaiter().GetResult())
                 {
                     // Kiểm tra kết nối tới RabbitMQ bằng cách khởi tạo kết nối và kênh
                     return connection.IsOpen && channel.IsOpen;

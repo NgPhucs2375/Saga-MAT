@@ -118,7 +118,7 @@ Chuyển hệ thống hiện tại từ **Choreography** (mỗi consumer tự pu
 
 ## 6. SAGA REPOSITORY — `OrderState`
 
-- Package `MassTransit.EntityFrameworkCore` **9.2.0** (khớp các service).
+- Package `MassTransit.EntityFrameworkCore` **8.4.1** (khớp các service).
 - Entity `OrderState : SagaStateMachineInstance`: `CorrelationId` (=OrderId, PK), `CurrentState`, `CustomerId`, `TotalAmount`, `CreatedAt`.
 - `OrderStateMap : SagaClassMap<OrderState>` → table `OrderState`, `CurrentState` max 64.
 - DbContext `OrderSagaDbContext` (Npgsql) + `DesignTimeDbContextFactory` → tạo migration + `dotnet ef database update`.
@@ -166,7 +166,7 @@ Chuyển hệ thống hiện tại từ **Choreography** (mỗi consumer tự pu
 
 ## 10. THỨ TỰ THỰC HIỆN
 
-1. Domain: thêm event mới + obsolete event cũ
+1. Domain: thêm event mới + xóa event cũ
 2. `OrderState` + `OrderSagaDbContext` + migration (`dotnet ef database update`)
 3. Tạo `OrderOrchestratorService` (project mới, thêm vào .sln)
 4. Sửa 3 consumer + Program.cs + thêm `CancelOrderConsumer`; xóa `OrderTimeoutConsumer` + `ShippingFailedConsumer`
@@ -178,7 +178,7 @@ Chuyển hệ thống hiện tại từ **Choreography** (mỗi consumer tự pu
 
 ## 11. RỦI RO & CẠM BẪY
 
-1. **MassTransit version**: saga repo phải 9.2.0 (tránh NU1605 với 7.3.0 transitive từ Application).
+1. **MassTransit version**: dùng **8.4.1** chính thức (miễn phí, Apache-2.0) thống nhất toàn bộ service — không dùng gói **9.2.0** (massient.com) vì đó là bản giả mạo, yêu cầu license trả phí.
 2. **Correlation**: mọi event phải có `OrderId` + `CorrelateById`; thiếu → saga không match instance.
 3. **Migration saga table**: phải update DB trước khi start orchestrator.
 4. **Message tăng gấp đôi**: mỗi bước = command + response (chấp nhận, bản chất orchestration).

@@ -9,9 +9,9 @@ using Onion.CleanArchitecture.Domain.Events;
 namespace OrderCompleteService
 {
     /// <summary>
-    /// Consumer xử lý OrderCompleteEvent từ OrderCompleteService
+    /// Consumer xử lý CompleteOrderCommand từ OrderCompleteService
     /// </summary>
-    public class OrderCompleteConsumer : IConsumer<OrderCompleteEvent>
+    public class OrderCompleteConsumer : IConsumer<CompleteOrderCommand>
     {
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
@@ -88,17 +88,12 @@ namespace OrderCompleteService
             if (!isSuccess)
             {
                 var errorReason = string.Join("; ", errors);
-                var validationFailureNoti = new NotificationPayLoad(
-                    message.CustomerId,
-                    "Hoàn tất đơn hàng thất bại",
-                    "Hoàn tất đơn hàng thất bại do vấn đề tồn kho.",
-                    "Error",
-                    DateTime.UtcNow);
 
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderCompleteEvent", string.Join("; ", errors));
-                await context.Publish(new OrderCompleteFailedResponse(
+
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderCompleteFailedEvent", string.Join("; ", errors));
+                await context.Publish(new OrderCompleteFailedEvent(
                     Guid.NewGuid(), message.OrderId, message.CustomerId,
-                    errorReason, validationFailureNoti, DateTime.UtcNow));
+                    errorReason, DateTime.UtcNow));
                 _logger.LogWarning("Complete thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
             }
@@ -133,10 +128,8 @@ namespace OrderCompleteService
 
                 // 5. Ghi lịch sử và publish events sau khi DB đã được cập nhật thành công
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "OrderCompleteEvent", "Đơn hàng hoàn tất, đã trừ kho và vô hiệu hóa timer.");
-                var successNoti = new NotificationPayLoad(
-                    message.CustomerId, "Đơn hàng hoàn tất", "Đơn hàng của bạn đã hoàn tất thành công.", "Success", DateTime.UtcNow);
-                await context.Publish(new OrderCompleteSuccessResponse(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, successNoti, DateTime.UtcNow));
+                await context.Publish(new OrderCompletedEvent(
+                    Guid.NewGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
                 _logger.LogInformation("Complete thành công OrderId={OrderId}. Đã trừ kho và vô hiệu hóa timer.", message.OrderId);
             }
             catch (Exception ex)
@@ -146,8 +139,8 @@ namespace OrderCompleteService
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderCompleteEvent", errorReason);
                 var exceptionNoti = new NotificationPayLoad(
                     message.CustomerId, "Hoàn tất đơn hàng thất bại", "Đã có lỗi hệ thống xảy ra khi hoàn tất đơn hàng của bạn.", "Error", DateTime.UtcNow);
-                await context.Publish(new OrderCompleteFailedResponse(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, exceptionNoti, DateTime.UtcNow));
+                await context.Publish(new OrderCompleteFailedEvent(
+                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
             }
         }
 

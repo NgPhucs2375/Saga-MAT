@@ -29,8 +29,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddMassTransit(x =>
         {
             x.AddConsumer<OrderAcceptConsumer>();
-            x.AddConsumer<OrderTimeoutConsumer>();
-            x.AddConsumer<OrderCompleteFailedConsumer>();
+            x.AddConsumer<CancelOrderConsumer>();
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có

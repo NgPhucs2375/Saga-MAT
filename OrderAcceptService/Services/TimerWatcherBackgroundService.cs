@@ -64,11 +64,8 @@ namespace OrderAcceptService.Services
 
                 var targetAction = timer.Status == TargetStatus.Completed ? "Complete" : "Reject";
 
-                await _bus.Publish(new OrderAutoTimeoutExpiredEvent(
-                    Guid.NewGuid(),
-                    timer.OrderId,
-                    targetAction,
-                    DateTime.UtcNow));
+                var order = await orderRepo.GetByIdAsync(timer.OrderId);
+                if (order == null) continue;
 
                 timer.TimerStatus = TimerStatus.Processed;
                 await timerRepo.UpdateAsync(timer);

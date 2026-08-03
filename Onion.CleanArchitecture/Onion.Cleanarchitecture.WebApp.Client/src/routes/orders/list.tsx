@@ -1,13 +1,11 @@
 import {
   useTable,
   List,
-  ShowButton,
-  DeleteButton,
   getDefaultSortOrder,
   DateField,
   FilterDropdown,
 } from "@refinedev/antd";
-import { Table, Space, Input, Tag, Button, Select, DatePicker } from "antd";
+import { Table, Input, Tag, Button, Select, DatePicker } from "antd";
 import {
   getDefaultFilter,
   useNavigation,
@@ -20,10 +18,10 @@ export const ListOrder = () => {
   const { tableProps, sorters, filters } = useTable<IOrder>({
     resource: "orders",
     pagination: { current: 1, pageSize: 10 },
-    sorters: { initial: [{ field: "Created", order: "desc" }] },
+    sorters: { initial: [{ field: "CreatedAt", order: "desc" }] },
   });
 
-  const { create } = useNavigate();
+  const { create } = useNavigation();
 
   return (
     <List
@@ -120,19 +118,19 @@ export const ListOrder = () => {
 
         {/* Ngày tạo */}
         <Table.Column
-          dataIndex="Created"
+          dataIndex="CreatedAt"
           title="Ngày tạo"
           render={(value) => (
             <DateField format="DD/MM/YYYY HH:mm" value={value} />
           )}
-          defaultFilteredValue={getDefaultFilter("Created", filters, "between")}
+          defaultFilteredValue={getDefaultFilter("CreatedAt", filters, "between")}
           filterDropdown={(props) => (
             <FilterDropdown {...props}>
               <DatePicker.RangePicker />
             </FilterDropdown>
           )}
           sorter
-          defaultSortOrder={getDefaultSortOrder("Created", sorters)}
+          defaultSortOrder={getDefaultSortOrder("CreatedAt", sorters)}
           width={180}
         />
 
@@ -144,19 +142,6 @@ export const ListOrder = () => {
             value ? <DateField format="DD/MM/YYYY HH:mm" value={value} /> : "-"
           }
           width={180}
-        />
-
-        {/* Actions */}
-        <Table.Column
-          title="Thao tác"
-          fixed="right"
-          width={100}
-          render={(_, record: IOrder) => (
-            <Space>
-              <ShowButton hideText size="small" recordItemId={record.OrderId} />
-              <DeleteButton hideText size="small" recordItemId={record.OrderId} />
-            </Space>
-          )}
         />
       </Table>
     </List>

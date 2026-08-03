@@ -26,7 +26,6 @@ var host = Host.CreateDefaultBuilder(args)
         });
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<ShippingFailedConsumer>();
             x.AddConsumer<OrderCompleteConsumer>();
             x.SetKebabCaseEndpointNameFormatter();
             x.UsingPostgres((context, cfg) =>

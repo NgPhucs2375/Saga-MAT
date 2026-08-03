@@ -50,8 +50,6 @@ builder.Services.AddSharedInfrastructure(builder.Configuration);
 builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
 // === MassTransit: consume các Response event === //
-// MassTransit 9.x yêu cầu license. Ưu tiên từ appsettings MassTransit:License, fallback env MT_LICENSE.
-var massTransitLicense = builder.Configuration["MassTransit:License"] ?? Environment.GetEnvironmentVariable("MT_LICENSE");
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<OrderSubmitSuccessConsumer>();
@@ -62,10 +60,6 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<OrderCompleteFailedConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
-        if (!string.IsNullOrWhiteSpace(massTransitLicense))
-        {
-            cfg.SetLicense(massTransitLicense);
-        }
         cfg.Host("rabbitmq://localhost");
         cfg.ReceiveEndpoint("notification-queue", e =>
         {

@@ -9,9 +9,9 @@ using Onion.CleanArchitecture.Domain.Events;
 namespace OrderAcceptService
 {
     /// <summary>
-    /// Consumer xử lý OrderSubmittedEvent từ OrderAcceptService
+    /// Consumer xử lý AcceptOrderCommand từ OrderAcceptService
     /// </summary>
-    public class OrderAcceptConsumer : IConsumer< ProcessOrderAcceptCommand>
+    public class OrderAcceptConsumer : IConsumer<AcceptOrderCommand>
     {
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
@@ -85,13 +85,11 @@ namespace OrderAcceptService
                     order.RejectedAt = DateTime.UtcNow; 
                     await _orderRepository.UpdateAsync(order);
 
-                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ProcessOrderAcceptCommand", errorReason);
+                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderAcceptFailedEvent", errorReason);
 
-                    var noti = new NotificationPayLoad(
-                        message.CustomerId, "Đơn hàng bị từ chối", "Đơn hàng của bạn đã bị từ chối do không đủ điều kiện.", "Error", DateTime.UtcNow);
 
-                    await context.Publish(new OrderAcceptFailedResponse(
-                        Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, noti, DateTime.UtcNow));
+                    await context.Publish(new OrderAcceptFailedEvent(
+                        Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
 
                     _logger.LogWarning("Accept thất bại OrderId={OrderId}: {Errors}", message.OrderId, errorReason);
                     return;
@@ -120,13 +118,11 @@ namespace OrderAcceptService
                 await context.Publish(new OrderAcceptedEvent(
                     Guid.NewGuid(), message.OrderId, message.CustomerId, _configuration.GetValue<int>("OrderAcceptTimeoutMinutes"), DateTime.UtcNow));
 
-                var successNoti = new NotificationPayLoad(
-                    message.CustomerId, "Đơn hàng đã được duyệt", "Đơn hàng của bạn đã được duyệt thành công và đang được xử lý.", "Success", DateTime.UtcNow);
 
                 await context.Publish(new OrderAcceptSuccessResponse(
                     Guid.NewGuid(), message.OrderId, message.CustomerId, successNoti, DateTime.UtcNow));
 
-                await context.Publish(new OrderCompleteEvent(
+                await context.Publish(new OrderAcceptedEvent(
                     Guid.NewGuid(), message.OrderId, message.CustomerId,
                     order.OrderItems.Select(oi => new OrderItemDto(oi.ProductId, oi.Quantity, oi.UnitPrice)).ToList(),
                     DateTime.UtcNow));
@@ -145,7 +141,7 @@ namespace OrderAcceptService
                     order.RejectedAt = DateTime.UtcNow;
                     await _orderRepository.UpdateAsync(order);
 
-                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ProcessOrderAcceptCommand", errorReason);
+                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "OrderAcceptFailedEvent", errorReason);
 
                     var noti = new NotificationPayLoad(
                         message.CustomerId, "Đơn hàng thất bại", "Đã có lỗi xảy ra trong quá trình xử lý đơn hàng của bạn.", "Error", DateTime.UtcNow);

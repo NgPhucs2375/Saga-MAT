@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Input, InputNumber, Select, Button, Space, Card, Divider, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useList } from "@refinedev/core";
@@ -27,7 +27,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({
   const [items, setItems] = useState<any[]>([]);
 
   // Lắng nghe giá trị form thay đổi để tính lại tổng tiền
-  const onValuesChange = (changedValues: any, allValues: any) => {
+  const onValuesChange = (_changedValues: any, allValues: any) => {
     if (allValues.Items) {
       setItems(allValues.Items);
     }

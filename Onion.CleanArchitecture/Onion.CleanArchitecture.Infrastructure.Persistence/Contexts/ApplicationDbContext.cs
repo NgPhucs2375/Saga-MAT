@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿﻿using Microsoft.EntityFrameworkCore;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Domain.Common;
 using Onion.CleanArchitecture.Domain.Entities;
@@ -36,7 +36,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
         public DbSet<OrderTimer> OrderTimers => Set<OrderTimer>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<EventStore> EventStores => Set<EventStore>();
-        public DbSet<Product> Product => Set<Product>();
+        public DbSet<Product> Products => Set<Product>();
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

@@ -1,21 +1,21 @@
 using System;
-using System.Collections.Generic;
 
 namespace Onion.CleanArchitecture.Domain.Events
 {
     /// <summary>
-    /// Event/Command yêu cầu hoàn tất đơn hàng và trừ kho
+    /// OrderSubmitService thông báo validate THẤT BẠI -> Saga reject đơn hàng
     /// </summary>
     /// <param name="EventId"></param>
     /// <param name="OrderId"></param>
     /// <param name="CustomerId"></param>
-    /// <param name="Items"></param>
+    /// <param name="ErrorMessage"></param>
     /// <param name="Timestamp"></param>
-    public record OrderCompleteEvent(
+     public record OrderValidationFailedEvent(
         Guid EventId,
         Guid OrderId,
         Guid CustomerId,
-        List<OrderItemDto> Items,
+        string ErrorMessage,
         DateTime Timestamp
-    ):IOrderEvent;
+    ) : IOrderEvent;
+
 }

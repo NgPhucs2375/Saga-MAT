@@ -2,6 +2,7 @@ import type { IResourceItem } from "@refinedev/core";
 
 import {
   DashboardOutlined,
+  ShoppingCartOutlined,
   TeamOutlined,
   UserOutlined,
   UserSwitchOutlined,
@@ -14,6 +15,15 @@ export const resources: IResourceItem[] = [
     meta: {
       label: "Dashboard",
       icon: <DashboardOutlined />,
+    },
+  },
+  {
+    name: "orders",
+    list: "/orders",
+    create: "/orders/create",
+    meta: {
+      label: "Đơn hàng",
+      icon: <ShoppingCartOutlined />,
     },
   },
   {

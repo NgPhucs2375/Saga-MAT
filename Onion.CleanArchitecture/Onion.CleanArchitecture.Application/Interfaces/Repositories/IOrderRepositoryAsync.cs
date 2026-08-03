@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrders;
+using Onion.CleanArchitecture.Application.Wrappers;
 using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Enums;
 
@@ -12,5 +14,6 @@ namespace Onion.CleanArchitecture.Application.Interfaces.Repositories{
         Task<IReadOnlyList<Order>> GetByCustomerAsync(string customerId);
         Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status);
         Task<IReadOnlyList<OrderItem>> GetOrderItemsAsync(Guid orderId);
+        Task<PagedList<Order>> GetPagedOrdersAsync(GetAllOrdersParameter parameter);
     }
 }

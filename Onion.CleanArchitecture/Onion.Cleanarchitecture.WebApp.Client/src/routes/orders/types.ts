@@ -40,7 +40,7 @@ export interface IOrder {
   TotalAmount: number;
   ShippingAddress: string;
   Note: string;
-  Created: string;
+  CreatedAt: string;
   UpdatedAt?: string;
   CompletedAt?: string;
   RejectedAt?: string;
