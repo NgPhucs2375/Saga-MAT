@@ -1,0 +1,993 @@
+Using launch settings from D:\Univer\Nam_4\VB\Demo-Saga\Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server\Properties\launchSettings.json...
+Building...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (32ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[@normalizedName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedName
+      LIMIT 1
+warn: Microsoft.AspNetCore.Identity.RoleManager[0]
+      Role ad439f65-5fea-4b64-9bad-e84dacd5f176 validation failed: DuplicateRoleName.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedName
+      LIMIT 1
+warn: Microsoft.AspNetCore.Identity.RoleManager[0]
+      Role adc3a1ee-1eb8-40da-93f4-eb8be54e3269 validation failed: DuplicateRoleName.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedName
+      LIMIT 1
+warn: Microsoft.AspNetCore.Identity.RoleManager[0]
+      Role 47d283cf-070c-4af2-b9aa-91d60d70a428 validation failed: DuplicateRoleName.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedName
+      LIMIT 1
+warn: Microsoft.AspNetCore.Identity.RoleManager[0]
+      Role b635bec8-9161-4068-8574-42e9ba2a5983 validation failed: DuplicateRoleName.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@normalizedEmail='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."AccessFailedCount", u."ConcurrencyStamp", u."Email", u."EmailConfirmed", u."FirstName", u."LastName", u."LockoutEnabled", u."LockoutEnd", u."NormalizedEmail", u."NormalizedUserName", u."PasswordHash", u."PhoneNumber", u."PhoneNumberConfirmed", u."SecurityStamp", u."TwoFactorEnabled", u."UserName"
+      FROM "Identity"."User" AS u
+      WHERE u."NormalizedEmail" = @normalizedEmail
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."AccessFailedCount", u."ConcurrencyStamp", u."Email", u."EmailConfirmed", u."FirstName", u."LastName", u."LockoutEnabled", u."LockoutEnd", u."NormalizedEmail", u."NormalizedUserName", u."PasswordHash", u."PhoneNumber", u."PhoneNumberConfirmed", u."SecurityStamp", u."TwoFactorEnabled", u."UserName"
+      FROM "Identity"."User" AS u
+      WHERE u."NormalizedUserName" = @normalizedUserName
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@p16='?', @p0='?' (DbType = Int32), @p1='?', @p17='?', @p2='?', @p3='?' (DbType = Boolean), @p4='?', @p5='?', @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?', @p9='?', @p10='?', @p11='?', @p12='?' (DbType = Boolean), @p13='?', @p14='?' (DbType = Boolean), @p15='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "Identity"."User" SET "AccessFailedCount" = @p0, "ConcurrencyStamp" = @p1, "Email" = @p2, "EmailConfirmed" = @p3, "FirstName" = @p4, "LastName" = @p5, "LockoutEnabled" = @p6, "LockoutEnd" = @p7, "NormalizedEmail" = @p8, "NormalizedUserName" = @p9, "PasswordHash" = @p10, "PhoneNumber" = @p11, "PhoneNumberConfirmed" = @p12, "SecurityStamp" = @p13, "TwoFactorEnabled" = @p14, "UserName" = @p15
+      WHERE "Id" = @p16 AND "ConcurrencyStamp" = @p17;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedRoleName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedRoleName
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p='?', @p1='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."UserId", u."RoleId"
+      FROM "Identity"."UserRoles" AS u
+      WHERE u."UserId" = @p AND u."RoleId" = @p1
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."ConcurrencyStamp", r."Name", r."NormalizedName"
+      FROM "Identity"."Role" AS r
+      WHERE r."NormalizedName" = @normalizedName
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@role_Id='?'], CommandType='Text', CommandTimeout='30']
+      SELECT r."ClaimType", r."ClaimValue"
+      FROM "Identity"."RoleClaims" AS r
+      WHERE r."RoleId" = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@defaultUser_Id='?'], CommandType='Text', CommandTimeout='30']
+      SELECT NOT EXISTS (
+          SELECT 1
+          FROM "Identity"."User" AS u
+          WHERE u."Id" = @defaultUser_Id)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."AccessFailedCount", u."ConcurrencyStamp", u."Email", u."EmailConfirmed", u."FirstName", u."LastName", u."LockoutEnabled", u."LockoutEnd", u."NormalizedEmail", u."NormalizedUserName", u."PasswordHash", u."PhoneNumber", u."PhoneNumberConfirmed", u."SecurityStamp", u."TwoFactorEnabled", u."UserName"
+      FROM "Identity"."User" AS u
+      WHERE u."NormalizedEmail" = @normalizedEmail
+      LIMIT 2
+[11:03:24 INF] Hoàn thành khởi tạo dữ liệu mặc định
+[11:03:24 INF] BẮT ĐẦU KHỞI TẠO DỮ LIỆU MẪU
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [Launcher] Started OrderSubmitService (PID 26160)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [Launcher] Started OrderOrchestration (PID 23044)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [Launcher] Started OrderAcceptService (PID 5480)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [Launcher] Started OrderCompleteService (PID 24088)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [Launcher] Started NotificationService (PID 26144)
+info: MassTransit[0]
+      Bus started: db://localhost/
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7058
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5220
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] Using launch settings from D:\Univer\Nam_4\VB\Demo-Saga\NotificationService\Properties\launchSettings.json...
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] Building...
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       Configured endpoint order-validation-queue, Consumer: OrderSubmitService.OrderSubmitConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Configured endpoint order-accept-queue, Consumer: OrderAcceptService.OrderAcceptConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Configured endpoint order-cancel-queue, Consumer: OrderAcceptService.CancelOrderConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       MassTransit SQL Transport creating database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       MassTransit SQL Transport creating database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       MassTransit SQL Transport creating schema for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       MassTransit SQL Transport creating schema for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Application started. Press Ctrl+C to shut down.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Hosting environment: Production
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderAcceptService
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: OrderAcceptService.Services.TimerWatcherBackgroundService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       TimerWatcherBackgroundService đã khởi động.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] fail: Microsoft.Extensions.Hosting.Internal.Host[11]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       Hosting failed to start
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       Npgsql.PostgresException (0x80004005): XX000: tuple concurrently updated
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Npgsql.NpgsqlCommand.ExecuteScalar(Boolean async, CancellationToken cancellationToken)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Dapper.SqlMapper.ExecuteScalarImplAsync[T](IDbConnection cnn, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 1241
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1480
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1487
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1487
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at MassTransit.SqlTransport.SqlTransportMigrationHostedService.StartAsync(CancellationToken cancellationToken) in /_/src/MassTransit/SqlTransport/SqlTransport/SqlTransportMigrationHostedService.cs:line 47
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]          at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]         Exception data:
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           Severity: ERROR
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           SqlState: XX000
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           MessageText: tuple concurrently updated
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           File: heapam.c
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           Line: 4509
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]           Routine: simple_heap_update
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] warn: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]       Failed to stop bus: db://localhost/WILL_OrderSubmitService_bus_yt1yyybbc7fj3uz8bdxxdzmu8t?autodelete=300 (Not Started)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService] Unhandled exception. Npgsql.PostgresException (0x80004005): XX000: tuple concurrently updated
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Npgsql.NpgsqlCommand.ExecuteScalar(Boolean async, CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Dapper.SqlMapper.ExecuteScalarImplAsync[T](IDbConnection cnn, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 1241
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1480
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1487
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at MassTransit.SqlTransport.PostgreSql.PostgresDatabaseMigrator.CreateInfrastructure(SqlTransportOptions options, CancellationToken cancellationToken) in /_/src/Transports/MassTransit.SqlTransport.PostgreSql/SqlTransport/PostgreSql/PostgresDatabaseMigrator.cs:line 1487
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at MassTransit.SqlTransport.SqlTransportMigrationHostedService.StartAsync(CancellationToken cancellationToken) in /_/src/MassTransit/SqlTransport/SqlTransport/SqlTransportMigrationHostedService.cs:line 47
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Bus started: db://localhost/
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Program.<Main>$(String[] args) in D:\Univer\Nam_4\VB\Demo-Saga\OrderSubmitService\Program.cs:line 56
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]    at Program.<Main>(String[] args)
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]   Exception data:
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     Severity: ERROR
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     SqlState: XX000
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     MessageText: tuple concurrently updated
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     File: heapam.c
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     Line: 4509
+warn: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderSubmitService]     Routine: simple_heap_update
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (38ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderSubmitFailedConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderAcceptFailedConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderCompleteSuccessConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderCompleteFailedConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       MassTransit SQL Transport creating database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       MassTransit SQL Transport creating schema for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: Microsoft.Hosting.Lifetime[14]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Now listening on: https://localhost:7201
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: Microsoft.Hosting.Lifetime[14]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Now listening on: http://localhost:5213
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] crit: Microsoft.AspNetCore.Hosting.Diagnostics[11]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Hosting startup assembly exception
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       System.InvalidOperationException: Startup assembly Microsoft.AspNetCore.SpaProxy failed to execute. See the inner exception for more details.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]        ---> System.IO.FileNotFoundException: Could not load file or assembly 'Microsoft.AspNetCore.SpaProxy, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       File name: 'Microsoft.AspNetCore.SpaProxy, Culture=neutral, PublicKeyToken=null'
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]          at System.Reflection.RuntimeAssembly.InternalLoad(AssemblyName assemblyName, StackCrawlMark& stackMark, AssemblyLoadContext assemblyLoadContext, RuntimeAssembly requestingAssembly, Boolean throwOnFileNotFound)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]          at System.Reflection.Assembly.Load(AssemblyName assemblyRef)
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]          at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.ExecuteHostingStartups()
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]          --- End of inner exception stack trace ---
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Application started. Press Ctrl+C to shut down.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Hosting environment: Development
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Content root path: D:\Univer\Nam_4\VB\Demo-Saga\NotificationService
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Bus started: db://localhost/
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       The property 'OrderState.Items' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Configured endpoint order-complete-queue, Consumer: OrderCompleteService.OrderCompleteConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Configured endpoint order-release-inventory-queue, Consumer: OrderCompleteService.ReleaseInventoryConsumer
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       MassTransit SQL Transport creating database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (92ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       SELECT "MigrationId", "ProductVersion"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       FROM "__EFMigrationsHistory"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       ORDER BY "MigrationId";
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       SELECT 1
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]           "MigrationId" character varying(150) NOT NULL,
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]           "ProductVersion" character varying(32) NOT NULL,
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]           CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       );
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Migrations[20411]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       SELECT "MigrationId", "ProductVersion"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       FROM "__EFMigrationsHistory"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       ORDER BY "MigrationId";
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Migrations[20405]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       No migrations were applied. The database is already up to date.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       MassTransit SQL Transport creating schema for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Application started. Press Ctrl+C to shut down.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Hosting environment: Production
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderCompleteService
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Bus started: db://localhost/
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Configured endpoint order-state, Saga: OrderOrchestration.OrderState, State Machine: OrderOrchestration.OrderSagaStateMachine
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       MassTransit SQL Transport creating database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       MassTransit SQL Transport creating schema for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Application started. Press Ctrl+C to shut down.
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Hosting environment: Production
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.Hosting.Lifetime[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderOrchestration
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Bus started: db://localhost/
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (23ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+warn: LuckyPennySoftware.AutoMapper.License[0]
+      You do not have a valid license key for the Lucky Penny software AutoMapper. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (69ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Product" AS p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      ORDER BY p."Id"
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@productId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      WHERE p."ProductId" = @productId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (28ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = Guid), @p10='?' (DbType = DateTime), @p11='?', @p12='?' (DbType = Int32), @p13='?' (DbType = Decimal), @p14='?' (DbType = DateTime), @p15='?' (DbType = DateTime), @p16='?', @p17='?' (DbType = DateTime), @p18='?', @p19='?' (DbType = Guid), @p20='?' (DbType = Guid), @p21='?' (DbType = Guid), @p22='?', @p23='?' (DbType = Int32), @p24='?' (DbType = Decimal)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Orders" ("CompletedAt", "CreatedAt", "CreatedBy", "CustomerId", "IsReserved", "LastModifiedAt", "LastModifiedBy", "Note", "OrderCode", "OrderId", "RejectedAt", "ShippingAddress", "Status", "TotalAmount", "UpdatedAt")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+      RETURNING "Id";
+      INSERT INTO "OrderItems" ("CreatedAt", "CreatedBy", "LastModifiedAt", "LastModifiedBy", "OrderId", "OrderItemId", "ProductId", "ProductName", "Quantity", "UnitPrice")
+      VALUES (@p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (15ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       FROM (
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]           SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       ) AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       LIMIT 2
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Object), @p7='?' (DbType = Boolean), @p8='?' (DbType = Decimal)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       INSERT INTO "OrderState" ("CorrelationId", "CreatedAt", "CurrentState", "CustomerId", "ErrorReason", "IsTimeout", "Items", "NeedReleaseInventory", "TotalAmount")
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8);
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (480ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Product" AS p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      ORDER BY p."Id"
+      LIMIT @p1 OFFSET @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Product" AS p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      ORDER BY p."Id"
+      LIMIT @p1 OFFSET @p
+info: MassTransit[0]
+      Usage Telemetry: {"id":"c0590000-2167-4a9c-92a8-08def1dd550d","created":"2026-08-04T11:03:25.0209693\u002B07:00","host":{"framework_version":"10.0.9","mass_transit_version":"8.5.7.0","operating_system_version":"Microsoft Windows NT 10.0.26200.0","time_zone_info":"(UTC\u002B07:00) Bangkok, Hanoi, Jakarta","commit_hash":"855cf1752c94ca9498e0c45ce8d09fdc9e957dd6"},"bus":[{"created":"2026-08-04T11:03:25.0234498\u002B07:00","configured":"2026-08-04T11:03:25.1202632\u002B07:00","started":"2026-08-04T11:03:26.3120008\u002B07:00","name":"IBus","endpoints":[{"name":"_bus_","type":"SQL","prefetch_count":24}]}]}
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Usage Telemetry: {"id":"0c630000-2167-4a9c-3ec7-08def1dd7415","created":"2026-08-04T11:04:17.0808413\u002B07:00","host":{"framework_version":"10.0.9","mass_transit_version":"8.5.7.0","operating_system_version":"Microsoft Windows NT 10.0.26200.0","time_zone_info":"(UTC\u002B07:00) Bangkok, Hanoi, Jakarta","commit_hash":"855cf1752c94ca9498e0c45ce8d09fdc9e957dd6"},"bus":[{"created":"2026-08-04T11:04:17.0942571\u002B07:00","configured":"2026-08-04T11:04:17.6808080\u002B07:00","started":"2026-08-04T11:04:20.3439321\u002B07:00","name":"IBus","endpoints":[{"name":"order-accept-queue","type":"SQL","prefetch_count":24,"consumer_count":1,"message_count":1},{"name":"order-cancel-queue","type":"SQL","prefetch_count":24,"consumer_count":1,"message_count":1},{"name":"_bus_","type":"SQL","prefetch_count":24}]}]}
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [NotificationService]       Usage Telemetry: {"id":"70360000-2167-4a9c-0f37-08def1dd790d","created":"2026-08-04T11:04:25.4161460\u002B07:00","host":{"framework_version":"10.0.9","mass_transit_version":"8.5.7.0","operating_system_version":"Microsoft Windows NT 10.0.26200.0","time_zone_info":"(UTC\u002B07:00) Bangkok, Hanoi, Jakarta","commit_hash":"855cf1752c94ca9498e0c45ce8d09fdc9e957dd6"},"bus":[{"created":"2026-08-04T11:04:25.4308205\u002B07:00","configured":"2026-08-04T11:04:26.0132516\u002B07:00","started":"2026-08-04T11:04:28.5068829\u002B07:00","name":"IBus","endpoints":[{"name":"notification-queue","type":"SQL","prefetch_count":24,"consumer_count":4,"message_count":4},{"name":"_bus_","type":"SQL","prefetch_count":24}]}]}
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (3ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderCompleteService]       Usage Telemetry: {"id":"3c3a0000-2167-4a9c-2540-08def1dd7dfb","created":"2026-08-04T11:04:33.6870056\u002B07:00","host":{"framework_version":"10.0.9","mass_transit_version":"8.5.7.0","operating_system_version":"Microsoft Windows NT 10.0.26200.0","time_zone_info":"(UTC\u002B07:00) Bangkok, Hanoi, Jakarta","commit_hash":"855cf1752c94ca9498e0c45ce8d09fdc9e957dd6"},"bus":[{"created":"2026-08-04T11:04:33.7478915\u002B07:00","configured":"2026-08-04T11:04:34.7591490\u002B07:00","started":"2026-08-04T11:04:37.0209438\u002B07:00","name":"IBus","endpoints":[{"name":"order-complete-queue","type":"SQL","prefetch_count":24,"consumer_count":1,"message_count":1},{"name":"order-release-inventory-queue","type":"SQL","prefetch_count":24,"consumer_count":1,"message_count":1},{"name":"_bus_","type":"SQL","prefetch_count":24}]}]}
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration] info: MassTransit[0]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderOrchestration]       Usage Telemetry: {"id":"5c0f0000-2167-4a9c-0064-08def1dd7fc2","created":"2026-08-04T11:04:36.6678708\u002B07:00","host":{"framework_version":"10.0.9","mass_transit_version":"8.5.7.0","operating_system_version":"Microsoft Windows NT 10.0.26200.0","time_zone_info":"(UTC\u002B07:00) Bangkok, Hanoi, Jakarta","commit_hash":"855cf1752c94ca9498e0c45ce8d09fdc9e957dd6"},"bus":[{"created":"2026-08-04T11:04:36.6791007\u002B07:00","configured":"2026-08-04T11:04:37.7915749\u002B07:00","started":"2026-08-04T11:04:39.2056810\u002B07:00","name":"IBus","endpoints":[{"name":"order-state","type":"SQL","prefetch_count":1,"saga_state_machine_count":1,"message_count":12},{"name":"_bus_","type":"SQL","prefetch_count":24}]}]}
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (3ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Product" AS p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      ORDER BY p."Id"
+      LIMIT @p1 OFFSET @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Orders" AS o
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p1='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      ORDER BY o."CreatedAt" DESC
+      LIMIT @p1 OFFSET @p
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (8ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       FROM "OrderTimers" AS o
+info: Onion.CleanArchitecture.WebApp.Server.Services.MicroserviceLauncherHostedService[0]
+      [OrderAcceptService]       WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now

@@ -13,5 +13,6 @@ namespace Onion.CleanArchitecture.Application.Interfaces.Repositories
         Task<int> DeleteRangeAsync(List<int> ids);
         Task<PagedList<Product>> GetPagedProductsAsync(GetAllProductsParameter parameter);
         Task<Onion.CleanArchitecture.Domain.Entities.Product> GetProductByIdAsync(Guid productId);
+        void MarkAsModified(Onion.CleanArchitecture.Domain.Entities.Product entity);
     }
 }

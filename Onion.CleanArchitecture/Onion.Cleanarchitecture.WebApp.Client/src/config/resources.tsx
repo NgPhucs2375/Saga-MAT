@@ -3,6 +3,7 @@ import type { IResourceItem } from "@refinedev/core";
 import {
   DashboardOutlined,
   TeamOutlined,
+  ShoppingCartOutlined,
   UserOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
@@ -27,6 +28,18 @@ export const resources: IResourceItem[] = [
       canDelete: true,
       label: "Products",
       icon: <UserOutlined />,
+    },
+  },
+  {
+    name: "orders",
+    list: "/orders",
+    create: "/orders/create",
+    edit: "/orders/:id/edit",
+    show: "/orders/:id",
+    meta: {
+      canDelete: true,
+      label: "Orders",
+      icon: <ShoppingCartOutlined />,
     },
   },
   {

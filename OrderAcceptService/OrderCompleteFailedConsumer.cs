@@ -70,7 +70,7 @@ namespace OrderAcceptService
                 var historyMessage = $"Hoàn lại trạng thái do Complete thất bại: {message.ErrorReason}";
                 await _orderHistoryRepository.AddAsync(new OrderHistory
                 {
-                    HistoryId = Guid.NewGuid(),
+                    HistoryId = NewId.NextGuid(),
                     OrderId = message.OrderId,
                     ConsumerName = "OrderCompleteFailedConsumer",
                     Status = HistoryStatus.Success,
@@ -88,7 +88,7 @@ namespace OrderAcceptService
 
                 // Sử dụng OrderAcceptFailedResponse để UI có thể tái sử dụng logic hiển thị lỗi
                 await context.Publish(new OrderAcceptFailedResponse(
-                    Guid.NewGuid(),
+                    NewId.NextGuid(),
                     message.OrderId,
                     message.CustomerId,
                     message.ErrorReason, // Lý do gốc từ OrderCompleteFailed
@@ -103,7 +103,7 @@ namespace OrderAcceptService
                 _logger.LogError(ex, "Lỗi không mong muốn khi bồi hoàn cho OrderId={OrderId}.", message.OrderId);
                 await _orderHistoryRepository.AddAsync(new OrderHistory
                 {
-                    HistoryId = Guid.NewGuid(),
+                    HistoryId = NewId.NextGuid(),
                     OrderId = message.OrderId,
                     ConsumerName = "OrderCompleteFailedConsumer",
                     Status = HistoryStatus.Failed, // Bồi hoàn thất bại

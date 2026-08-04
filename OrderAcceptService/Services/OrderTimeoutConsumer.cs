@@ -81,7 +81,7 @@ namespace OrderAcceptService
                         new Guid(order.CustomerId), "Đơn hàng bị từ chối", "Đơn hàng của bạn đã bị từ chối tự động do quá thời gian xử lý.", "Warning", DateTime.UtcNow);
                     
                     await context.Publish(new OrderAcceptFailedResponse(
-                        Guid.NewGuid(), message.OrderId, new Guid(order.CustomerId), "Timeout", noti, DateTime.UtcNow));
+                        NewId.NextGuid(), message.OrderId, new Guid(order.CustomerId), "Timeout", noti, DateTime.UtcNow));
                 }
                 else if (string.Equals(message.TargetAction, nameof(TargetStatus.Completed), StringComparison.OrdinalIgnoreCase))
                 {
@@ -94,8 +94,8 @@ namespace OrderAcceptService
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "TimeoutCompleteTrigger", "Kích hoạt hoàn tất đơn hàng tự động do hết hạn.");
 
                     // Kích hoạt OrderCompleteConsumer để xử lý logic trừ kho
-                    await context.Publish(new OrderCompleteEvent(
-                        Guid.NewGuid(), order.OrderId, new Guid(order.CustomerId),
+                    await context.Publish(new OrderCompletedEvent(
+                        NewId.NextGuid(), order.OrderId, new Guid(order.CustomerId),
                         order.OrderItems.Select(oi => new OrderItemDto(oi.ProductId, oi.Quantity, oi.UnitPrice)).ToList(),
                         DateTime.UtcNow));
                 }
@@ -116,7 +116,7 @@ namespace OrderAcceptService
         {
             await _orderHistoryRepository.AddAsync(new OrderHistory
             {
-                HistoryId = Guid.NewGuid(),
+                HistoryId = NewId.NextGuid(),
                 OrderId = orderId,
                 ConsumerName = "OrderTimeoutConsumer",
                 Status = status,

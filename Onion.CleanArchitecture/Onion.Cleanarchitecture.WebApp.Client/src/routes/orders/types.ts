@@ -1,75 +1,71 @@
-// === Order Status Enum ===
 export enum OrderStatus {
+  Pending = 0,
   Submitted = 1,
   Accepted = 2,
-  Completed = 3,
-  Rejected = 4,
+  Rejected = 3,
+  Completed = 4,
+  Cancelled = 5,
 }
 
-// === Order Status Display ===
 export const OrderStatusLabel: Record<OrderStatus, string> = {
+  [OrderStatus.Pending]: "Chờ xử lý",
   [OrderStatus.Submitted]: "Đã gửi",
-  [OrderStatus.Accepted]: "Đã duyệt",
-  [OrderStatus.Completed]: "Hoàn tất",
-  [OrderStatus.Rejected]: "Từ chối",
+  [OrderStatus.Accepted]: "Đã chấp nhận",
+  [OrderStatus.Rejected]: "Đã từ chối",
+  [OrderStatus.Completed]: "Hoàn thành",
+  [OrderStatus.Cancelled]: "Đã hủy",
 };
 
 export const OrderStatusColor: Record<OrderStatus, string> = {
-  [OrderStatus.Submitted]: "blue",
-  [OrderStatus.Accepted]: "orange",
-  [OrderStatus.Completed]: "green",
+  [OrderStatus.Pending]: "blue",
+  [OrderStatus.Submitted]: "orange",
+  [OrderStatus.Accepted]: "green",
   [OrderStatus.Rejected]: "red",
+  [OrderStatus.Completed]: "purple",
+  [OrderStatus.Cancelled]: "gray",
 };
 
-// === Order Item (FE) ===
+export interface IProduct {
+  id: string;
+  name: string;
+  // Add other product properties if needed
+}
+
 export interface IOrderItem {
-  OrderItemId: string;
-  OrderId: string;
-  ProductId: string;
-  ProductName: string;
-  Quantity: number;
-  UnitPrice: number;
-}
-
-// === Order (FE - từ GET /api/orders) ===
-export interface IOrder {
-  OrderId: string;
-  OrderCode: string;
-  CustomerId: string;
-  Status: OrderStatus;
-  TotalAmount: number;
-  ShippingAddress: string;
-  Note: string;
-  Created: string;
-  UpdatedAt?: string;
-  CompletedAt?: string;
-  RejectedAt?: string;
-  OrderItems: IOrderItem[];
-}
-
-// === Show Order response (từ GET /api/orders/show/{id}) ===
-export interface IOrderDetail extends IOrder {
-  OrderHistories?: IOrderHistory[];
-}
-
-export interface IOrderHistory {
-  HistoryId: string;
-  OrderId: string;
-  ConsumerName: string;
-  Status: number; // HistoryStatus: Success=1, Failed=2
-  EventType: string;
-  Message: string;
-  CreatedAt: string;
-}
-
-// === Create Order (FE -> POST /api/orders) ===
-export interface ICreateOrderItem {
-  ProductId: string;
-  Quantity: number;
+  id?: string; // Optional for new items, present for existing
+  productId: string;
+  quantity: number;
+  price: number;
+  ProductName?: string; // Used in ShowOrder.tsx, might be denormalized
+  UnitPrice?: number; // Alias for price, if backend sends it this way
 }
 
 export interface ICreateOrder {
-  ShippingAddress: string;
+  Items: IOrderItem[]; // Changed to 'Items' to match backend expectation for create/update
+  customerId?: string;
+  shippingAddress?: string;
+  note?: string;
+}
+
+export interface IOrderHistory {
+  id?: string;
+  Status: number; // Assuming number maps to OrderStatus
+  ConsumerName: string;
+  Message: string;
+  CreatedAt: string; // ISO date string
+}
+
+export interface IOrderDetail {
+  OrderId: string;
+  OrderCode: string;
+  CustomerId?: string;
+  TotalAmount: number;
+  Status: OrderStatus;
+  ShippingAddress?: string;
   Note?: string;
-  Items: ICreateOrderItem[];
+  Created: string; // Corrected from CreatedAt based on error message
+  UpdatedAt?: string;
+  CompletedAt?: string;
+  OrderItems: IOrderItem[]; // Used in ShowOrder.tsx
+  OrderHistories?: IOrderHistory[];
 }

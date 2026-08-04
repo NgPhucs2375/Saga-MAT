@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Onion.CleanArchitecture.Domain.Events
 {
@@ -8,11 +9,13 @@ namespace Onion.CleanArchitecture.Domain.Events
     /// <param name="EventId"></param>
     /// <param name="OrderId"></param>
     /// <param name="CustomerId"></param>
+    /// <param name="OrderItem"></param>
     /// <param name="Timestamp"></param>
     public record OrderCompletedEvent(
         Guid EventId,
         Guid OrderId,
         Guid CustomerId,
+        List<OrderItemDto> OrderItem,
         DateTime Timestamp
     ):IOrderEvent;
 }

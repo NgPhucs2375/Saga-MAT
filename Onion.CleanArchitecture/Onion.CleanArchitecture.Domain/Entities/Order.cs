@@ -14,6 +14,7 @@ namespace Onion.CleanArchitecture.Domain.Entities
         public decimal TotalAmount { get; set; }
         public string ShippingAddress { get; set; }
         public string Note { get; set; }
+        public bool IsReserved { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? RejectedAt { get; set; }

@@ -103,17 +103,15 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Environments
             return _config["RabbitMq:VHost"];
         }
 
-        public bool IsHealthy()
+        public async Task<bool> IsHealthy()
         {
             try
             {
                 var connectionFactory = GetConnectionFactory();
-                using (var connection = connectionFactory.CreateConnection())
-                using (var channel = connection.CreateModel())
-                {
-                    // Kiểm tra kết nối tới RabbitMQ bằng cách khởi tạo kết nối và kênh
-                    return connection.IsOpen && channel.IsOpen;
-                }
+                await using var connection = await connectionFactory.CreateConnectionAsync();
+                await using var channel = await connection.CreateChannelAsync();
+                // Kiểm tra kết nối tới RabbitMQ bằng cách khởi tạo kết nối và kênh
+                return connection.IsOpen && channel.IsOpen;
             }
             catch (BrokerUnreachableException)
             {

@@ -35,6 +35,7 @@ import {
   EditProduct,
   EditRole,
   EditRoleClaim,
+  ListOrder,
   ListProduct,
   ListRole,
   ListRoleClaim,
@@ -42,7 +43,10 @@ import {
   ShowRole,
   ShowRoleClaim,
 } from "./routes";
+import { CreateOrder } from "./routes/orders/create";
 import { Unauthorized } from "@components/unauthorized";
+import { ShowOrder } from "./routes/orders/show";
+import { EditOrder } from "./routes/orders/edit"; // Added EditOrder import
 
 const App: React.FC = () => {
   return (
@@ -180,6 +184,57 @@ const App: React.FC = () => {
                     }
                   />
                 </Route>
+                <Route path="orders">
+                  <Route
+                    index
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="list"
+                        fallback={<Unauthorized />}
+                      >
+                        <ListOrder />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path="create"
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="create"
+                        fallback={<Unauthorized />}
+                      >
+                        <CreateOrder />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path=":id/edit"
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="edit"
+                        fallback={<Unauthorized />}
+                      >
+                        <EditOrder />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path=":id"
+                    element={
+                      <CanAccess
+                        resource="orders"
+                        action="show"
+                        fallback={<Unauthorized />}
+                      >
+                        <ShowOrder />
+                      </CanAccess>
+                    }
+                  />
+                </Route>
+
                 <Route path="users">
                   <Route
                     index

@@ -1,0 +1,16 @@
+info: MassTransit[0]
+      Configured endpoint order-validation-queue, Consumer: OrderSubmitService.OrderSubmitConsumer
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderSubmitService
+info: MassTransit[0]
+      Bus started: db://localhost/

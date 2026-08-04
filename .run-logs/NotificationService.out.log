@@ -1,0 +1,77 @@
+Using launch settings from D:\Univer\Nam_4\VB\Demo-Saga\NotificationService\Properties\launchSettings.json...
+Building...
+info: MassTransit[0]
+      Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderSubmitFailedConsumer
+info: MassTransit[0]
+      Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderAcceptFailedConsumer
+info: MassTransit[0]
+      Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderCompleteSuccessConsumer
+info: MassTransit[0]
+      Configured endpoint notification-queue, Consumer: NotificationService.Consumers.OrderCompleteFailedConsumer
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: MassTransit[0]
+      Bus started: db://localhost/
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7201
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5213
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\NotificationService
+info: NotificationService.Consumers.OrderCompleteSuccessConsumer[0]
+      Nhận OrderCompleteSuccessResponse OrderId=45fb55da-aba9-4ec2-af72-fd479be0bd4e
+info: NotificationService.Consumers.OrderCompleteSuccessConsumer[0]
+      Nhận OrderCompleteSuccessResponse OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (78ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+warn: NotificationService.Consumers.OrderAcceptFailedConsumer[0]
+      Nhận OrderAcceptFailedResponse OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce: Timeout
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (42ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+warn: NotificationService.Consumers.OrderAcceptFailedConsumer[0]
+      Nhận OrderAcceptFailedResponse OrderId=45fb55da-aba9-4ec2-af72-fd479be0bd4e: Timeout
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (57ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: NotificationService.Consumers.OrderCompleteSuccessConsumer[0]
+      Nhận OrderCompleteSuccessResponse OrderId=a26430e1-3824-464a-ac4d-23be33f04ac3
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: NotificationService.Consumers.OrderCompleteSuccessConsumer[0]
+      Nhận OrderCompleteSuccessResponse OrderId=f305fa6f-63d1-47a0-b378-ebf648f2b590
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+warn: NotificationService.Consumers.OrderAcceptFailedConsumer[0]
+      Nhận OrderAcceptFailedResponse OrderId=a26430e1-3824-464a-ac4d-23be33f04ac3: Timeout
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?' (DbType = Guid), @p7='?' (DbType = Guid), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Notifications" ("CreatedAt", "CreatedBy", "IsRead", "LastModifiedAt", "LastModifiedBy", "Message", "NotifyId", "OrderId", "SendAt", "TargetUserId", "Title", "Type")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";

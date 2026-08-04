@@ -1,0 +1,169 @@
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]
+      The property 'OrderState.Items' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (66ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: MassTransit[0]
+      Configured endpoint order-state, Saga: OrderOrchestration.OrderState, State Machine: OrderOrchestration.OrderSagaStateMachine
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderOrchestration
+info: MassTransit[0]
+      Bus started: db://localhost/
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (24ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (59ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@p3='?' (DbType = Guid), @p0='?', @p1='?', @p2='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0, "ErrorReason" = @p1, "IsTimeout" = @p2
+      WHERE "CorrelationId" = @p3;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?', @p1='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0, "NeedReleaseInventory" = @p1
+      WHERE "CorrelationId" = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."CorrelationId", o."CreatedAt", o."CurrentState", o."CustomerId", o."ErrorReason", o."IsTimeout", o."Items", o."NeedReleaseInventory", o."TotalAmount"
+      FROM (
+          SELECT *, xmin FROM "OrderState" WHERE "CorrelationId" = @p0 FOR UPDATE
+      ) AS o
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?'], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderState" SET "CurrentState" = @p0
+      WHERE "CorrelationId" = @p1;

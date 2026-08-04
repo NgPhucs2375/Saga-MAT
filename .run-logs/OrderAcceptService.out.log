@@ -1,0 +1,284 @@
+info: MassTransit[0]
+      Configured endpoint order-accept-queue, Consumer: OrderAcceptService.OrderAcceptConsumer
+info: MassTransit[0]
+      Configured endpoint order-cancel-queue, Consumer: OrderAcceptService.CancelOrderConsumer
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderAcceptService
+info: OrderAcceptService.Services.TimerWatcherBackgroundService[0]
+      TimerWatcherBackgroundService đã khởi động.
+info: MassTransit[0]
+      Bus started: db://localhost/
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Nhận AcceptOrderCommand OrderId=45fb55da-aba9-4ec2-af72-fd479be0bd4e
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Nhận AcceptOrderCommand OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@productId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      WHERE p."ProductId" = @productId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@productId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      WHERE p."ProductId" = @productId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (DbType = Guid), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderTimers" ("CreatedAt", "CreatedBy", "LastModifiedAt", "LastModifiedBy", "OrderId", "Status", "Timeout", "TimerId", "TimerStatus")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (DbType = Guid), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderTimers" ("CreatedAt", "CreatedBy", "LastModifiedAt", "LastModifiedBy", "OrderId", "Status", "Timeout", "TimerId", "TimerStatus")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Accept thành công OrderId=45fb55da-aba9-4ec2-af72-fd479be0bd4e, Saga sẽ gửi CompleteOrderCommand
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Accept thành công OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce, Saga sẽ gửi CompleteOrderCommand
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (121ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: OrderAcceptService.Services.TimerWatcherBackgroundService[0]
+      Tìm thấy 2 OrderTimer hết hạn cần xử lý.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (441ms) [Parameters=[@p9='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (DbType = Guid), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderTimers" SET "CreatedAt" = @p0, "CreatedBy" = @p1, "LastModifiedAt" = @p2, "LastModifiedBy" = @p3, "OrderId" = @p4, "Status" = @p5, "Timeout" = @p6, "TimerId" = @p7, "TimerStatus" = @p8
+      WHERE "Id" = @p9;
+info: OrderAcceptService.Services.TimerWatcherBackgroundService[0]
+      Đã publish OrderTimeoutExpiredEvent OrderId=45fb55da-aba9-4ec2-af72-fd479be0bd4e, TargetAction=Complete.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (28ms) [Parameters=[@p9='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (DbType = Guid), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "OrderTimers" SET "CreatedAt" = @p0, "CreatedBy" = @p1, "LastModifiedAt" = @p2, "LastModifiedBy" = @p3, "OrderId" = @p4, "Status" = @p5, "Timeout" = @p6, "TimerId" = @p7, "TimerStatus" = @p8
+      WHERE "Id" = @p9;
+info: OrderAcceptService.Services.TimerWatcherBackgroundService[0]
+      Đã publish OrderTimeoutExpiredEvent OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce, TargetAction=Complete.
+info: OrderAcceptService.CancelOrderConsumer[0]
+      Nhận CancelOrderCommand OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce, Reason=Hết thời gian xử lý đơn hàng (auto timeout), bắt đầu bồi hoàn bước Accept.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."OrderId" = @orderId AND o."TimerStatus" = 1
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: OrderAcceptService.CancelOrderConsumer[0]
+      Bồi hoàn thành công OrderId=8f0eea9d-4f9b-48b2-8664-c9b6c7f881ce.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (226ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (909ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Nhận AcceptOrderCommand OrderId=f305fa6f-63d1-47a0-b378-ebf648f2b590
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@productId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      WHERE p."ProductId" = @productId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (DbType = Guid), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderTimers" ("CreatedAt", "CreatedBy", "LastModifiedAt", "LastModifiedBy", "OrderId", "Status", "Timeout", "TimerId", "TimerStatus")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: OrderAcceptService.OrderAcceptConsumer[0]
+      Accept thành công OrderId=f305fa6f-63d1-47a0-b378-ebf648f2b590, Saga sẽ gửi CompleteOrderCommand
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now
+info: OrderAcceptService.CancelOrderConsumer[0]
+      Nhận CancelOrderCommand OrderId=a26430e1-3824-464a-ac4d-23be33f04ac3, Reason=Hết thời gian xử lý đơn hàng (auto timeout), bắt đầu bồi hoàn bước Accept.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."OrderId" = @orderId AND o."TimerStatus" = 1
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: OrderAcceptService.CancelOrderConsumer[0]
+      Bồi hoàn thành công OrderId=a26430e1-3824-464a-ac4d-23be33f04ac3.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@now='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CreatedAt", o."CreatedBy", o."LastModifiedAt", o."LastModifiedBy", o."OrderId", o."Status", o."Timeout", o."TimerId", o."TimerStatus"
+      FROM "OrderTimers" AS o
+      WHERE o."TimerStatus" = 1 AND o."Timeout" <= @now

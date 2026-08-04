@@ -1,16 +1,17 @@
 import { useForm, Create } from "@refinedev/antd";
 import { CreateOrderForm } from "@components/orders/create-order-form";
-import { ICreateOrder } from "./types";
+import { ICreateOrder } from "./types"; // Ensure this path is correct
+import { BaseRecord, HttpError } from "@refinedev/core";
 
 export const CreateOrder = () => {
-  const { formProps, saveButtonProps } = useForm<ICreateOrder>({
+  const { formProps, saveButtonProps } = useForm<BaseRecord, HttpError, ICreateOrder>({
     resource: "orders",
     redirect: false,
   });
 
   return (
     <Create saveButtonProps={saveButtonProps} title="Khởi tạo Đơn hàng (Trigger Saga)">
-      <CreateOrderForm formProps={formProps} saveButtonProps={saveButtonProps} />
+      <CreateOrderForm formProps={formProps} />
     </Create>
   );
 };

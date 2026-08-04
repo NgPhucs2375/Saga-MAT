@@ -1,0 +1,56 @@
+info: MassTransit[0]
+      Configured endpoint order-validation-queue, Consumer: OrderSubmitService.OrderSubmitConsumer
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating schema for database LearnSaga
+info: MassTransit.SqlTransport.SqlTransportMigrationHostedService[0]
+      MassTransit SQL Transport creating infrastructure for database LearnSaga
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\Univer\Nam_4\VB\Demo-Saga\OrderSubmitService
+info: MassTransit[0]
+      Bus started: db://localhost/
+info: OrderSubmitService.OrderSubmitConsumer[0]
+      Nhận ValidateOrderCommand OrderId=f305fa6f-63d1-47a0-b378-ebf648f2b590
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (55ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o."Id", o."CompletedAt", o."CreatedAt", o."CreatedBy", o."CustomerId", o."IsReserved", o."LastModifiedAt", o."LastModifiedBy", o."Note", o."OrderCode", o."OrderId", o."RejectedAt", o."ShippingAddress", o."Status", o."TotalAmount", o."UpdatedAt"
+      FROM "Orders" AS o
+      WHERE o."OrderId" = @orderId
+      ORDER BY o."Id"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@orderId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT o0."Id", o0."CreatedAt", o0."CreatedBy", o0."LastModifiedAt", o0."LastModifiedBy", o0."OrderId", o0."OrderItemId", o0."ProductId", o0."ProductName", o0."Quantity", o0."UnitPrice", o1."Id"
+      FROM (
+          SELECT o."Id", o."OrderId"
+          FROM "Orders" AS o
+          WHERE o."OrderId" = @orderId
+          ORDER BY o."Id"
+          LIMIT 1
+      ) AS o1
+      INNER JOIN "OrderItems" AS o0 ON o1."OrderId" = o0."OrderId"
+      ORDER BY o1."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@productId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."Code", p."CreatedAt", p."CreatedBy", p."Description", p."IsActive", p."LastModifiedAt", p."LastModifiedBy", p."Name", p."Price", p."ProductId", p."Rate", p."SLTKho"
+      FROM "Product" AS p
+      WHERE p."ProductId" = @productId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@p14='?' (DbType = Int32), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p27='?' (DbType = Int32), @p15='?', @p16='?' (DbType = DateTime), @p17='?', @p18='?', @p19='?' (DbType = Boolean), @p20='?' (DbType = DateTime), @p21='?', @p22='?', @p23='?' (DbType = Decimal), @p24='?' (DbType = Guid), @p25='?' (DbType = Decimal), @p26='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Orders" SET "CompletedAt" = @p0, "CreatedAt" = @p1, "CreatedBy" = @p2, "CustomerId" = @p3, "IsReserved" = @p4, "LastModifiedAt" = @p5, "LastModifiedBy" = @p6, "Note" = @p7, "OrderCode" = @p8, "RejectedAt" = @p9, "ShippingAddress" = @p10, "Status" = @p11, "TotalAmount" = @p12, "UpdatedAt" = @p13
+      WHERE "Id" = @p14;
+      UPDATE "Product" SET "Code" = @p15, "CreatedAt" = @p16, "CreatedBy" = @p17, "Description" = @p18, "IsActive" = @p19, "LastModifiedAt" = @p20, "LastModifiedBy" = @p21, "Name" = @p22, "Price" = @p23, "ProductId" = @p24, "Rate" = @p25, "SLTKho" = @p26
+      WHERE "Id" = @p27;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?', @p4='?' (DbType = Guid), @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Guid), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "OrderHistories" ("ConsumerName", "CreatedAt", "CreatedBy", "EventType", "HistoryId", "LastModifiedAt", "LastModifiedBy", "Message", "OrderId", "Status")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";
+info: OrderSubmitService.OrderSubmitConsumer[0]
+      Validate thành công OrderId=f305fa6f-63d1-47a0-b378-ebf648f2b590, đã giữ chỗ 1 sản phẩm. Saga sẽ gửi AcceptOrderCommand

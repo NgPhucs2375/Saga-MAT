@@ -1,0 +1,1 @@
+Get-WmiObject Win32_Process -Filter "Name = 'dotnet.exe'" | Select-Object ProcessId, CommandLine | Format-Table -AutoSize

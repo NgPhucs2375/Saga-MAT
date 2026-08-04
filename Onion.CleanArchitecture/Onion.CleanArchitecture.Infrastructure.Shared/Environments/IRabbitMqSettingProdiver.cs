@@ -13,7 +13,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Environments
         string GetVHost();
         string GetPort();
         string GetConnectionString();
-        bool IsHealthy();
+        Task<bool> IsHealthy();
         ConnectionFactory GetConnectionFactory();
         Task GetUri<T>(IBus _bus,string queueName,T message);
     }

@@ -60,7 +60,7 @@ namespace OrderSubmitService
                 // Fail -> OrderValidationFailedEvent để Saga chuyển Rejected
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ValidateOrderCommand", string.Join("; ", errors));
                 await context.Publish(new OrderValidationFailedEvent(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId,
+                    NewId.NextGuid(), message.OrderId, message.CustomerId,
                     string.Join("; ", errors), DateTime.UtcNow));
                 _logger.LogWarning("Validate thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
@@ -69,7 +69,7 @@ namespace OrderSubmitService
             // Pass -> OrderValidatedEvent để Saga gửi AcceptOrderCommand
             await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "ValidateOrderCommand", "Validate thành công.");
             await context.Publish(new OrderValidatedEvent(
-                Guid.NewGuid(), message.OrderId, message.CustomerId, message.Items, DateTime.UtcNow));
+                NewId.NextGuid(), message.OrderId, message.CustomerId, message.Items, DateTime.UtcNow));
             _logger.LogInformation("Validate thành công OrderId={OrderId}, Saga sẽ gửi AcceptOrderCommand", message.OrderId);
         }
 
@@ -78,7 +78,7 @@ namespace OrderSubmitService
         {
             await _orderHistoryRepository.AddAsync(new OrderHistory
             {
-                HistoryId = Guid.NewGuid(),
+                HistoryId = NewId.NextGuid(),
                 OrderId = orderId,
                 ConsumerName = "OrderSubmitConsumer",
                 Status = status,

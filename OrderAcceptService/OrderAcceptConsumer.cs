@@ -88,7 +88,7 @@ namespace OrderAcceptService
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
 
                     await context.Publish(new OrderAcceptFailedEvent(
-                        Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                        NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
 
                     _logger.LogWarning("Accept thất bại OrderId={OrderId}: {Errors}", message.OrderId, errorReason);
                     return;
@@ -103,7 +103,7 @@ namespace OrderAcceptService
                 // 2. Tạo và lưu OrderTimer
                 var orderTimer = new OrderTimer
                 {
-                    TimerId = Guid.NewGuid(),
+                    TimerId = NewId.NextGuid(),
                     OrderId = message.OrderId,
                     Timeout = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("OrderAcceptTimeoutMinutes")),
                     Status = TargetStatus.Completed,
@@ -115,7 +115,7 @@ namespace OrderAcceptService
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "AcceptOrderCommand", "Re-Validate thành công, đơn hàng đã được chấp nhận.");
 
                 await context.Publish(new OrderAcceptedEvent(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, _configuration.GetValue<int>("OrderAcceptTimeoutMinutes"), DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, _configuration.GetValue<int>("OrderAcceptTimeoutMinutes"), DateTime.UtcNow));
 
                 _logger.LogInformation("Accept thành công OrderId={OrderId}, Saga sẽ gửi CompleteOrderCommand", message.OrderId);
             }
@@ -134,7 +134,7 @@ namespace OrderAcceptService
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
 
                     await context.Publish(new OrderAcceptFailedEvent(
-                        Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                        NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
                 }
                 // Không throw lại exception để message được coi là đã xử lý (consumed) và không bị retry.
             }
@@ -145,7 +145,7 @@ namespace OrderAcceptService
         {
             await _orderHistoryRepository.AddAsync(new OrderHistory
             {
-                HistoryId = Guid.NewGuid(),
+                HistoryId = NewId.NextGuid(),
                 OrderId = orderId,
                 ConsumerName = "OrderAcceptConsumer",
                 Status = status,

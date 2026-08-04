@@ -88,7 +88,7 @@ namespace OrderCompleteService
 
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", string.Join("; ", errors));
                 await context.Publish(new OrderCompleteFailedEvent(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
                 _logger.LogWarning("Complete thất bại OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
                 return;
             }
@@ -125,7 +125,7 @@ namespace OrderCompleteService
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "CompleteOrderCommand", "Đơn hàng hoàn tất, đã trừ kho và vô hiệu hóa timer.");
 
                 await context.Publish(new OrderCompletedEvent(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
                 _logger.LogInformation("Complete thành công OrderId={OrderId}. Đã trừ kho và vô hiệu hóa timer.", message.OrderId);
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace OrderCompleteService
                 var errorReason = $"Lỗi hệ thống khi hoàn tất: {ex.Message}";
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", errorReason);
                 await context.Publish(new OrderCompleteFailedEvent(
-                    Guid.NewGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
             }
         }
 
@@ -143,7 +143,7 @@ namespace OrderCompleteService
         {
             await _orderHistoryRepository.AddAsync(new OrderHistory
             {
-                HistoryId = Guid.NewGuid(),
+                HistoryId = NewId.NextGuid(),
                 OrderId = orderId,
                 ConsumerName = "OrderCompleteConsumer",
                 Status = status,

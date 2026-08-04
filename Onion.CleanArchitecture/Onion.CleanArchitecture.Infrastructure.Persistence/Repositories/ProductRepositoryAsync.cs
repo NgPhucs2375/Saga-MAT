@@ -16,10 +16,12 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     public class ProductRepositoryAsync : GenericRepositoryAsync<Product>, IProductRepositoryAsync
     {
         private readonly DbSet<Product> _products;
+        private readonly ApplicationDbContext _dbContext;
 
         public ProductRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
         {
             _products = dbContext.Set<Product>();
+            _dbContext = dbContext;
         }
 
         public Task<bool> IsUniqueBarcodeAsync(string code)
@@ -54,6 +56,11 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
         public async Task<Product> GetProductByIdAsync(Guid productId)
         {
             return await _products.FirstOrDefaultAsync(p => p.ProductId == productId);
+        }
+
+        public void MarkAsModified(Product entity)
+        {
+            _dbContext.Entry(entity).State = EntityState.Modified;
         }
     }
 }
