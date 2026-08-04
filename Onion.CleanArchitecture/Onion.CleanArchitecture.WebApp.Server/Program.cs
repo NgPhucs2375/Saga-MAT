@@ -49,7 +49,12 @@ if (_env.IsDevelopment())
     _services.AddHostedService<MicroserviceLauncherHostedService>();
 }
 
-_services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
+_services.AddControllers().AddJsonOptions(opts =>
+{
+    opts.JsonSerializerOptions.PropertyNamingPolicy = null;
+    // Tránh circular reference (Order -> OrderItems -> Order) khi serialize entity
+    opts.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
 _services.AddApiVersioningExtension();
 _services.AddHealthChecks();
 _services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService>();
