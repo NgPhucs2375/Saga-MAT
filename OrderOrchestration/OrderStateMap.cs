@@ -22,6 +22,8 @@ namespace OrderOrchestration
             entity.Property(x => x.CurrentState).HasMaxLength(64);
             entity.Property(x => x.CustomerId);
             entity.Property(x => x.TotalAmount).HasPrecision(18, 6);
+            entity.Property(x => x.StepsCompleted);
+            entity.Property(x => x.ErrorReason);
             entity.Property(x => x.Items)
                 .HasColumnType("jsonb")
                 .HasConversion(

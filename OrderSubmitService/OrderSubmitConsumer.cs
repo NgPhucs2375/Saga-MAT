@@ -15,16 +15,19 @@ namespace OrderSubmitService
         // === Tiêm các Repository cần thiết === //
         private readonly IProductRepositoryAsync _productRepository;
         private readonly IOrderHistoryRepositoryAsync _orderHistoryRepository;
+        private readonly IOrderRepositoryAsync _orderRepository;
         private readonly ILogger<OrderSubmitConsumer> _logger;
 
         // === Constructor === //
         public OrderSubmitConsumer(
             IProductRepositoryAsync productRepository,
             IOrderHistoryRepositoryAsync orderHistoryRepository,
+            IOrderRepositoryAsync orderRepository,
             ILogger<OrderSubmitConsumer> logger)
         {
             _productRepository = productRepository;
             _orderHistoryRepository = orderHistoryRepository;
+            _orderRepository = orderRepository;
             _logger = logger;
         }
 
@@ -36,8 +39,9 @@ namespace OrderSubmitService
             // Log cho ra string Nhận được command với ID
             _logger.LogInformation("Nhận ValidateOrderCommand OrderId={OrderId}", message.OrderId);
 
-            // 1-2. Validate sản phẩm tồn tại (+ IsActive) và tồn kho đủ
+            // 1-2. Validate sản phẩm tồn tại (+ IsActive) và tồn kho khả dụng đủ
             var errors = new List<string>(); // biến chứ list lỗi
+            var itemsToReserve = new List<OrderItemDto>();
             foreach (var item in message.Items) // Lặp qua all Items trong ValidateOrderCommand
             {
                 // biến hứng dữ liệu của sản phẩm theo ID
@@ -46,18 +50,19 @@ namespace OrderSubmitService
                 {
                     errors.Add($"Sản phẩm {item.ProductId} không tồn tại hoặc đã bị vô hiệu hóa.");
                 }
-                else if (product.SLTKho < item.Quantity)
+                else if (product.PhysicalQty - product.ReservedQty < item.Quantity)
                 {
-                    errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.SLTKho} trong kho, yêu cầu {item.Quantity}.");
+                    errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.PhysicalQty - product.ReservedQty} khả dụng trong kho, yêu cầu {item.Quantity}.");
+                }
+                else
+                {
+                    itemsToReserve.Add(item);
                 }
             }
 
-            // Biến check xem có lỗi hay không, nếu errors.Count > 0 thì là có lỗi
-            var isSuccess = errors.Count == 0;
-
-            if (!isSuccess)
+            if (errors.Count > 0)
             {
-                // Fail -> OrderValidationFailedEvent để Saga chuyển Rejected
+                // Fail -> OrderValidationFailedEvent để Saga chuyển Rejected (chưa giữ hàng)
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ValidateOrderCommand", string.Join("; ", errors));
                 await context.Publish(new OrderValidationFailedEvent(
                     NewId.NextGuid(), message.OrderId, message.CustomerId,
@@ -66,11 +71,47 @@ namespace OrderSubmitService
                 return;
             }
 
+            // 3. Giữ hàng (Reserve) tại bước Submit — atomic + optimistic locking
+            var reserved = new List<OrderItemDto>();
+            foreach (var item in itemsToReserve)
+            {
+                var ok = await _productRepository.ReserveAsync(item.ProductId, item.Quantity);
+                if (!ok)
+                {
+                    errors.Add($"Sản phẩm {item.ProductId} vừa được người khác chiếm, không đủ hàng khả dụng để giữ.");
+                    break;
+                }
+                reserved.Add(item);
+            }
+
+            if (errors.Count > 0)
+            {
+                // Rollback phần đã giữ để không rò rỉ kho
+                foreach (var item in reserved)
+                {
+                    await _productRepository.ReleaseAsync(item.ProductId, item.Quantity);
+                }
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ValidateOrderCommand", string.Join("; ", errors));
+                await context.Publish(new OrderValidationFailedEvent(
+                    NewId.NextGuid(), message.OrderId, message.CustomerId,
+                    string.Join("; ", errors), DateTime.UtcNow));
+                _logger.LogWarning("Giữ hàng thất bại, đã rollback. OrderId={OrderId}: {Errors}", message.OrderId, string.Join("; ", errors));
+                return;
+            }
+
+            // 4. Đánh dấu đơn đang giữ hàng để compensate biết cần giải phóng
+            var order = await _orderRepository.GetByIdAsync(message.OrderId);
+            if (order != null)
+            {
+                order.IsReserved = true;
+                await _orderRepository.UpdateAsync(order);
+            }
+
             // Pass -> OrderValidatedEvent để Saga gửi AcceptOrderCommand
-            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "ValidateOrderCommand", "Validate thành công.");
+            await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "ValidateOrderCommand", "Validate thành công, đã giữ hàng (ReservedQty).");
             await context.Publish(new OrderValidatedEvent(
                 NewId.NextGuid(), message.OrderId, message.CustomerId, message.Items, DateTime.UtcNow));
-            _logger.LogInformation("Validate thành công OrderId={OrderId}, Saga sẽ gửi AcceptOrderCommand", message.OrderId);
+            _logger.LogInformation("Validate thành công OrderId={OrderId}, đã giữ hàng. Saga sẽ gửi AcceptOrderCommand", message.OrderId);
         }
 
         // === Hàm ghi OrderHistory === //

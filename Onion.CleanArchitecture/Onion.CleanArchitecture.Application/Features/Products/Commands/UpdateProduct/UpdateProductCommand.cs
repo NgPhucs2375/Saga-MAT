@@ -42,7 +42,7 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Commands.UpdateP
                     product.Name = command.Name;
                     product.Rate = command.Rate;
                     product.Description = command.Description;
-                    product.SLTKho = command.SLTKho;
+                    product.PhysicalQty = command.SLTKho;
                     product.Price = command.Price;
                     product.IsActive = command.IsActive;
                     await _productRepository.UpdateAsync(product);

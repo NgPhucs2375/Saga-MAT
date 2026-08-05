@@ -15,6 +15,7 @@ interface CustomOpenNotificationParams extends OpenNotificationParams {
     resource?: string;
     id?: string;
     view?: 'show' | 'edit';
+    navigate?: () => void; // Thêm hàm navigate tùy chọn
   };
 }
 
@@ -24,8 +25,8 @@ const createNotificationConfig = (
   icon: React.ReactNode,
   color: string
 ): ArgsProps => {
-  const { resource, id, view } = meta ?? {};
-  const isClickable = resource && id;
+  const { navigate } = meta ?? {};
+  const isClickable = !!navigate;
 
   return {
     key,
@@ -37,13 +38,8 @@ const createNotificationConfig = (
       cursor: isClickable ? "pointer" : "default",
     },
     onClick: () => {
-      if (isClickable) {
-        // Điều hướng đến trang chi tiết của resource.
-        // Lưu ý: window.location.href sẽ reload toàn bộ trang.
-        // Trong một ứng dụng SPA thực tế, bạn nên dùng history.push() hoặc navigate() từ react-router-dom.
-        // Để làm được điều đó, bạn cần truyền instance của history/navigate vào provider này khi khởi tạo.
-        const path = view === 'edit' ? `/${resource}/edit/${id}` : `/${resource}/show/${id}`;
-        window.location.href = path;
+      if (navigate) {
+        navigate();
       }
     },
   };

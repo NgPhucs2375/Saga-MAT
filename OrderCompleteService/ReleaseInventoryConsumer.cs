@@ -59,13 +59,13 @@ namespace OrderCompleteService
                     return;
                 }
 
-                // 1. Cộng lại SLTKho cho từng sản phẩm đã được giữ chỗ.
+                // 1. Giải phóng giữ chỗ: giảm ReservedQty cho từng sản phẩm đã được giữ.
                 foreach (var item in order.OrderItems)
                 {
                     var product = await _productRepository.GetProductByIdAsync(item.ProductId);
                     if (product != null)
                     {
-                        product.SLTKho += item.Quantity;
+                        product.ReservedQty -= item.Quantity;
                         // ApplicationDbContext NoTracking -> phải đánh dấu Modified để SaveChanges ghi lại.
                         _productRepository.MarkAsModified(product);
                     }
@@ -75,7 +75,7 @@ namespace OrderCompleteService
                     }
                 }
 
-                // 2. Mở khóa (hết giữ chỗ) và đưa đơn về Accepted để CancelOrderConsumer bồi hoàn tiếp.
+                // 2. Hết giữ chỗ (mở khóa) và đưa đơn về Accepted để CancelOrderConsumer bồi hoàn tiếp.
                 order.IsReserved = false;
                 order.Status = OrderStatus.Accepted;
 

@@ -28,6 +28,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<OrderCompletedActivity>();
         services.AddScoped<OrderCompleteFailedActivity>();
         services.AddScoped<OrderTimeoutExpiredActivity>();
+        services.AddScoped<ReleaseInventoryCompensateActivity>();
+        services.AddScoped<CancelOrderCompensateActivity>();
 
         // 3. Đăng ký SagaStateMachine với repository EF Core (PostgreSQL) + transport PostgreSQL
         services.AddMassTransit(x =>

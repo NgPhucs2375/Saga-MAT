@@ -57,6 +57,7 @@ namespace OrderOrchestration
 
             During(Validating,
                 When(OrderValidated)
+                    .Then(x => x.Saga.StepsCompleted = 1)
                     .Activity(x => x.OfType<OrderValidatedActivity>())
                     .TransitionTo(Accepting),
                 When(OrderValidationFailed)
@@ -65,17 +66,22 @@ namespace OrderOrchestration
 
             During(Accepting,
                 When(OrderAccepted)
-                    .Then(x => x.Saga.StepsCompleted = 1)
+                    .Then(x => x.Saga.StepsCompleted = 2)
                     .Activity(x => x.OfType<OrderAcceptedActivity>())
                     .TransitionTo(Completing),
                 When(OrderAcceptFailed)
                     .Activity(x => x.OfType<OrderAcceptFailedActivity>())
                     .Then(x => x.Saga.ErrorReason = x.Message.ErrorReason)
-                    .TransitionTo(Rejected));
+                    .IfElse(
+                        x => x.Saga.StepsCompleted >= 1,
+                        then => then
+                            .Activity(x => x.OfInstanceType<ReleaseInventoryCompensateActivity>())
+                            .TransitionTo(CompensatingRelease),
+                        @else => @else.TransitionTo(Rejected)));
 
             During(Completing,
                 When(OrderCompleted)
-                    .Then(x => x.Saga.StepsCompleted = 2)
+                    .Then(x => x.Saga.StepsCompleted = 3)
                     .Activity(x => x.OfType<OrderCompletedActivity>())
                     .TransitionTo(Completed),
                 When(OrderCompleteFailed)

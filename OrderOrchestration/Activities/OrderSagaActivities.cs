@@ -204,32 +204,30 @@ namespace OrderOrchestration.Activities
 
     public class OrderCompleteFailedActivity : IStateMachineActivity<OrderState, OrderCompleteFailedEvent>
     {
-        private static readonly Uri CancelQueueUri = new("queue:order-cancel-queue");
-
         public void Probe(ProbeContext context) => context.CreateScope(nameof(OrderCompleteFailedActivity));
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
 
-public async Task Execute(
-                BehaviorContext<OrderState, OrderCompleteFailedEvent> context,
-                IBehavior<OrderState, OrderCompleteFailedEvent> next)
-            {
-                await context.Publish(
-                    new OrderCompleteFailedResponse(
-                        NewId.NextGuid(),
-                        context.Message.OrderId,
+        public async Task Execute(
+            BehaviorContext<OrderState, OrderCompleteFailedEvent> context,
+            IBehavior<OrderState, OrderCompleteFailedEvent> next)
+        {
+            await context.Publish(
+                new OrderCompleteFailedResponse(
+                    NewId.NextGuid(),
+                    context.Message.OrderId,
+                    context.Message.CustomerId,
+                    context.Message.ErrorReason,
+                    new NotificationPayLoad(
                         context.Message.CustomerId,
+                        "Đơn hàng thất bại",
                         context.Message.ErrorReason,
-                        new NotificationPayLoad(
-                            context.Message.CustomerId,
-                            "Đơn hàng thất bại",
-                            context.Message.ErrorReason,
-                            "Error",
-                            DateTime.UtcNow),
-                        DateTime.UtcNow));
+                        "Error",
+                        DateTime.UtcNow),
+                    DateTime.UtcNow));
 
-                await next.Execute(context);
-            }
+            await next.Execute(context);
+        }
 
         public Task Faulted<TException>(
             BehaviorExceptionContext<OrderState, OrderCompleteFailedEvent, TException> context,
@@ -240,8 +238,6 @@ public async Task Execute(
 
     public class OrderTimeoutExpiredActivity : IStateMachineActivity<OrderState, OrderTimeoutExpiredEvent>
     {
-        private static readonly Uri CancelQueueUri = new("queue:order-cancel-queue");
-
         public void Probe(ProbeContext context) => context.CreateScope(nameof(OrderTimeoutExpiredActivity));
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
@@ -282,9 +278,24 @@ public async Task Execute(
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
 
+        public async Task Execute(
+            BehaviorContext<OrderState> context,
+            IBehavior<OrderState> next)
+        {
+            await SendReleaseInventoryCommandAsync(context);
+            await next.Execute(context);
+        }
+
         public async Task Execute<T>(
             BehaviorContext<OrderState, T> context,
             IBehavior<OrderState, T> next)
+            where T : class
+        {
+            await SendReleaseInventoryCommandAsync(context);
+            await next.Execute(context);
+        }
+
+        private async Task SendReleaseInventoryCommandAsync(BehaviorContext<OrderState> context)
         {
             await context.Send(
                 ReleaseQueueUri,
@@ -295,14 +306,19 @@ public async Task Execute(
                     context.Saga.Items,
                     context.Saga.ErrorReason ?? "Compensate",
                     DateTime.UtcNow));
-
-            await next.Execute(context);
         }
+
+        public Task Faulted<TException>(
+            BehaviorExceptionContext<OrderState, TException> context,
+            IBehavior<OrderState> next)
+            where TException : Exception =>
+            next.Faulted(context);
 
         public Task Faulted<T, TException>(
             BehaviorExceptionContext<OrderState, T, TException> context,
             IBehavior<OrderState, T> next)
-            where TException : Exception =>
+            where TException : Exception
+            where T : class =>
             next.Faulted(context);
     }
 
@@ -314,9 +330,24 @@ public async Task Execute(
 
         public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
 
+        public async Task Execute(
+            BehaviorContext<OrderState> context,
+            IBehavior<OrderState> next)
+        {
+            await SendCancelOrderCommandAsync(context);
+            await next.Execute(context);
+        }
+
         public async Task Execute<T>(
             BehaviorContext<OrderState, T> context,
             IBehavior<OrderState, T> next)
+            where T : class
+        {
+            await SendCancelOrderCommandAsync(context);
+            await next.Execute(context);
+        }
+
+        private async Task SendCancelOrderCommandAsync(BehaviorContext<OrderState> context)
         {
             await context.Send(
                 CancelQueueUri,
@@ -326,14 +357,19 @@ public async Task Execute(
                     context.Saga.CustomerId,
                     context.Saga.ErrorReason ?? "Compensate",
                     DateTime.UtcNow));
-
-            await next.Execute(context);
         }
+
+        public Task Faulted<TException>(
+            BehaviorExceptionContext<OrderState, TException> context,
+            IBehavior<OrderState> next)
+            where TException : Exception =>
+            next.Faulted(context);
 
         public Task Faulted<T, TException>(
             BehaviorExceptionContext<OrderState, T, TException> context,
             IBehavior<OrderState, T> next)
-            where TException : Exception =>
+            where TException : Exception
+            where T : class =>
             next.Faulted(context);
     }
 }

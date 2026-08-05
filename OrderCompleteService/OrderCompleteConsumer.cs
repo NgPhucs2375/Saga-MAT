@@ -65,9 +65,9 @@ namespace OrderCompleteService
                 {
                     errors.Add($"Sản phẩm {item.ProductId} không tồn tại hoặc đã bị vô hiệu hóa.");
                 }
-                else if (product.SLTKho < item.Quantity)
+                else if (product.PhysicalQty - product.ReservedQty < item.Quantity)
                 {
-                    errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.SLTKho} trong kho, yêu cầu {item.Quantity}.");
+                    errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.PhysicalQty - product.ReservedQty} khả dụng trong kho, yêu cầu {item.Quantity}.");
                 }
                 else
                 {
@@ -97,18 +97,23 @@ namespace OrderCompleteService
             {
                 // === XỬ LÝ KHI THÀNH CÔNG (TRONG CÙNG 1 TRANSACTION) ===
 
-                // 1. Trừ tồn kho (trên các entity đã được EF Core theo dõi)
+                // 1. Tiêu thụ tồn kho: giảm hàng vật lý và giải phóng phần giữ chỗ
                 foreach (var item in message.Items)
                 {
                     if (productsToUpdate.TryGetValue(item.ProductId, out var product))
                     {
-                        product.SLTKho -= item.Quantity;
+                        product.PhysicalQty -= item.Quantity;
+                        product.ReservedQty -= item.Quantity;
+                        // NoTracking -> đánh dấu Modified để SaveChanges (trong UpdateAsync Order) ghi lại.
+                        _productRepository.MarkAsModified(product);
                     }
                 }
 
                 // 2. Cập nhật trạng thái đơn hàng -> Completed
                 order.Status = OrderStatus.Completed;
                 order.CompletedAt = DateTime.UtcNow;
+                // Đã tiêu thụ xong -> không còn giữ chỗ. (ReleaseInventoryConsumer chỉ hoàn lại khi IsReserved=true)
+                order.IsReserved = false;
 
                 // 3. Vô hiệu hóa timer
                 var pendingTimer = await _orderTimerRepository.GetPendingByOrderIdAsync(message.OrderId);

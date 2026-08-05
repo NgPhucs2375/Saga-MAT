@@ -28,6 +28,7 @@ var host = Host.CreateDefaultBuilder(args)
         {
             x.AddConsumer<ShippingFailedConsumer>();
             x.AddConsumer<OrderCompleteConsumer>();
+            x.AddConsumer<ReleaseInventoryConsumer>(c => c.Endpoint(e => e.Name = "release-inventory-queue"));
             x.SetKebabCaseEndpointNameFormatter();
             x.UsingPostgres((context, cfg) =>
             {

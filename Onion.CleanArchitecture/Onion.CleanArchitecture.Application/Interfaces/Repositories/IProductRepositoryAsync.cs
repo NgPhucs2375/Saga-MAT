@@ -11,8 +11,18 @@ namespace Onion.CleanArchitecture.Application.Interfaces.Repositories
     {
         Task<bool> IsUniqueBarcodeAsync(string barcode);
         Task<int> DeleteRangeAsync(List<int> ids);
+         Task<List<Product>> GetProductsByIdsAsync(List<Guid> productIds);
         Task<PagedList<Product>> GetPagedProductsAsync(GetAllProductsParameter parameter);
         Task<Onion.CleanArchitecture.Domain.Entities.Product> GetProductByIdAsync(Guid productId);
         void MarkAsModified(Onion.CleanArchitecture.Domain.Entities.Product entity);
+        /// <summary>
+        /// Tăng ReservedQty (giữ hàng) cho sản phẩm nếu còn đủ hàng khả dụng.
+        /// Atomic + Optimistic Locking: trả false nếu hết hàng / bị người khác chiếm.
+        /// </summary>
+        Task<bool> ReserveAsync(Guid productId, int quantity);
+        /// <summary>
+        /// Giảm ReservedQty (hoàn lại hàng đang giữ khi compensate/timeout/cancel).
+        /// </summary>
+        Task ReleaseAsync(Guid productId, int quantity);
     }
 }

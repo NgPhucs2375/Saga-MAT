@@ -6,9 +6,13 @@ export interface IProduct {
   Price: number;
   Id: number;
   ProductId: string;
-  SLTKho: number;
+  PhysicalQty: number;
+  ReservedQty: number;
+  AvailableQty: number;
   CreatedBy: string;
   Created: string;
   LastModifiedBy: string;
   LastModified: string;
+  IsActive: boolean;
+  ImageUrl?: any;
 }

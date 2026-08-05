@@ -1,29 +1,32 @@
 import {
   useTable,
   List,
-  ShowButton,
-  EditButton,
-  DeleteButton,
   getDefaultSortOrder,
   DateField,
   FilterDropdown,
   useSelect,
-  CloneButton,
   ExportButton,
 } from "@refinedev/antd";
-import { Table, Space, Input, Button, DatePicker, Select } from "antd";
+import { Table, Input, Button, DatePicker, Select, Tag, Row, Col, Card, Statistic } from "antd";
 import { IProduct } from "./types";
 import {
   getDefaultFilter,
   useNavigation,
   useDeleteMany,
   useMany,
+  useList,
   useExport,
   CanAccess,
 } from "@refinedev/core";
-import React from "react";
+import React, { useMemo } from "react";
 import { PaginationTotal } from "@components/pagination-total";
 import { IUser } from "@routes/identity/users";
+import { ProductActions, ProductStatusTag } from "./productcomponent";
+import {
+  ShoppingCartOutlined,
+  DollarOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
 export const ListProduct = () => {
   const { mutate: deleteMutate } = useDeleteMany();
   const { tableProps, sorters, filters } = useTable<IProduct>({
@@ -43,6 +46,40 @@ export const ListProduct = () => {
   //       ...new Set(tableProps?.dataSource?.map((user) => user.LastModifiedBy)),
   //     ],
   //   });
+
+  // Fetch data for stats dashboard, respecting table filters
+  const { data: statsData, isLoading: statsIsLoading } = useList<IProduct>({
+    resource: "products",
+    pagination: {
+      mode: "off", // Fetch all records matching filters
+    },
+    filters: filters,
+  });
+
+  const stats = useMemo(() => {
+    if (!statsData?.data) {
+      return {
+        totalProducts: 0,
+        outOfStock: 0,
+        inventoryValue: 0,
+      };
+    }
+
+    const products = statsData.data;
+    const outOfStock = products.filter(
+      (p) => p.PhysicalQty === 0
+    ).length;
+    const inventoryValue = products.reduce(
+      (sum, product) => sum + (product.Price * product.PhysicalQty),
+      0
+    );
+
+    return {
+      totalProducts: products.length,
+      outOfStock,
+      inventoryValue,
+    };
+  }, [statsData]);
 
   const { triggerExport, isLoading: exportLoading } = useExport<IProduct>({
     filters,
@@ -99,6 +136,45 @@ export const ListProduct = () => {
         </>
       }
     >
+      {/* Stats Dashboard Section */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Tổng số sản phẩm"
+              value={stats.totalProducts}
+              loading={statsIsLoading}
+              prefix={<ShoppingCartOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Tổng giá trị kho"
+              value={stats.inventoryValue}
+              loading={statsIsLoading}
+              prefix={<DollarOutlined />}
+              suffix="VND"
+              formatter={(value) => value.toLocaleString()}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Sản phẩm hết hàng"
+              value={stats.outOfStock}
+              loading={statsIsLoading}
+              prefix={<WarningOutlined />}
+              valueStyle={{
+                color: stats.outOfStock > 0 ? "#cf1322" : undefined,
+              }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
       <Table
         {...tableProps}
         rowKey="Id"
@@ -164,6 +240,19 @@ export const ListProduct = () => {
               <Input placeholder="Search Price" />
             </FilterDropdown>
           )}
+        />
+        <Table.Column
+          dataIndex="PhysicalQty"
+          title="Tồn kho"
+          align="right"
+          sorter
+          render={(value) => <Tag color={value > 0 ? "blue" : "red"}>{value ?? 0}</Tag>}
+        />
+        <Table.Column
+          dataIndex="IsActive"
+          title="Trạng thái"
+          align="center"
+          render={(value: boolean) => <ProductStatusTag isActive={value} />}
         />
         <Table.Column
           dataIndex="CreatedBy"
@@ -234,17 +323,10 @@ export const ListProduct = () => {
         />
         <Table.Column
           title="Actions"
-          render={(_, record: IProduct) => (
-            <Space>
-              {/* We'll use the `EditButton` and `ShowButton` to manage navigation easily */}
-              <ShowButton hideText size="small" recordItemId={record.Id} />
-              <EditButton hideText size="small" recordItemId={record.Id} />
-              <DeleteButton hideText size="small" recordItemId={record.Id} />
-              <CanAccess resource="products" action="clone">
-                <CloneButton hideText size="small" recordItemId={record.Id} />
-              </CanAccess>
-            </Space>
-          )}
+          fixed="right"
+          align="center"
+          width={100}
+          render={(_, record: IProduct) => <ProductActions record={record} />}
         />
       </Table>
     </List>

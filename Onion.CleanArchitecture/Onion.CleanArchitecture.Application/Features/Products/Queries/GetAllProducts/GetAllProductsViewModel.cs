@@ -13,6 +13,11 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllPr
         public string Description { get; set; }
         public decimal Rate { get; set; }
         public decimal Price { get; set; }
-        public int SLTKho { get; set; }
+        // Tồn kho vật lý (map cột "SLTKho")
+        public int PhysicalQty { get; set; }
+        // Tồn kho đang tạm giữ
+        public int ReservedQty { get; set; }
+        // Số lượng khả dụng để bán = PhysicalQty - ReservedQty
+        public int AvailableQty => PhysicalQty - ReservedQty;
     }
 }

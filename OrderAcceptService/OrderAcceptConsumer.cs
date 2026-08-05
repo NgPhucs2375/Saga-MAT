@@ -69,9 +69,9 @@ namespace OrderAcceptService
                     {
                         errors.Add($"Sản phẩm {item.ProductId} không tồn tại hoặc đã bị vô hiệu hóa.");
                     }
-                    else if (product.SLTKho < item.Quantity)
+                    else if (product.PhysicalQty - product.ReservedQty < item.Quantity)
                     {
-                        errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.SLTKho} trong kho, yêu cầu {item.Quantity}.");
+                        errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.PhysicalQty - product.ReservedQty} khả dụng trong kho, yêu cầu {item.Quantity}.");
                     }
                 }
 

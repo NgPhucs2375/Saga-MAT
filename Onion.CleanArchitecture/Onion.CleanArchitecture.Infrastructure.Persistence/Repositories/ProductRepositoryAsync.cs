@@ -52,6 +52,14 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
         {
             return _products.FirstOrDefaultAsync(p => p.ProductId == productId);
         }
+            public async Task<List<Product>> GetProductsByIdsAsync(List<Guid> productIds)
+        {
+            // Phương thức này sẽ được Entity Framework Core dịch thành câu lệnh SQL
+            // sử dụng `WHERE ProductId IN (...)`, rất hiệu quả.
+            return await _dbContext.Product
+                .Where(p => productIds.Contains(p.ProductId))
+                .ToListAsync();
+        }
 
         public async Task<Product> GetProductByIdAsync(Guid productId)
         {
@@ -61,6 +69,31 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
         public void MarkAsModified(Product entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
+        }
+
+        // ---- Giữ hàng (Reservation) với Optimistic Locking ----
+
+        public async Task<bool> ReserveAsync(Guid productId, int quantity)
+        {
+            // UPDATE Product SET ReservedQty += @q, Version = Version + 1
+            // WHERE ProductId = @id AND (PhysicalQty - ReservedQty) >= @q
+            // Nếu 0 dòng -> hết hàng khả dụng (hoặc bị ai đó chiếm trước) -> fail ngay tại bước giữ chỗ.
+            var updated = await _dbContext.Product
+                .Where(p => p.ProductId == productId && p.PhysicalQty - p.ReservedQty >= quantity)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.ReservedQty, p => p.ReservedQty + quantity)
+                    .SetProperty(p => p.Version, p => p.Version + 1));
+
+            return updated > 0;
+        }
+
+        public async Task ReleaseAsync(Guid productId, int quantity)
+        {
+            await _dbContext.Product
+                .Where(p => p.ProductId == productId)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.ReservedQty, p => p.ReservedQty - quantity)
+                    .SetProperty(p => p.Version, p => p.Version + 1));
         }
     }
 }

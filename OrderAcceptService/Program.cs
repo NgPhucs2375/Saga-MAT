@@ -31,6 +31,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderAcceptConsumer>();
             x.AddConsumer<OrderTimeoutConsumer>();
             x.AddConsumer<OrderCompleteFailedConsumer>();
+            x.AddConsumer<CancelOrderConsumer>(c => c.Endpoint(e => e.Name = "order-cancel-queue"));
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có

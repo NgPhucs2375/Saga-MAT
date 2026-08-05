@@ -8,6 +8,7 @@ using Onion.CleanArchitecture.Domain.Enums;
 using Onion.CleanArchitecture.Domain.Events;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,20 +59,27 @@ namespace Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrd
 
             if (request.Items != null)
             {
+                // Tối ưu hóa N+1 query:
+                // 1. Lấy tất cả ProductId từ request.
+                var productIds = request.Items.Select(i => i.ProductId).ToList();
+                // 2. Truy vấn một lần duy nhất để lấy tất cả product.
+                var products = await _productRepository.GetProductsByIdsAsync(productIds);
+                var productDict = products.ToDictionary(p => p.ProductId);
+
                 foreach (var item in request.Items)
                 {
-                    var product = await _productRepository.GetProductByIdAsync(item.ProductId);
-                    if (product == null || !product.IsActive)
+                    if (!productDict.TryGetValue(item.ProductId, out var product) || !product.IsActive)
                         continue;
 
-                    // Kiểm tra tồn kho: số lượng theo yêu cầu phải <= SLTKho hiện tại
-                    if (item.Quantity <= 0 || item.Quantity > product.SLTKho)
+                    // Kiểm tra tồn kho khả dụng: số lượng theo yêu cầu phải <= AvailableQty hiện tại
+                    var available = product.PhysicalQty - product.ReservedQty;
+                    if (item.Quantity <= 0 || item.Quantity > available) // AvailableQty = SLTKho - ReservedQty
                     {
                         return new Application.Wrappers.Response<int>
                         {
                             Succeeded = false,
                             Code = -1,
-                            Message = $"Sản phẩm '{product.Name}' chỉ còn {product.SLTKho} trong kho."
+                            Message = $"Sản phẩm '{product.Name}' chỉ còn {available} trong kho."
                         };
                     }
 

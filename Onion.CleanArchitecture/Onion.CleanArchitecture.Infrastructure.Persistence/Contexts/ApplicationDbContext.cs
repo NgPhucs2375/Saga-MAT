@@ -74,6 +74,16 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
                 .HasPrincipalKey(o => o.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // PhysicalQty giữ đúng cột "SLTKho" cũ (không đổi tên column để giữ dữ liệu hiện có)
+            builder.Entity<Product>()
+                .Property(p => p.PhysicalQty)
+                .HasColumnName("SLTKho");
+
+            // Optimistic Locking: Version là concurrency token
+            builder.Entity<Product>()
+                .Property(p => p.Version)
+                .IsConcurrencyToken();
+
             base.OnModelCreating(builder);
         }
     }
