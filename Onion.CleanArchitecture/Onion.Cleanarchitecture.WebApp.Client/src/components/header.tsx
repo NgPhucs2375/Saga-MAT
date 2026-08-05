@@ -1,5 +1,6 @@
 import { Layout, Space, theme } from "antd";
 import { CurrentUser } from "./current-user";
+import { NotificationBell } from "./notifications/notification-bell";
 const { useToken } = theme;
 
 export const Header = () => {
@@ -19,6 +20,7 @@ export const Header = () => {
   return (
     <Layout.Header style={headerStyles}>
       <Space align="center" size="middle">
+        <NotificationBell />
         <CurrentUser />
       </Space>
     </Layout.Header>

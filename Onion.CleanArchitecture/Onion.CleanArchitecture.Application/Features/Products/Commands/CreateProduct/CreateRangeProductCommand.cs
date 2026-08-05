@@ -8,6 +8,7 @@ using MediatR;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Application.Wrappers;
 using Onion.CleanArchitecture.Domain.Entities;
+using System;
 
 namespace Onion.CleanArchitecture.Application.Features.Products.Commands.CreateProduct
 {
@@ -39,6 +40,10 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Commands.CreateP
 
                 var validProducts = request.Where(product => productsResponse.All(productResponse => productResponse.Barcode != product.Barcode)).ToList();
                 var products = _mapper.Map<List<Product>>(validProducts);
+                foreach (var product in products)
+                {
+                    product.ProductId = Guid.NewGuid();
+                }
                 await _productRepository.AddRangeAsync(products);
                 productsResponse.AddRange(validProducts.Select(product => new CreateRangeProductResponse
                 {

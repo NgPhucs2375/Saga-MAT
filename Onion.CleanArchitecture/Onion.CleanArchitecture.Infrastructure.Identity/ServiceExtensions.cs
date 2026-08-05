@@ -13,6 +13,7 @@ using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Application.Wrappers;
 using Onion.CleanArchitecture.Domain.Settings;
 using Onion.CleanArchitecture.Infrastructure.Identity.Contexts;
+using System.Threading.Tasks;
 using Onion.CleanArchitecture.Infrastructure.Identity.Models;
 using Onion.CleanArchitecture.Infrastructure.Identity.Services;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
@@ -125,13 +126,14 @@ namespace Onion.CleanArchitecture.Infrastructure.Identity
                         OnAuthenticationFailed = c =>
                         {
                             c.NoResult();
-                            c.Response.StatusCode = 500;
-                            c.Response.ContentType = "text/plain";
-                            return c.Response.WriteAsync(c.Exception.ToString());
+                            c.Response.Headers["Token-Expired"] = "true";
+                            return Task.CompletedTask;
                         },
                         OnChallenge = context =>
                         {
                             context.HandleResponse();
+                            if (context.Response.HasStarted)
+                                return Task.CompletedTask;
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
                             var result = JsonConvert.SerializeObject(new Response<string>("You are not Authorized"));

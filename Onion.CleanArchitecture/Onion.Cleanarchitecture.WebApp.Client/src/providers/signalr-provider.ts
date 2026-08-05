@@ -16,6 +16,14 @@ class SignalRService {
   private userId: string | null = null;
 
   async start(userId: string): Promise<void> {
+    if (
+      this.connection &&
+      (this.connection.state === signalR.HubConnectionState.Connected ||
+        this.connection.state === signalR.HubConnectionState.Connecting)
+    ) {
+      return;
+    }
+
     this.userId = userId;
 
     this.connection = new signalR.HubConnectionBuilder()

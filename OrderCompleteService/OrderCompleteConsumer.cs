@@ -130,7 +130,7 @@ namespace OrderCompleteService
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "CompleteOrderCommand", "Đơn hàng hoàn tất, đã trừ kho và vô hiệu hóa timer.");
 
                 await context.Publish(new OrderCompletedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, message.Items, DateTime.UtcNow));
                 _logger.LogInformation("Complete thành công OrderId={OrderId}. Đã trừ kho và vô hiệu hóa timer.", message.OrderId);
             }
             catch (Exception ex)

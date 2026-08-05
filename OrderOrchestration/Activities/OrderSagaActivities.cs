@@ -60,6 +60,19 @@ namespace OrderOrchestration.Activities
                     context.Message.CustomerId,
                     DateTime.UtcNow));
 
+            // Thông báo bước Submit thành công -> NotificationService đẩy SignalR
+            await context.Publish(new OrderSubmitSuccessResponse(
+                NewId.NextGuid(),
+                context.Message.OrderId,
+                context.Message.CustomerId,
+                new NotificationPayLoad(
+                    context.Message.CustomerId,
+                    "Đơn hàng đã được xác nhận",
+                    "Đơn hàng của bạn đã được xác nhận hợp lệ và đang chờ duyệt.",
+                    "Success",
+                    DateTime.UtcNow),
+                DateTime.UtcNow));
+
             await next.Execute(context);
         }
 
@@ -124,6 +137,19 @@ namespace OrderOrchestration.Activities
                     context.Message.CustomerId,
                     context.Saga.Items,
                     DateTime.UtcNow));
+
+            // Thông báo bước Accept thành công -> NotificationService đẩy SignalR
+            await context.Publish(new OrderAcceptSuccessResponse(
+                NewId.NextGuid(),
+                context.Message.OrderId,
+                context.Message.CustomerId,
+                new NotificationPayLoad(
+                    context.Message.CustomerId,
+                    "Đơn hàng đã được duyệt",
+                    "Đơn hàng của bạn đã được duyệt và đang được xử lý.",
+                    "Success",
+                    DateTime.UtcNow),
+                DateTime.UtcNow));
 
             await next.Execute(context);
         }

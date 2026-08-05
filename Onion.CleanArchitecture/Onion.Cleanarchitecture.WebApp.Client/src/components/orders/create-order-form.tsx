@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Form, Select, InputNumber, Button, Space, FormProps, Input, Typography } from "antd";
+import { Form, Select, InputNumber, Button, Space, FormProps, Input, Typography, Divider, Row, Col } from "antd";
 import { useList } from "@refinedev/core";
 import { IProduct, ICreateOrder } from "../../routes/orders/types";
 
@@ -10,6 +10,7 @@ interface CreateOrderFormProps {
 }
 
 export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) => {
+  const { form } = formProps;
   const { data, isLoading } = useList<IProduct>({
     resource: "products",
     pagination: { pageSize: 100 },
@@ -31,23 +32,43 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
     [products]
   );
 
-  const [selectedProducts, setSelectedProducts] = useState<Record<number, IProduct>>({});
+  const [selectedProducts, setSelectedProducts] = useState<Record<number, IProduct | undefined>>({});
+
+  const items = Form.useWatch("Items", form);
+
+  const totalAmount = useMemo(() => {
+    if (!items) return 0;
+    return items.reduce((acc, item) => {
+      if (!item || !item.ProductId || !item.Quantity) {
+        return acc;
+      }
+      const product = productById.get(item.ProductId);
+      if (!product) {
+        return acc;
+      }
+      return acc + product.Price * item.Quantity;
+    }, 0);
+  }, [items, productById]);
 
   const handleProductChange = (name: number, value: string) => {
     const product = productById.get(value);
-    setSelectedProducts((prev) => ({ ...prev, [name]: product ?? undefined }));
+    setSelectedProducts((prev) => ({ ...prev, [name]: product }));
   };
 
   const formatPrice = (price: number) => price?.toLocaleString("vi-VN") ?? "";
 
   return (
-    <Form {...formProps} layout="vertical" initialValues={{ Items: [{}] }}>
+    <Form {...formProps} layout="vertical">
       <Form.List name="Items">
         {(fields, { add, remove }) => {
           return (
             <div>
               {fields.map(({ key, name }) => {
                 const selected = selectedProducts[name];
+                const currentItem = items?.[name]; // Lấy thông tin sản phẩm hiện tại từ mảng 'items' đã được theo dõi
+                const quantity = currentItem?.Quantity; // Lấy số lượng từ sản phẩm đó
+                const subtotal = selected && quantity ? selected.Price * quantity : 0;
+
                 return (
                   <Space key={key} style={{ display: "flex", marginBottom: 8, alignItems: "start" }} align="start">
                     <Form.Item
@@ -72,22 +93,32 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                     >
                       <InputNumber<number> placeholder="Số lượng" min={1} style={{ minWidth: 100 }} />
                     </Form.Item>
-                    {selected ? (
-                      <Form.Item label="Giá / Khả dụng">
-                        <div style={{ paddingTop: 4, lineHeight: 1.4 }}>
-                          <div>
-                            <Text strong>{formatPrice(selected.Price)} đ</Text>
+                    {selected ? ( <>
+                        <Form.Item label="Đơn giá">
+                          <div style={{ paddingTop: 4, lineHeight: 1.4, minWidth: 120 }}>
+                            <div>
+                              <Text strong>{formatPrice(selected.Price)} đ</Text>
+                            </div>
+                            <Text type={selected.AvailableQty > 0 ? "success" : "danger"}>
+                              Còn {selected.AvailableQty}
+                            </Text>
                           </div>
-                          <Text type={selected.AvailableQty > 0 ? "success" : "danger"}>
-                            Còn {selected.AvailableQty}
-                          </Text>
-                        </div>
-                      </Form.Item>
-                    ) : (
-                      <Form.Item label="Giá / Khả dụng">
-                        <Text type="secondary">Chọn sản phẩm để xem giá & tồn kho</Text>
-                      </Form.Item>
-                    )}
+                        </Form.Item>
+                        <Form.Item label="Thành tiền">
+                          <div style={{ paddingTop: 4, minWidth: 120 }}>
+                            <Text strong style={{ color: "#1677ff" }}>
+                              {formatPrice(subtotal)} đ
+                            </Text>
+                          </div>
+                        </Form.Item>
+                      </> ) : ( <>
+                        <Form.Item label="Đơn giá">
+                          <Text type="secondary" style={{ display: 'block', paddingTop: 4, minWidth: 120 }}>Chọn sản phẩm</Text>
+                        </Form.Item>
+                        <Form.Item label="Thành tiền">
+                          <Text type="secondary" style={{ display: 'block', paddingTop: 4, minWidth: 120 }}>-</Text>
+                        </Form.Item>
+                      </> )}
                     <Form.Item label=" ">
                       <Button type="dashed" danger onClick={() => remove(name)}>Xóa</Button>
                     </Form.Item>
@@ -101,6 +132,19 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
           );
         }}
       </Form.List>
+
+      <Divider />
+
+      <Row justify="end" style={{ marginBottom: 24 }}>
+        <Col>
+          <Space align="baseline" size="large">
+            <Text strong style={{ fontSize: '1.2em' }}>Tổng cộng:</Text>
+            <Typography.Title level={3} style={{ margin: 0, color: '#1677ff' }}>
+              {formatPrice(totalAmount)} đ
+            </Typography.Title>
+          </Space>
+        </Col>
+      </Row>
 
       <Form.Item label="Ghi chú" name="Note">
         <Input.TextArea rows={3} placeholder="Nhập mô tả / ghi chú" />

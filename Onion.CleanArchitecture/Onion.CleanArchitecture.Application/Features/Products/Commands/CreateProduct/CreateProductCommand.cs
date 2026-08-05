@@ -3,6 +3,7 @@ using MediatR;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Application.Wrappers;
 using Onion.CleanArchitecture.Domain.Entities;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Commands.CreateP
         public async Task<Response<int>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var product = _mapper.Map<Product>(request);
+            product.ProductId = Guid.NewGuid();
             await _productRepository.AddAsync(product);
             return new Response<int>(product.Id);
         }

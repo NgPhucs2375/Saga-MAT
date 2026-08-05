@@ -31,16 +31,19 @@ var host = Host.CreateDefaultBuilder(args)
             // Định dạng tên Queue theo chuẩn kebab-case (ví dụ: order-submit-consumer)
             x.SetKebabCaseEndpointNameFormatter();
 
-            // Đăng ký Consumer xử lý ValidateOrderCommand
-            x.AddConsumer<OrderSubmitConsumer>(); 
+// Đăng ký Consumer xử lý ValidateOrderCommand
+            x.AddConsumer<OrderSubmitConsumer>();
 
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
                 cfg.AutoStart = true;
 
-                // BẮT BUỘC: Đăng ký Endpoint cho Consumer xử lý message
-                cfg.ConfigureEndpoints(context);
+                // BẮT BUỘC: Nhận ValidateOrderCommand từ Saga qua queue order-validation-queue
+                cfg.ReceiveEndpoint("order-validation-queue", e =>
+                {
+                    e.ConfigureConsumer<OrderSubmitConsumer>(context);
+                });
             });
         });
     })

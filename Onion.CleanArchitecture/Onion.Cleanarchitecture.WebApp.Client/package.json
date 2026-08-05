@@ -13,6 +13,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
     "@ant-design/plots": "^2.6.8",
+    "@microsoft/signalr": "^8.0.29",
     "@refinedev/antd": "^5.38.1",
     "@refinedev/cli": "^2.16.31",
     "@refinedev/core": "^4.49.2",

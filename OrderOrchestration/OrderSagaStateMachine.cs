@@ -29,7 +29,7 @@ namespace OrderOrchestration
         public Event<OrderCompleteFailedEvent> OrderCompleteFailed { get; private set; }
         public Event<OrderTimeoutExpiredEvent> OrderTimeoutExpired { get; private set; }
         public Event<InventoryReleasedEvent> InventoryReleased { get; private set; }
-        public Event<InventoryReleasedFailedEvent> InventoryReleasedFailed { get; private set; }
+        public Event<ReleaseInventoryFailedEvent> InventoryReleasedFailed { get; private set; }
         public Event<OrderCancelledEvent> OrderCancelled { get; private set; }
         public Event<CancelOrderFailedEvent> CancelOrderFailed { get; private set; }
 
@@ -109,12 +109,36 @@ namespace OrderOrchestration
                     .Activity(x => x.OfInstanceType<CancelOrderCompensateActivity>())
                     .TransitionTo(CompensatingCancel),
                 When(InventoryReleasedFailed)
+                    .Then(ctx => ctx.Publish(new OrderAcceptFailedResponse(
+                        NewId.NextGuid(),
+                        ctx.Saga.CorrelationId,
+                        ctx.Saga.CustomerId,
+                        ctx.Message.ErrorReason,
+                        new NotificationPayLoad(
+                            ctx.Saga.CustomerId,
+                            "Đơn hàng bị từ chối",
+                            "Bồi hoàn tồn kho thất bại: " + ctx.Message.ErrorReason,
+                            "Error",
+                            DateTime.UtcNow),
+                        DateTime.UtcNow)))
                     .TransitionTo(Rejected));
 
             During(CompensatingCancel,
                 When(OrderCancelled)
                     .TransitionTo(Rejected),
                 When(CancelOrderFailed)
+                    .Then(ctx => ctx.Publish(new OrderAcceptFailedResponse(
+                        NewId.NextGuid(),
+                        ctx.Saga.CorrelationId,
+                        ctx.Saga.CustomerId,
+                        ctx.Message.ErrorReason,
+                        new NotificationPayLoad(
+                            ctx.Saga.CustomerId,
+                            "Đơn hàng bị từ chối",
+                            "Bồi hoàn hủy đơn thất bại: " + ctx.Message.ErrorReason,
+                            "Error",
+                            DateTime.UtcNow),
+                        DateTime.UtcNow)))
                     .TransitionTo(Rejected));
         }
     }

@@ -31,14 +31,18 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderAcceptConsumer>();
             x.AddConsumer<OrderTimeoutConsumer>();
             x.AddConsumer<OrderCompleteFailedConsumer>();
-            x.AddConsumer<CancelOrderConsumer>(c => c.Endpoint(e => e.Name = "order-cancel-queue"));
+            x.AddConsumer<CancelOrderConsumer>();
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
                 cfg.AutoStart = true;
 
-                // BẮT BUỘC: Đăng ký Endpoint cho Consumer xử lý message
-                cfg.ConfigureEndpoints(context);            });
+                // Nhận các command/event theo tên queue cố định
+                cfg.ReceiveEndpoint("order-accept-queue", e => e.ConfigureConsumer<OrderAcceptConsumer>(context));
+                cfg.ReceiveEndpoint("order-cancel-queue", e => e.ConfigureConsumer<CancelOrderConsumer>(context));
+                cfg.ReceiveEndpoint("order-timeout-queue", e => e.ConfigureConsumer<OrderTimeoutConsumer>(context));
+                cfg.ReceiveEndpoint("order-complete-failed-queue", e => e.ConfigureConsumer<OrderCompleteFailedConsumer>(context));
+            });
         });
 
         // 4. Worker quét timer hết hạn

@@ -25,26 +25,32 @@ import {
 } from "@routes/identity/users";
 import {
   CloneProduct,
-  CloneRole,
-  CloneRoleClaim,
   CreateProduct,
   CreateRangeProduct,
-  CreateRole,
-  CreateRoleClaim,
-  Dashboard,
   EditProduct,
-  EditRole,
-  EditRoleClaim,
-  ListOrder,
   ListProduct,
-  ListRole,
-  ListRoleClaim,
   ShowProduct,
+} from "@routes/products";
+import {
+  CloneRole,
+  CreateRole,
+  EditRole,
+  ListRole,
   ShowRole,
+} from "@routes/roles";
+import {
+  CloneRoleClaim,
+  CreateRoleClaim,
+  EditRoleClaim,
+  ListRoleClaim,
   ShowRoleClaim,
-} from "./components/orders";
+} from "@routes/roleclaims";
+import { Dashboard } from "@routes/dashboards";
+import { ListOrder } from "@routes/orders";
 import { CreateOrder } from "./routes/orders/create";
 import { Unauthorized } from "@components/unauthorized";
+import { Header } from "@components/header";
+import { NotificationProvider } from "@components/notifications/notification-context";
 import { ShowOrder } from "./routes/orders/show";
 import { EditOrder } from "./routes/orders/edit"; // Added EditOrder import
 
@@ -65,6 +71,7 @@ const App: React.FC = () => {
             }}
             resources={resources}
           >
+            <NotificationProvider>
             <Routes>
               <Route
                 element={
@@ -73,6 +80,7 @@ const App: React.FC = () => {
                     fallback={<CatchAllNavigate to="/login" />}
                   >
                     <ThemedLayoutV2
+                      Header={Header}
                       Title={({ collapsed }: any) => (
                         <ThemedTitleV2
                           collapsed={collapsed}
@@ -472,6 +480,7 @@ const App: React.FC = () => {
                 <Route path="*" element={<ErrorComponent />} />
               </Route>
             </Routes>
+            </NotificationProvider>
           </Refine>
         </AntdApp>
       </ConfigProvider>

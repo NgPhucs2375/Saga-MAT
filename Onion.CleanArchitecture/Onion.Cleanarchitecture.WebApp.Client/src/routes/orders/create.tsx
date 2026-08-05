@@ -6,7 +6,7 @@ import { BaseRecord, HttpError } from "@refinedev/core";
 export const CreateOrder = () => {
   const { formProps, saveButtonProps } = useForm<BaseRecord, HttpError, ICreateOrder>({
     resource: "orders",
-    redirect: false,
+    redirect: "list",
   });
 
   return (

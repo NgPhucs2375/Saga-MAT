@@ -14,7 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
 // === DI SignalR + CORS === //
-builder.Services.AddSignalR();
+// Giữ nguyên PascalCase khi serialize qua wire để khớp client TS (NotificationPayload)
+builder.Services.AddSignalR().AddJsonProtocol(o =>
+{
+    o.PayloadSerializerOptions.PropertyNamingPolicy = null;
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpa", policy =>

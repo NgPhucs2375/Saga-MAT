@@ -26,17 +26,18 @@ var host = Host.CreateDefaultBuilder(args)
         });
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<ShippingFailedConsumer>();
             x.AddConsumer<OrderCompleteConsumer>();
-            x.AddConsumer<ReleaseInventoryConsumer>(c => c.Endpoint(e => e.Name = "release-inventory-queue"));
+            x.AddConsumer<ReleaseInventoryConsumer>();
             x.SetKebabCaseEndpointNameFormatter();
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
                 cfg.AutoStart = true;
 
-                // BẮT BUỘC: Đăng ký Endpoint cho Consumer xử lý message
-                cfg.ConfigureEndpoints(context);            });
+                // Nhận command từ Saga theo tên queue cố định
+                cfg.ReceiveEndpoint("order-complete-queue", e => e.ConfigureConsumer<OrderCompleteConsumer>(context));
+                cfg.ReceiveEndpoint("release-inventory-queue", e => e.ConfigureConsumer<ReleaseInventoryConsumer>(context));
+            });
         });
         // Đăng ký EF + repositories + stub IAuthenticatedUserService
     })

@@ -142,7 +142,7 @@ export const ListOrder = () => {
   // Hook to fetch data for the drawer
   const { queryResult } = useShow<IOrderDetail>({
     resource: "orders",
-    id: recordId ?? "",
+    id: recordId ?? undefined,
     queryOptions: {
       enabled: !!recordId,
     },

@@ -169,6 +169,13 @@ export const dataProvider: DataProvider = {
       return handleErrorResponse(errorResponse);
     }
     const data = (await response.json()) as ResponseRoot;
+    if (!data.Succeeded) {
+      const error: HttpError = {
+        message: data.Message,
+        statusCode: data.Code,
+      };
+      return Promise.reject(error);
+    }
     return { data: data.Data as any };
   },
   createMany: async ({ resource, variables }) => {
@@ -221,6 +228,13 @@ export const dataProvider: DataProvider = {
       return Promise.reject(error);
     }
     const data = (await response.json()) as ResponseRoot;
+    if (!data.Succeeded) {
+      const error: HttpError = {
+        message: data.Message,
+        statusCode: data.Code,
+      };
+      return Promise.reject(error);
+    }
     return { data: data.Data as any };
   },
   deleteOne: async ({ resource, id }) => {

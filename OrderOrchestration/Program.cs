@@ -52,4 +52,11 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<OrderSagaDbContext>();
+    db.Database.Migrate();
+    Console.WriteLine("[OrderOrchestration] Đã migrate OrderSagaDbContext (thêm cột StepsCompleted).");
+}
+
 await host.RunAsync();

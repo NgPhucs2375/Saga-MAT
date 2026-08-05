@@ -4,6 +4,9 @@ using Onion.CleanArchitecture.Infrastructure.Identity.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Identity.Models;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Onion.CleanArchitecture.WebApp.Server.Initializer
 {
@@ -32,6 +35,18 @@ namespace Onion.CleanArchitecture.WebApp.Server.Initializer
                 await dbContext.Database.MigrateAsync();
                 var identityDbContext = _serviceProvider.GetRequiredService<IdentityContext>();
                 await identityDbContext.Database.MigrateAsync();
+
+                // Backfill: gán ProductId duy nhất cho các sản phẩm cũ đang bị Guid.Empty (trùng key, gây lỗi khi tạo đơn)
+                var orphanProducts = await dbContext.Product.Where(p => p.ProductId == Guid.Empty).ToListAsync();
+                foreach (var product in orphanProducts)
+                {
+                    product.ProductId = Guid.NewGuid();
+                }
+                if (orphanProducts.Count > 0)
+                {
+                    await dbContext.SaveChangesAsync();
+                    Log.Information("Đã backfill {Count} sản phẩm có ProductId rỗng", orphanProducts.Count);
+                }
 
                 var userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();

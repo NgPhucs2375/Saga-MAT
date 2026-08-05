@@ -70,6 +70,11 @@ export default defineConfig({
         target,
         secure: false,
       },
+      "^/hubs": {
+        target: "https://localhost:7201",
+        secure: false,
+        ws: true,
+      },
     },
     port: 5173,
     https: {

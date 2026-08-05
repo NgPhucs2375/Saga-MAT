@@ -34,8 +34,13 @@ namespace Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrde
             var pagedOrders = await _orderRepository.GetPagedOrdersAsync(validFilter);
             return new Response<object>(new
             {
-                data = pagedOrders,
-                total = pagedOrders._total
+                pagedOrders._start,
+                pagedOrders._end,
+                pagedOrders._total,
+                pagedOrders._hasNext,
+                pagedOrders._hasPrevious,
+                pagedOrders._pages,
+                _data = pagedOrders
             }, "Success");
         }
     }
