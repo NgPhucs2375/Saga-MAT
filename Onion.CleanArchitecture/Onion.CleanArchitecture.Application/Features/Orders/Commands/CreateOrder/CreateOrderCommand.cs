@@ -65,23 +65,40 @@ namespace Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrd
                 // 2. Truy vấn một lần duy nhất để lấy tất cả product.
                 var products = await _productRepository.GetProductsByIdsAsync(productIds);
                 var productDict = products.ToDictionary(p => p.ProductId);
+                // Danh sách sản phẩm đã giữ trong lệnh này (để hoàn lại nếu giữ tiếp bị thiếu hàng)
+                var reserved = new List<CreateOrderItemRequest>();
 
                 foreach (var item in request.Items)
                 {
                     if (!productDict.TryGetValue(item.ProductId, out var product) || !product.IsActive)
                         continue;
 
-                    // Kiểm tra tồn kho khả dụng: số lượng theo yêu cầu phải <= AvailableQty hiện tại
-                    var available = product.PhysicalQty - product.ReservedQty;
-                    if (item.Quantity <= 0 || item.Quantity > available) // AvailableQty = SLTKho - ReservedQty
+                    if (item.Quantity <= 0)
                     {
                         return new Application.Wrappers.Response<int>
                         {
                             Succeeded = false,
                             Code = -1,
-                            Message = $"Sản phẩm '{product.Name}' chỉ còn {available} trong kho."
+                            Message = $"Số lượng của sản phẩm '{product.Name}' phải lớn hơn 0."
                         };
                     }
+
+                    // Giữ hàng NGAY tại thời điểm tạo đơn (atomic + optimistic locking)
+                    // để các đơn khác không thấy phần tồn kho này nữa.
+                    var ok = await _productRepository.ReserveAsync(item.ProductId, item.Quantity);
+                    if (!ok)
+                    {
+                        // Thiếu hàng -> hoàn lại phần đã giữ của các sản phẩm trước đó trong cùng đơn
+                        foreach (var r in reserved)
+                            await _productRepository.ReleaseAsync(r.ProductId, r.Quantity);
+                        return new Application.Wrappers.Response<int>
+                        {
+                            Succeeded = false,
+                            Code = -1,
+                            Message = $"Sản phẩm '{product.Name}' chỉ còn {product.AvailableQty} trong kho, không đủ {item.Quantity}."
+                        };
+                    }
+                    reserved.Add(item);
 
                     orderItems.Add(new OrderItem
                     {
@@ -109,6 +126,7 @@ namespace Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrd
                 TotalAmount = totalAmount,
                 ShippingAddress = request.ShippingAddress,
                 Note = request.Note,
+                IsReserved = true,
                 OrderItems = orderItems
             };
 

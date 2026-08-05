@@ -103,7 +103,7 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
       align: "right",
       render: (_: unknown, item: IOrderItem) => (
         <Text strong>
-          {((item.quantity ?? 0) * (item.price ?? 0)).toLocaleString()} VND
+          {((item.Quantity ?? 0) * (item.UnitPrice ?? 0)).toLocaleString()} VND
         </Text>
       ),
     },
@@ -211,7 +211,7 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
                   const total =
                     order?.OrderItems?.reduce(
                       (sum, item) =>
-                        sum + (item.quantity ?? 0) * (item.price ?? 0),
+                        sum + (item.Quantity ?? 0) * (item.UnitPrice ?? 0),
                       0
                     ) ?? 0;
                   return (

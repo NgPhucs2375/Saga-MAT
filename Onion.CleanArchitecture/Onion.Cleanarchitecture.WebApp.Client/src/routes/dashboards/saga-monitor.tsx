@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Row, Col, Card, Select, Typography, Empty } from "antd";
 import { useList } from "@refinedev/core";
 import { IOrder } from "./types";

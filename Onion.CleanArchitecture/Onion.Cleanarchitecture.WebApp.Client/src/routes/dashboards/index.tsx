@@ -1,40 +1,15 @@
 import React from "react";
-import { AuthPageProps } from "@refinedev/core";
-import {
-  LoginPage,
-  RegisterPage,
-  ForgotPasswordPage,
-  UpdatePasswordPage,
-} from "./components";
-import { CardProps, FormProps, LayoutProps } from "antd";
+import { Typography } from "antd";
 
-export type AuthProps = AuthPageProps<LayoutProps, CardProps, FormProps> & {
-  renderContent?: (
-    content: React.ReactNode,
-    title: React.ReactNode
-  ) => React.ReactNode;
-  title?: React.ReactNode;
+const { Title } = Typography;
+
+export const Dashboard: React.FC = () => {
+  return (
+    <div style={{ padding: "2rem", border: "2px dashed blue" }}>
+      <Title level={1}>TEST DASHBOARD</Title>
+      <Title level={4}>Nếu bạn thấy được nội dung này, vấn đề nằm ở logic bên trong component Dashboard cũ.</Title>
+    </div>
+  );
 };
 
-/**
- * **refine** has a default auth page form served on the `/login` route when the `authProvider` configuration is provided.
- *
- * @see {@link https://refine.dev/docs/api-reference/antd/components/antd-auth-page/} for more details.
- */
-export const AuthPage: React.FC<AuthProps> = (props) => {
-  const { type } = props;
-  const renderView = () => {
-    switch (type) {
-      case "register":
-        return <RegisterPage {...props} />;
-      case "forgotPassword":
-        return <ForgotPasswordPage {...props} />;
-      case "updatePassword":
-        return <UpdatePasswordPage {...props} />;
-      default:
-        return <LoginPage {...props} />;
-    }
-  };
-
-  return <>{renderView()}</>;
-};
+export { SagaMonitorDashboard } from "./saga-monitor";

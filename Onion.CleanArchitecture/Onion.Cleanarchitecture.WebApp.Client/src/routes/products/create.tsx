@@ -1,15 +1,42 @@
 import { useForm, Create, getValueFromEvent } from "@refinedev/antd";
-import { Form, Input, InputNumber, Switch, Row, Col, Upload,  Card } from "antd";
+import { Form, Input, InputNumber, Switch, Row, Col, Upload,  Card, Button } from "antd";
 import {  InboxOutlined } from "@ant-design/icons";
 import { IProduct } from "./types";
+import { useNavigation } from "@refinedev/core";
 
 const { Dragger } = Upload;
 
 export const CreateProduct = () => {
-  const { formProps, saveButtonProps } = useForm<IProduct>({
+  const { list } = useNavigation();
+  // Lấy ra baseFormProps và form instance từ useForm
+  const { formProps: baseFormProps, saveButtonProps: baseSaveButtonProps, form } = useForm<IProduct>({
     redirect: "edit",
   });
 
+  // Tạo một hàm onFinish tùy chỉnh để xử lý dữ liệu trước khi gửi
+  const onFinish = async (values: any) => {
+    const { ImageUrl, ...rest } = values;
+    let finalImageUrl = "";
+
+    if (ImageUrl && Array.isArray(ImageUrl) && ImageUrl.length > 0) {
+      const file = ImageUrl[0];
+      if (file.response) {
+        // Trường hợp 1: File mới được tải lên, response từ server có sẵn
+        finalImageUrl = file.response.url || (typeof file.response === 'string' ? file.response : '');
+      } else if (file.url) {
+        // Trường hợp 2: File đã tồn tại (hữu ích khi sửa sản phẩm)
+        finalImageUrl = file.url;
+      }
+    }
+
+    // Gọi hàm onFinish gốc của Refine với dữ liệu đã được xử lý
+    if (baseFormProps.onFinish) {
+      await baseFormProps.onFinish({ ...rest, ImageUrl: finalImageUrl });
+    }
+  };
+
+  // Tạo formProps cuối cùng để truyền vào <Form>
+  const formProps = { ...baseFormProps, onFinish };
   const draggerProps = {
     name: "file",
     action: "/api/files/upload", 
@@ -18,26 +45,29 @@ export const CreateProduct = () => {
     accept: "image/png, image/jpeg",
   };
 
+  const saveButtonProps = {
+    ...baseSaveButtonProps,
+    children: "Lưu sản phẩm",
+  };
+
   return (
-    <Create saveButtonProps={saveButtonProps} title="Tạo sản phẩm mới">
+    <Create 
+      saveButtonProps={saveButtonProps} 
+      title="Tạo sản phẩm mới"
+      footerButtons={({ defaultButtons }) => (
+        <>
+          <Button onClick={() => list("products")}>Hủy</Button>
+          {defaultButtons}
+        </>
+      )}
+    >
       <Form
         {...formProps}
         layout="vertical"
         initialValues={{ IsActive: true, PhysicalQty: 0 }}
-        onValuesChange={(changedValues  ) => {
+        onValuesChange={(changedValues) => {
           if (changedValues.Price) {
-            formProps.form?.setFieldsValue({ Rate: changedValues.Price });
-          }
-          // Xử lý khi upload file thành công
-          if (changedValues.ImageUrl) {
-            const file = changedValues.ImageUrl[0];
-            if (file && file.status === 'done') {
-              const serverResponse = file.response;
-              if (serverResponse && serverResponse.url) {
-                // Cập nhật giá trị thực tế để gửi đi
-                formProps.form?.setFieldsValue({ ImageUrl: serverResponse.url });
-              }
-            }
+            form.setFieldsValue({ Rate: changedValues.Price });
           }
         }}
       >
@@ -89,7 +119,7 @@ export const CreateProduct = () => {
                 />
               </Form.Item>
               <Form.Item label="Số lượng tồn kho" name="PhysicalQty" rules={[{ required: true, message: "Vui lòng nhập số lượng tồn kho!" }]}>
-                <InputNumber<number> min={0} style={{ width: "100%" }} />
+                <InputNumber<number> min={0} style={{ width: "100%", textAlign: 'right' }} />
               </Form.Item>
             </Card>
             <Card title="Trạng thái & Hình ảnh">
@@ -98,7 +128,7 @@ export const CreateProduct = () => {
               </Form.Item>
               <Form.Item label="Hình ảnh sản phẩm">
                 <Form.Item name="ImageUrl" valuePropName="fileList" getValueFromEvent={getValueFromEvent} noStyle>
-                  <Dragger {...draggerProps}>
+                  <Dragger {...draggerProps} style={{ backgroundColor: '#fafafa' }}>
                     <p className="ant-upload-drag-icon"><InboxOutlined /></p>
                     <p className="ant-upload-text">Nhấn hoặc kéo file vào đây để tải lên</p>
                     <p className="ant-upload-hint">Chỉ hỗ trợ ảnh PNG, JPG.</p>

@@ -63,7 +63,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
 
         public async Task<Product> GetProductByIdAsync(Guid productId)
         {
-            return await _products.FirstOrDefaultAsync(p => p.ProductId == productId);
+            return await _products.AsTracking().FirstOrDefaultAsync(p => p.ProductId == productId);
         }
 
         public void MarkAsModified(Product entity)

@@ -11,9 +11,9 @@ import {
 export const resources: IResourceItem[] = [
   {
     name: "dashboard",
-    list: "/",
+    list: "/dashboard",
     meta: {
-      label: "Dashboard",
+      label: "Bảng điều khiển",
       icon: <DashboardOutlined />,
     },
   },
@@ -26,7 +26,7 @@ export const resources: IResourceItem[] = [
     show: "/products/:id",
     meta: {
       canDelete: true,
-      label: "Products",
+      label: "Sản phẩm",
       icon: <UserOutlined />,
     },
   },
@@ -38,7 +38,7 @@ export const resources: IResourceItem[] = [
     show: "/orders/:id",
     meta: {
       canDelete: true,
-      label: "Orders",
+      label: "Đơn hàng",
       icon: <ShoppingCartOutlined />,
     },
   },
@@ -51,7 +51,7 @@ export const resources: IResourceItem[] = [
     show: "/users/:id",
     meta: {
       canDelete: true,
-      label: "Users",
+      label: "Người dùng",
       icon: <UserOutlined />,
     },
   },
@@ -63,6 +63,7 @@ export const resources: IResourceItem[] = [
     edit: "/roles/:id/edit",
     show: "/roles/:id",
     meta: {
+      label: "Vai trò",
       canDelete: true,
       icon: <UserSwitchOutlined />,
     },
@@ -76,8 +77,27 @@ export const resources: IResourceItem[] = [
     edit: "/roleclaims/:id/edit",
     show: "/roleclaims/:id",
     meta: {
+      label: "Quyền hạn",
       canDelete: true,
       icon: <TeamOutlined />,
+    },
+  },
+  // Thêm các resource sau để Refine nhận diện
+  {
+    name: "orderhistories",
+    meta: {
+      // Ẩn khỏi menu nếu bạn không muốn nó xuất hiện
+      // parent: "hidden", 
+    },
+  },
+  {
+    name: "ordertimers",
+    meta: {
+    },
+  },
+  {
+    name: "eventstores",
+    meta: {
     },
   },
 ];

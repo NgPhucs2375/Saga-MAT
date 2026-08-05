@@ -19,17 +19,20 @@ namespace OrderAcceptService
         private readonly IOrderRepositoryAsync _orderRepository;
         private readonly IOrderTimerRepositoryAsync _orderTimerRepository;
         private readonly IOrderHistoryRepositoryAsync _orderHistoryRepository;
+        private readonly IProductRepositoryAsync _productRepository;
         private readonly ILogger<OrderTimeoutConsumer> _logger;
 
         public OrderTimeoutConsumer(
             IOrderRepositoryAsync orderRepository,
             IOrderTimerRepositoryAsync orderTimerRepository,
             IOrderHistoryRepositoryAsync orderHistoryRepository,
+            IProductRepositoryAsync productRepository,
             ILogger<OrderTimeoutConsumer> logger)
         {
             _orderRepository = orderRepository;
             _orderTimerRepository = orderTimerRepository;
             _orderHistoryRepository = orderHistoryRepository;
+            _productRepository = productRepository;
             _logger = logger;
         }
 
@@ -64,19 +67,34 @@ namespace OrderAcceptService
                     // === REJECT BRANCH ===
                     _logger.LogInformation("OrderId={OrderId} đã hết hạn. Thực hiện Reject tự động.", message.OrderId);
 
-                    // 1. Cập nhật trạng thái Order
+                    // 1. Mở khóa tồn kho đã giữ (nếu có) để các đơn khác thấy lại được số lượng này
+                    if (order.IsReserved)
+                    {
+                        foreach (var oi in order.OrderItems)
+                        {
+                            var product = await _productRepository.GetProductByIdAsync(oi.ProductId);
+                            if (product != null)
+                            {
+                                product.ReservedQty -= oi.Quantity;
+                                _productRepository.MarkAsModified(product);
+                            }
+                        }
+                        order.IsReserved = false;
+                    }
+
+                    // 2. Cập nhật trạng thái Order
                     order.Status = OrderStatus.Rejected;
                     order.RejectedAt = DateTime.UtcNow;
                     await _orderRepository.UpdateAsync(order); // UpdatedAt được set tự động
 
-                    // 2. Cập nhật trạng thái Timer -> Processed
+                    // 3. Cập nhật trạng thái Timer -> Processed
                     timer.TimerStatus = TimerStatus.Processed;
                     await _orderTimerRepository.UpdateAsync(timer); // Cập nhật tường minh
 
-                    // 3. Ghi lịch sử
+                    // 4. Ghi lịch sử
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "TimeoutReject", "Đơn hàng bị từ chối tự động do hết hạn xử lý.");
 
-                    // 4. Gửi thông báo cho UI
+                    // 5. Gửi thông báo cho UI
                     var noti = new NotificationPayLoad(
                         new Guid(order.CustomerId), "Đơn hàng bị từ chối", "Đơn hàng của bạn đã bị từ chối tự động do quá thời gian xử lý.", "Warning", DateTime.UtcNow);
                     
@@ -86,15 +104,15 @@ namespace OrderAcceptService
                 else if (string.Equals(message.TargetAction, nameof(TargetStatus.Completed), StringComparison.OrdinalIgnoreCase))
                 {
                     // === COMPLETE BRANCH ===
-                    _logger.LogInformation("OrderId={OrderId} đã hết hạn. Kích hoạt Complete tự động.", message.OrderId);
+                    _logger.LogInformation("OrderId={OrderId} đã hết hạn. Gửi CompleteOrderCommand để trừ kho.", message.OrderId);
 
                     timer.TimerStatus = TimerStatus.Processed;
                     await _orderTimerRepository.UpdateAsync(timer);
 
-                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "TimeoutCompleteTrigger", "Kích hoạt hoàn tất đơn hàng tự động do hết hạn.");
+                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "TimeoutCompleteTrigger", "Gửi CompleteOrderCommand tự động do hết hạn.");
 
-                    // Kích hoạt OrderCompleteConsumer để xử lý logic trừ kho
-                    await context.Publish(new OrderCompletedEvent(
+                    // Gửi CompleteOrderCommand để OrderCompleteConsumer thực sự trừ kho
+                    await context.Send(new Uri("queue:order-complete-queue"), new CompleteOrderCommand(
                         NewId.NextGuid(), order.OrderId, new Guid(order.CustomerId),
                         order.OrderItems.Select(oi => new OrderItemDto(oi.ProductId, oi.Quantity, oi.UnitPrice)).ToList(),
                         DateTime.UtcNow));

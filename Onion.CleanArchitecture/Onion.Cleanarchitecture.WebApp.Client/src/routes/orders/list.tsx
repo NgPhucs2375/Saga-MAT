@@ -11,7 +11,7 @@ import {
   getDefaultFilter,
   useNavigation,
   CanAccess,
-  useShow,
+  useOne,
   useCan,
   useDelete,
   useList,
@@ -106,7 +106,7 @@ export const ListOrder = () => {
   });
 
   const stats = useMemo(() => {
-    if (!statsData?.data) {
+    if (!statsData || !statsData.data) {
       return {
         totalOrders: 0,
         totalRevenue: 0,
@@ -139,12 +139,11 @@ export const ListOrder = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [recordId, setRecordId] = useState<string | null>(null);
 
-  // Hook to fetch data for the drawer
-  const { queryResult } = useShow<IOrderDetail>({
+const { data: drawerData, isLoading: drawerIsLoading } = useOne<IOrderDetail>({
     resource: "orders",
-    id: recordId ?? undefined,
+    id: recordId ?? "",
     queryOptions: {
-      enabled: !!recordId,
+      enabled: !!recordId, // Chỉ gọi API khi có id
     },
   });
 
@@ -326,15 +325,15 @@ export const ListOrder = () => {
           render={(_, record: IOrderDetail) => <OrderActions record={record} showDrawer={showDrawer} />}
         />
       </Table>
-      <Drawer
+<Drawer
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
         width="50%"
-        title={`Chi tiết Đơn hàng #${queryResult.data?.data?.OrderCode ?? ""}`}
+        title={`Chi tiết Đơn hàng #${drawerData?.data?.OrderCode ?? ""}`}
       >
         <OrderShowContent
-          isLoading={queryResult.isLoading}
-          order={queryResult.data?.data}
+          isLoading={drawerIsLoading} 
+          order={drawerData?.data}    
         />
       </Drawer>
     </List>

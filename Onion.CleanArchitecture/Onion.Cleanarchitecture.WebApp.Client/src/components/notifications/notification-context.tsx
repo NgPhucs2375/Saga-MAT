@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { notification } from "antd";
+import { App as AntdApp } from "antd";
 import { useGetIdentity } from "@refinedev/core";
 import {
   signalRService,
@@ -48,6 +48,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [notifications, setNotifications] = useState<StoredNotification[]>([]);
 
+  // Dùng auth-notification từ context AntdApp thay vì hàm static `notification`,
+  // để tránh cảnh báo "Static function can not consume context like dynamic theme"
+  // và để toast tuân theo theme động.
+  const { notification } = AntdApp.useApp();
+
   useEffect(() => {
     if (!userId) return;
 
@@ -69,7 +74,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       unsubscribe();
       signalRService.stop();
     };
-  }, [userId]);
+  }, [userId, notification]);
 
   const markRead = useCallback((id: string) => {
     setNotifications((prev) =>

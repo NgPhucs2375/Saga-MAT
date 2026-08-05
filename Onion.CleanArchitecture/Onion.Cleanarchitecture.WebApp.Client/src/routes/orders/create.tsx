@@ -10,7 +10,7 @@ export const CreateOrder = () => {
   });
 
   return (
-    <Create saveButtonProps={saveButtonProps} title="Khởi tạo Đơn hàng (Trigger Saga)">
+    <Create saveButtonProps={saveButtonProps} title="Tạo Đơn hàng ">
       <CreateOrderForm formProps={formProps} />
     </Create>
   );

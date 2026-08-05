@@ -65,13 +65,9 @@ namespace OrderCompleteService
                 {
                     errors.Add($"Sản phẩm {item.ProductId} không tồn tại hoặc đã bị vô hiệu hóa.");
                 }
-                else if (product.PhysicalQty - product.ReservedQty < item.Quantity)
-                {
-                    errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.PhysicalQty - product.ReservedQty} khả dụng trong kho, yêu cầu {item.Quantity}.");
-                }
                 else
                 {
-                    // Nếu hợp lệ, thêm vào Dictionary để trừ kho sau
+                    // Hàng đã giữ khi tạo đơn nên không check lại kho; nếu hợp lệ thêm vào Dictionary để trừ kho sau
                     if (!productsToUpdate.ContainsKey(product.ProductId))
                     {
                         productsToUpdate.Add(product.ProductId, product);
@@ -158,3 +154,4 @@ namespace OrderCompleteService
         }
     }
 }
+      

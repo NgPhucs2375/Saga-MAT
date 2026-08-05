@@ -50,11 +50,14 @@ namespace OrderOrchestration
             Event(() => OrderCancelled, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => CancelOrderFailed, x => x.CorrelateById(m => m.Message.OrderId));
 
+            // Khoi tao OrderState khi nhan duoc OrderCreatedEvent
             Initially(
                 When(OrderCreated)
                     .Activity(x => x.OfType<OrderCreatedActivity>())
                     .TransitionTo(Validating));
 
+            // Trong khi Validating, neu OrderValidated -> Accepting,
+            //                       neu OrderValidationFailed -> Rejected
             During(Validating,
                 When(OrderValidated)
                     .Then(x => x.Saga.StepsCompleted = 1)
@@ -64,6 +67,11 @@ namespace OrderOrchestration
                     .Activity(x => x.OfType<OrderValidationFailedActivity>())
                     .TransitionTo(Rejected));
 
+            // Trong khi Accepting, neu OrderAccepted -> Completing,
+            //                      neu OrderAcceptFailed ->nếu Step >=1 
+            //                      Activity(ReleaseInventoryCompensateActivity)
+            //                      -> CompensatingRelease
+            //                      else ->Rejected
             During(Accepting,
                 When(OrderAccepted)
                     .Then(x => x.Saga.StepsCompleted = 2)
@@ -79,6 +87,10 @@ namespace OrderOrchestration
                             .TransitionTo(CompensatingRelease),
                         @else => @else.TransitionTo(Rejected)));
 
+            // Trong khi Completing, neu OrderCompleted -> Completed,
+            //                       neu OrderCompleteFailed ->
+            //                           If Step >= 1 ReleaseInventoryCompensateActivity
+            //                           Else Rejected (hoac Compensate)
             During(Completing,
                 When(OrderCompleted)
                     .Then(x => x.Saga.StepsCompleted = 3)
@@ -94,6 +106,7 @@ namespace OrderOrchestration
                             .TransitionTo(CompensatingRelease),
                         @else => @else.TransitionTo(Rejected)));
 
+            // Trong khi Any state, neu OrderTimeoutExpired -> If Step >= 1 ReleaseInventoryCompensateActivity
             DuringAny(
                 When(OrderTimeoutExpired)
                     .Activity(x => x.OfType<OrderTimeoutExpiredActivity>())

@@ -16,7 +16,10 @@ enum HistoryStatus {
 }
 
 export const SagaTimeline = ({ orderId }: { orderId: string }) => {
-  const { data, isLoading, isError } = useList<IOrderHistory>({
+  // The IOrderHistory from types.ts is likely missing properties.
+  // We extend it here to include the missing properties from the API response.
+  type FullOrderHistory = IOrderHistory & { HistoryId: string; EventType: string; };
+  const { data, isLoading, isError } = useList<FullOrderHistory>({
     resource: "orderhistories",
     filters: [{ field: "OrderId", operator: "eq", value: orderId }],
     sorters: [{ field: "CreatedAt", order: "asc" }],
@@ -28,7 +31,7 @@ export const SagaTimeline = ({ orderId }: { orderId: string }) => {
 
   const histories = data?.data ?? [];
 
-  const getTimelineItem = (history: IOrderHistory) => {
+  const getTimelineItem = (history: FullOrderHistory) => {
     let color: string;
     let icon: React.ReactNode;
 
@@ -63,10 +66,10 @@ export const SagaTimeline = ({ orderId }: { orderId: string }) => {
   };
 
   return (
-    <Card title="Giám sát Tiến trình Saga (OrderHistory)">
+    <Card title="Giám sát Tiến trình Saga">
       {isLoading && <Spin />}
       {isError && <Text type="danger">Không thể tải lịch sử.</Text>}
       {!isLoading && !isError && (histories.length > 0 ? <Timeline items={histories.map(getTimelineItem)} /> : <Empty description="Không có lịch sử xử lý cho đơn hàng này." />)}
     </Card>
   );
-};
+}

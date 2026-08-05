@@ -1,7 +1,21 @@
-import { OrderStatus, OrderStatusLabel, IOrder, IOrderHistory } from "@routes/orders/types";
+import { OrderStatus, OrderStatusLabel, IOrderHistory } from "@routes/orders/types";
+
+// Define IOrder here, as it's not exported from the central orders/types
+export interface IOrder {
+  OrderId: string;
+  OrderCode: string;
+  Status: OrderStatus;
+  TotalAmount: number;
+  CreatedAt: string;
+  // Optional customer info based on old dashboard
+  customer?: {
+    id: string;
+    fullName: string;
+  };
+}
 
 export { OrderStatus, OrderStatusLabel };
-export type { IOrder, IOrderHistory };
+export type { IOrderHistory };
 
 export enum EventStoreStatus {
   Pending = 0,

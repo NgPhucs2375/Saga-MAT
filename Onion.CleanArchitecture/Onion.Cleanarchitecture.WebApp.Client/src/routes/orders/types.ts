@@ -1,28 +1,22 @@
 export enum OrderStatus {
-  Pending = 0,
   Submitted = 1,
   Accepted = 2,
-  Rejected = 3,
-  Completed = 4,
-  Cancelled = 5,
+  Completed = 3,
+  Rejected = 4,
 }
 
 export const OrderStatusLabel: Record<OrderStatus, string> = {
-  [OrderStatus.Pending]: "Chờ xử lý",
   [OrderStatus.Submitted]: "Đã gửi",
   [OrderStatus.Accepted]: "Đã chấp nhận",
-  [OrderStatus.Rejected]: "Đã từ chối",
   [OrderStatus.Completed]: "Hoàn thành",
-  [OrderStatus.Cancelled]: "Đã hủy",
+  [OrderStatus.Rejected]: "Đã từ chối",
 };
 
 export const OrderStatusColor: Record<OrderStatus, string> = {
-  [OrderStatus.Pending]: "blue",
   [OrderStatus.Submitted]: "orange",
   [OrderStatus.Accepted]: "green",
-  [OrderStatus.Rejected]: "red",
   [OrderStatus.Completed]: "purple",
-  [OrderStatus.Cancelled]: "gray",
+  [OrderStatus.Rejected]: "red",
 };
 
 export interface IProduct {
@@ -52,6 +46,7 @@ export interface IOrderHistory {
   ConsumerName: string;
   Message: string;
   CreatedAt: string; // ISO date string
+  
 }
 
 export interface IOrderDetail {

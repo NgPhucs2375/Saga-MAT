@@ -60,7 +60,7 @@ namespace OrderAcceptService
                 }
                 _logger.LogInformation("Nhận AcceptOrderCommand OrderId={OrderId}", message.OrderId);
 
-                // === Re-validate sp tồn tại (+IsActive) và kho đủ === //
+                // === Re-validate sp tồn tại (+IsActive). Hàng đã giữ khi tạo đơn nên không check lại kho === //
                 var errors = new List<string>();
                 foreach (var item in order.OrderItems)
                 {
@@ -68,10 +68,6 @@ namespace OrderAcceptService
                     if (product == null || !product.IsActive)
                     {
                         errors.Add($"Sản phẩm {item.ProductId} không tồn tại hoặc đã bị vô hiệu hóa.");
-                    }
-                    else if (product.PhysicalQty - product.ReservedQty < item.Quantity)
-                    {
-                        errors.Add($"Sản phẩm \"{product.Name}\" chỉ còn {product.PhysicalQty - product.ReservedQty} khả dụng trong kho, yêu cầu {item.Quantity}.");
                     }
                 }
 

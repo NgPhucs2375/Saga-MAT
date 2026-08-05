@@ -9,15 +9,17 @@ type Props = AvatarProps & {
   name?: string;
 };
 
-const CustomAvatarComponent: FC<Props> = ({ name = "", style, ...rest }) => {
+const CustomAvatarComponent: FC<Props> = ({ name, style, ...rest }) => {
+  const avatarName = name ?? "";
+
   return (
     <AntdAvatar
-      alt={name}
+      alt={avatarName}
       size="small"
       style={{
         backgroundColor: rest?.src
           ? "transparent"
-          : getRandomColorFromString(name),
+          : getRandomColorFromString(avatarName),
         display: "flex",
         alignItems: "center",
         border: "none",
@@ -25,7 +27,7 @@ const CustomAvatarComponent: FC<Props> = ({ name = "", style, ...rest }) => {
       }}
       {...rest}
     >
-      {getNameInitials(name)}
+      {getNameInitials(avatarName)}
     </AntdAvatar>
   );
 };

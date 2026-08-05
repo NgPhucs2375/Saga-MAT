@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Card, List, Avatar, Typography, Badge, Spin, Empty, Dropdown, Button } from "antd";
 import { useList } from "@refinedev/core";
 import { INotification } from "./types";

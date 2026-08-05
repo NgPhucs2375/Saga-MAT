@@ -81,17 +81,17 @@ const App: React.FC = () => {
                   >
                     <ThemedLayoutV2
                       Header={Header}
-                      Title={({ collapsed }: any) => (
+                      Title={({ collapsed }: { collapsed: boolean }) => (
                         <ThemedTitleV2
                           collapsed={collapsed}
                           icon={
                             <ImageField
                               value="https://static.vietbank.com.vn/web/vietbank-logo.png"
-                              title="Vietbank Logo"
+                              title="Logo"
                               style={{ width: 30, height: 30 }}
                             />
                           }
-                          text="Vietbank Admin"
+                          text="Admin"
                         />
                       )}
                     >

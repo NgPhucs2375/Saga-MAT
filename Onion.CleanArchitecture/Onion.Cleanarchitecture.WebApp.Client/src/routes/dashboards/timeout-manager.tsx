@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Statistic, Typography, Tag, Spin, Empty } from "antd";
 import { useList } from "@refinedev/core";
 import { IOrderTimer, TimerStatus, OrderStatusLabel } from "./types";

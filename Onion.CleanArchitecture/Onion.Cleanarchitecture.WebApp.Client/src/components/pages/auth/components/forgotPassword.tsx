@@ -87,17 +87,20 @@ export const ForgotPasswordPage: React.FC<ResetPassworProps> = ({
       {translate("pages.forgotPassword.title", "Forgot your password?")}
     </Typography.Title>
   );
-  const CardContent = (
-    <Card
-      title={CardTitle}
-      headStyle={headStyles}
-      bodyStyle={bodyStyles}
-      style={{
-        ...containerStyles,
-        backgroundColor: token.colorBgElevated,
-      }}
-      {...(contentProps ?? {})}
-    >
+    const CardContent = (
+      <Card
+        title={CardTitle}
+        styles={{
+          header: headStyles, // Thay thế cho headStyle
+          body: bodyStyles    // Thay thế cho bodyStyle
+        }}
+        style={{
+          ...containerStyles,
+          backgroundColor: token.colorBgElevated,
+        }}
+        {...(contentProps ?? {})}
+      />
+    );
       <Form<ForgotPasswordFormTypes>
         layout="vertical"
         form={form}

@@ -19,6 +19,16 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 
+// Extend IOrderHistory to include properties expected from the API response.
+// This is done because IOrderHistory from @routes/orders/types might be a more basic version,
+// and these properties are used in this component and saga-timeline.tsx.
+interface FullOrderHistory extends IOrderHistory {
+  HistoryId: string;
+  EventType: string;
+  ConsumerName: string;
+  Message: string;
+  CreatedAt: string;
+}
 const { Text } = Typography;
 
 enum HistoryStatus {
@@ -71,7 +81,7 @@ const COMPENSATION: PipelineHop[] = [
 ];
 
 // Map a ConsumerName + EventType combo from OrderHistory to a pipeline hop and its result.
-function matchHop(history: IOrderHistory): { hopId: string; from: string; to: string; status: HistoryStatus } | null {
+function matchHop(history: FullOrderHistory): { hopId: string; from: string; to: string; status: HistoryStatus } | null {
   const consumer = history.ConsumerName;
   const event = history.EventType;
   const status = history.Status;
@@ -99,8 +109,8 @@ interface Props {
 }
 
 export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
-  const { data, isLoading, isError } = useList<IOrderHistory>({
-    resource: "orderhistories",
+  const { data, isLoading, isError } = useList<FullOrderHistory>({
+    resource: "orderhistories", // The API returns FullOrderHistory, but the type is IOrderHistory
     filters: [{ field: "OrderId", operator: "eq", value: orderId }],
     sorters: [{ field: "CreatedAt", order: "asc" }],
     pagination: { pageSize: 100 },
@@ -284,19 +294,26 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
 
 // ---- helpers ----
 
-function isCommandSpan(_hop: PipelineHop): boolean {
-  return true; // simple: render CMD tag for every hop label slot
+function isCommandSpan(hop: PipelineHop): boolean {
+  return hop.isCommand;
 }
 
 function forHop(id: string): string {
   return id;
 }
 
-function getActiveHop(_id: string, _state: Record<string, HistoryStatus>): boolean {
+function getActiveHop(id: string, state: Record<string, HistoryStatus>): boolean {
+  // TODO: Implement logic to determine if a hop is active based on id and state
+  void id; // Mark as intentionally unused
+  void state; // Mark as intentionally unused
   return false;
 }
 
 function getHopResult(_key: string, _state: Record<string, HistoryStatus>, _opts: string): boolean {
+  // TODO: Implement logic to determine hop result based on key, state, and options
+  void _key; // Mark as intentionally unused
+  void _state; // Mark as intentionally unused
+  void _opts; // Mark as intentionally unused
   return false;
 }
 
@@ -316,7 +333,7 @@ function getHopState(nodeKey: string, state: Record<string, HistoryStatus>): His
 }
 
 // ---- current saga state inference from history + terminal order status ----
-function getSagaState(histories: IOrderHistory[], orderStatus?: OrderStatus) {
+function getSagaState(histories: FullOrderHistory[], orderStatus?: OrderStatus) {
   const items = [
     { title: "Submitted" },
     { title: "Validating" },
