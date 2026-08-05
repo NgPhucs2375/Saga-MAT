@@ -42,7 +42,7 @@ import {
   ShowProduct,
   ShowRole,
   ShowRoleClaim,
-} from "./routes";
+} from "./components/orders";
 import { CreateOrder } from "./routes/orders/create";
 import { Unauthorized } from "@components/unauthorized";
 import { ShowOrder } from "./routes/orders/show";

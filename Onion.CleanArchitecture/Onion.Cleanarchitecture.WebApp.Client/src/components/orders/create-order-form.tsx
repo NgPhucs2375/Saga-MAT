@@ -1,19 +1,44 @@
-import React from "react";
-import { Form, Select, InputNumber, Button, Space, FormProps, Input } from "antd";
-import { useSelect } from "@refinedev/antd";
+import React, { useMemo, useState } from "react";
+import { Form, Select, InputNumber, Button, Space, FormProps, Input, Typography } from "antd";
+import { useList } from "@refinedev/core";
 import { IProduct, ICreateOrder } from "../../routes/orders/types";
-// import { UseFormReturnType } from "@refinedev/antd"; // Not directly used here
+
+const { Text } = Typography;
 
 interface CreateOrderFormProps {
   formProps: FormProps<ICreateOrder>;
 }
 
 export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) => {
-  const { selectProps: productSelectProps } = useSelect<IProduct>({
+  const { data, isLoading } = useList<IProduct>({
     resource: "products",
-    optionLabel: "name",
-    optionValue: "id",
+    pagination: { pageSize: 100 },
   });
+
+  const products = useMemo(() => data?.data ?? [], [data]);
+
+  const productById = useMemo(
+    () => new Map(products.map((p) => [p.ProductId, p])),
+    [products]
+  );
+
+  const options = useMemo(
+    () =>
+      products.map((p) => ({
+        label: `${p.Name} — còn ${p.AvailableQty}`,
+        value: p.ProductId,
+      })),
+    [products]
+  );
+
+  const [selectedProducts, setSelectedProducts] = useState<Record<number, IProduct>>({});
+
+  const handleProductChange = (name: number, value: string) => {
+    const product = productById.get(value);
+    setSelectedProducts((prev) => ({ ...prev, [name]: product ?? undefined }));
+  };
+
+  const formatPrice = (price: number) => price?.toLocaleString("vi-VN") ?? "";
 
   return (
     <Form {...formProps} layout="vertical" initialValues={{ Items: [{}] }}>
@@ -21,50 +46,67 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
         {(fields, { add, remove }) => {
           return (
             <div>
-              {fields.map(({ key, name, ...restField }) => (
-                <Space key={key} style={{ display: 'flex', marginBottom: 8, alignItems: 'end' }}>
-                  <Form.Item
-                    {...restField}
-                    label="Product"
-                    name={[name, 'productId']}
-                    rules={[{ required: true, message: 'Please select a product' }]}
-                    style={{ minWidth: 300 }}
-                  >
-                    <Select {...productSelectProps} placeholder="Select a product" />
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    label="Quantity"
-                    name={[name, 'quantity']}
-                    rules={[{ required: true, message: 'Please input quantity' }]}
-                  >
-                    <InputNumber<number> placeholder="Quantity" min={1} defaultValue={1} />
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    label="Price"
-                    name={[name, 'price']}
-                    rules={[{ required: true, message: 'Please input price' }]}
-                  >
-                      <InputNumber<number> placeholder="Price" min={0} style={{ minWidth: 120 }} formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={(value) => parseFloat(value!.replace(/\$\s?|(,*)/g, '')) || 0} />
-                  </Form.Item>
-                  <Form.Item><Button type="dashed" danger onClick={() => remove(name)}>Remove</Button></Form.Item>
-                </Space>
-              ))}
-              <Form.Item><Button type="dashed" onClick={() => add()} block>+ Add Order Item</Button></Form.Item>
+              {fields.map(({ key, name }) => {
+                const selected = selectedProducts[name];
+                return (
+                  <Space key={key} style={{ display: "flex", marginBottom: 8, alignItems: "start" }} align="start">
+                    <Form.Item
+                      label="Sản phẩm"
+                      name={[name, "ProductId"]}
+                      rules={[{ required: true, message: "Chọn sản phẩm" }]}
+                      style={{ minWidth: 300 }}
+                    >
+                      <Select
+                        showSearch
+                        optionFilterProp="label"
+                        loading={isLoading}
+                        placeholder="Chọn sản phẩm"
+                        options={options}
+                        onChange={(value) => handleProductChange(name, value as string)}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      label="Số lượng"
+                      name={[name, "Quantity"]}
+                      rules={[{ required: true, message: "Nhập số lượng" }]}
+                    >
+                      <InputNumber<number> placeholder="Số lượng" min={1} style={{ minWidth: 100 }} />
+                    </Form.Item>
+                    {selected ? (
+                      <Form.Item label="Giá / Khả dụng">
+                        <div style={{ paddingTop: 4, lineHeight: 1.4 }}>
+                          <div>
+                            <Text strong>{formatPrice(selected.Price)} đ</Text>
+                          </div>
+                          <Text type={selected.AvailableQty > 0 ? "success" : "danger"}>
+                            Còn {selected.AvailableQty}
+                          </Text>
+                        </div>
+                      </Form.Item>
+                    ) : (
+                      <Form.Item label="Giá / Khả dụng">
+                        <Text type="secondary">Chọn sản phẩm để xem giá & tồn kho</Text>
+                      </Form.Item>
+                    )}
+                    <Form.Item label=" ">
+                      <Button type="dashed" danger onClick={() => remove(name)}>Xóa</Button>
+                    </Form.Item>
+                  </Space>
+                );
+              })}
+              <Form.Item>
+                <Button type="dashed" onClick={() => add()} block>+ Thêm sản phẩm</Button>
+              </Form.Item>
             </div>
           );
         }}
       </Form.List>
-      {/* Add other order fields here if needed, e.g., customerId, shippingAddress, note */}
-      <Form.Item label="Customer ID" name="customerId">
-        <Select placeholder="Select a customer" /> {/* Assuming you'll add a customer select */}
+
+      <Form.Item label="Ghi chú" name="Note">
+        <Input.TextArea rows={3} placeholder="Nhập mô tả / ghi chú" />
       </Form.Item>
-      <Form.Item label="Shipping Address" name="shippingAddress">
-        <Input placeholder="Enter shipping address" />
-      </Form.Item>
-      <Form.Item label="Note" name="note">
-        <Input.TextArea rows={3} placeholder="Add a note" />
+      <Form.Item label="Địa chỉ giao hàng" name="ShippingAddress" rules={[{ required: true, message: "Nhập địa chỉ" }]}>
+        <Input placeholder="Nhập địa chỉ giao hàng" />
       </Form.Item>
     </Form>
   );

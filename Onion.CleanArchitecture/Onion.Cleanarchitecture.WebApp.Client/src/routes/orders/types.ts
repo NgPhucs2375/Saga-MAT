@@ -26,25 +26,24 @@ export const OrderStatusColor: Record<OrderStatus, string> = {
 };
 
 export interface IProduct {
-  id: string;
-  name: string;
-  // Add other product properties if needed
+  ProductId: string;
+  Name: string;
+  Price: number;
+  AvailableQty: number;
 }
 
 export interface IOrderItem {
   id?: string; // Optional for new items, present for existing
-  productId: string;
-  quantity: number;
-  price: number;
+  ProductId: string;
+  Quantity: number;
   ProductName?: string; // Used in ShowOrder.tsx, might be denormalized
   UnitPrice?: number; // Alias for price, if backend sends it this way
 }
 
 export interface ICreateOrder {
-  Items: IOrderItem[]; // Changed to 'Items' to match backend expectation for create/update
-  customerId?: string;
-  shippingAddress?: string;
-  note?: string;
+  Items: IOrderItem[]; // Matches backend CreateOrderCommand: ProductId + Quantity
+  ShippingAddress?: string;
+  Note?: string;
 }
 
 export interface IOrderHistory {

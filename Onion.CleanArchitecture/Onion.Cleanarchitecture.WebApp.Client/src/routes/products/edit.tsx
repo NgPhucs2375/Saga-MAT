@@ -1,13 +1,38 @@
-import { useForm, Edit,getValueFromEvent } from "@refinedev/antd";
+import { useEffect } from "react";
+import { useForm, Edit, getValueFromEvent } from "@refinedev/antd";
 import { IProduct } from "./types";
-import { Form, Input, InputNumber, Switch, Row, Col, Upload, Button, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Form, Input, InputNumber, Switch, Row, Col, Upload, Card } from "antd";
+import {  InboxOutlined } from "@ant-design/icons";
+
+const { Dragger } = Upload;
+
 export const EditProduct = () => {
-  const { formProps, saveButtonProps } = useForm<IProduct>({
+  const { formProps, saveButtonProps, queryResult } = useForm<IProduct>({
     redirect: "show",
   });
+
+  const imageUrl = queryResult?.data?.data?.ImageUrl;
+  const draggerProps = {
+    ...formProps,
+  };
+  // Hiển thị ảnh đã có khi load form
+  useEffect(() => {
+    if (imageUrl) {
+      formProps.form?.setFieldsValue({
+        ImageUrl: [
+          {
+            uid: "-1",
+            name: "image.png",
+            status: "done",
+            url: imageUrl,
+          },
+        ],
+      });
+    }
+  }, [imageUrl, formProps.form]);
+
   return (
-    <Edit saveButtonProps={saveButtonProps}>
+    <Edit saveButtonProps={saveButtonProps} title={`Chỉnh sửa sản phẩm: ${queryResult?.data?.data.Name ?? ""}`}>
       <Form
         {...formProps}
         layout="vertical"
@@ -17,81 +42,74 @@ export const EditProduct = () => {
           }
         }}
       >
-         <Row gutter={24}>
-          <Col span={16}>
+        <Row gutter={24}>
+          {/* Main Info Column */}
+          <Col xs={24} lg={16}>
+            <Card title="Thông tin sản phẩm">
             <Form.Item label="ID" name="Id" hidden >
               <Input />
             </Form.Item>
             <Form.Item
-              label="Name"
+              label="Tên sản phẩm"
               name="Name"
               rules={[
-                { required: true, message: "Please input your product name!" },
-                { min: 3, message: "Product name must be at least 3 characters long!" },
-                { max: 50, message: "Product name must be at most 50 characters long!" },
+                { required: true, message: "Vui lòng nhập tên sản phẩm!" },
+                { min: 3, message: "Tên sản phẩm phải có ít nhất 3 ký tự!" },
+                { max: 50, message: "Tên sản phẩm không được vượt quá 50 ký tự!" },
               ]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              label="Barcode"
+              label="Mã vạch (Barcode)"
               name="Barcode"
               rules={[
-                { required: true, message: "Please input the barcode!" },
-                { max: 50, message: "Barcode must be at most 50 characters long!" },
+                { required: true, message: "Vui lòng nhập mã vạch!" },
+                { max: 50, message: "Mã vạch không được vượt quá 50 ký tự!" },
               ]}
             >
               <Input />
             </Form.Item>
-            <Form.Item label="Description" name="Description">
+            <Form.Item label="Mô tả" name="Description">
               <Input.TextArea rows={4} />
             </Form.Item>
+            </Card>
           </Col>
-          <Col span={8}>
-            {/* Trường Rate được ẩn đi nhưng giá trị sẽ được tự động cập nhật theo Price */}
-            <Form.Item name="Rate" hidden>
-              <InputNumber />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="Price"
-              rules={[{ required: true, message: "Please input the price!" }]}
-            >
-              <InputNumber min={11} style={{ width: "100%" }} />
-            </Form.Item>
-            <Form.Item label="Số lượng tồn kho" name="PhysicalQty" rules={[{ required: true }]}>
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-            <Form.Item
-              label="Kích hoạt"
-              name="IsActive"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-            {/* Placeholder for Image Upload */}
-            <Form.Item
-                name="ImageUrl"
-                valuePropName="fileList"
-                getValueFromEvent={getValueFromEvent}
-                noStyle
+          {/* Side Column */}
+          <Col xs={24} lg={8}>
+            <Card title="Giá & Tồn kho" style={{ marginBottom: 24 }}>
+              <Form.Item name="Rate" hidden><InputNumber /></Form.Item>
+              <Form.Item
+                label="Giá bán"
+                name="Price"
+                rules={[{ required: true, message: "Vui lòng nhập giá bán!" }]}
               >
-                <Upload
-                  name="file"
-                  action="/api/files/upload" // QUAN TRỌNG: Thay thế bằng endpoint thực tế của bạn
-                  listType="picture"
-                  maxCount={1}
-                  beforeUpload={(file) => {
-                    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-                    if (!isJpgOrPng) {
-                      message.error('Bạn chỉ có thể tải lên file JPG/PNG!');
-                    }
-                    return isJpgOrPng;
-                  }}
-                >
-                  <Button icon={<UploadOutlined />}>Tải ảnh mới</Button>
-                </Upload>
+                <InputNumber<number>
+                  min={11}
+                  style={{ width: "100%" }}
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+                  addonAfter="VNĐ"
+                />
               </Form.Item>
+              <Form.Item label="Số lượng tồn kho" name="PhysicalQty" rules={[{ required: true, message: "Vui lòng nhập số lượng tồn kho!" }]}>
+                <InputNumber<number> min={0} style={{ width: "100%" }} />
+              </Form.Item>
+            </Card>
+            <Card title="Trạng thái & Hình ảnh">
+              <Form.Item label="Trạng thái" name="IsActive" valuePropName="checked">
+                <Switch checkedChildren="Đang bán" unCheckedChildren="Ngừng bán" />
+              </Form.Item>
+              <Form.Item label="Hình ảnh sản phẩm">
+                <Form.Item name="ImageUrl" valuePropName="fileList" getValueFromEvent={getValueFromEvent} noStyle>
+                  <Dragger {...draggerProps} name="file" action="/api/files/upload" listType="picture-card" maxCount={1} accept="image/png, image/jpeg">
+                    <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                    <p className="ant-upload-text">Nhấn hoặc kéo file vào đây để tải lên</p>
+                    <p className="ant-upload-hint">Chỉ hỗ trợ ảnh PNG, JPG.</p>
+                  </Dragger>
+                </Form.Item>
+              </Form.Item>
+            </Card>
           </Col>
         </Row>
       </Form>

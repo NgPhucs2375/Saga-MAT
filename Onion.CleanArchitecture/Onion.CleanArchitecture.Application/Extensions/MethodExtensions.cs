@@ -16,7 +16,20 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Extensions
             var propertyInfo = entityType.GetProperty(propertyName);
             if (propertyInfo == null)
             {
-                throw new ArgumentException($"Property {propertyName} not found on type {entityType.Name}");
+                var aliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "Created", "CreatedAt" },
+                    { "Updated", "LastModifiedAt" },
+                    { "Modified", "LastModifiedAt" },
+                };
+                if (aliases.TryGetValue(propertyName, out var alias))
+                {
+                    propertyInfo = entityType.GetProperty(alias);
+                }
+            }
+            if (propertyInfo == null)
+            {
+                return query;
             }
 
             var parameter = Expression.Parameter(entityType, "x");

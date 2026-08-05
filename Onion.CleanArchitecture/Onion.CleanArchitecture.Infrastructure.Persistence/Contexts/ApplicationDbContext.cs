@@ -46,11 +46,11 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.CreatedAt = _dateTime.Now;
+                        entry.Entity.CreatedAt = _dateTime.NowUtc;
                         entry.Entity.CreatedBy = _authenticatedUser.UserId;
                         break;
                     case EntityState.Modified:
-                        entry.Entity.LastModifiedAt = _dateTime.Now;
+                        entry.Entity.LastModifiedAt = _dateTime.NowUtc;
                         entry.Entity.LastModifiedBy = _authenticatedUser.UserId;
                         break;
                 }

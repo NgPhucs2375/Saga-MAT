@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrders;
 using Onion.CleanArchitecture.Application.Features.Products.Commands.CreateProduct;
 using Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllProducts;
 using Onion.CleanArchitecture.Domain.Entities;
@@ -15,6 +16,7 @@ namespace Onion.CleanArchitecture.Application.Mappings
             CreateMap<Product, GetAllProductsViewModel>().ReverseMap();
             CreateMap<CreateProductCommand, Product>();
             CreateMap<GetAllProductsQuery, GetAllProductsParameter>();
+            CreateMap<GetAllOrderQuery, GetAllOrdersParameter>();
         }
     }
 }

@@ -194,7 +194,7 @@ export const ListProduct = () => {
         />
         <Table.Column
           dataIndex="Name"
-          title="Name"
+          title="Tên sản phẩm"
           sorter
           defaultSortOrder={getDefaultSortOrder("Name", sorters)}
           defaultFilteredValue={getDefaultFilter("Name", filters)}
@@ -205,7 +205,7 @@ export const ListProduct = () => {
           )}
         />
 
-        <Table.Column
+        {/* <Table.Column
           dataIndex="Barcode"
           title="Barcode"
           sorter
@@ -216,8 +216,8 @@ export const ListProduct = () => {
               <Input placeholder="Search Barcode" />
             </FilterDropdown>
           )}
-        />
-        <Table.Column
+        /> */}
+        {/* <Table.Column
           dataIndex="Rate"
           title="Rate"
           sorter
@@ -228,10 +228,10 @@ export const ListProduct = () => {
               <Input placeholder="Search Rate" />
             </FilterDropdown>
           )}
-        />
+        /> */}
         <Table.Column
           dataIndex="Price"
-          title="Price"
+          title="Giá"
           sorter
           defaultSortOrder={getDefaultSortOrder("Price", sorters)}
           defaultFilteredValue={getDefaultFilter("Price", filters)}
@@ -256,7 +256,7 @@ export const ListProduct = () => {
         />
         <Table.Column
           dataIndex="CreatedBy"
-          title="Created By"
+          title="Tạo bởi"
           render={(value) => {
             if (isLoadingCreateBy) {
               return "Loading...";
@@ -310,7 +310,7 @@ export const ListProduct = () => {
         /> */}
         <Table.Column
           dataIndex="Created"
-          title="Created At"
+          title="Tạo lúc"
           render={(value) => <DateField format="LLL" value={value} />}
           defaultFilteredValue={getDefaultFilter("Created", filters, "between")}
           filterDropdown={(props) => (
@@ -322,7 +322,7 @@ export const ListProduct = () => {
           defaultSortOrder={getDefaultSortOrder("Created", sorters)}
         />
         <Table.Column
-          title="Actions"
+          title="Hành động"
           fixed="right"
           align="center"
           width={100}
