@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OrderOrchestration;
@@ -11,9 +12,11 @@ using OrderOrchestration;
 namespace OrderOrchestration.Migrations
 {
     [DbContext(typeof(OrderSagaDbContext))]
-    partial class OrderSagaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806042204_AddMassTransitOutbox")]
+    partial class AddMassTransitOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

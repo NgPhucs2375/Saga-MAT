@@ -15,13 +15,13 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
         {
         }
 
-        // GET: api/notifications?isRead=false
+        // GET: api/notifications?isRead=false&orderId=xxx
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] bool? isRead = null)
+        public async Task<IActionResult> Get([FromQuery] bool? isRead = null, [FromQuery] Guid? orderId = null)
         {
             return await EnforcePermissionAndExecute("notifications", "list", async () =>
             {
-                return Ok(await Mediator.Send(new GetNotificationsQuery { IsRead = isRead }));
+                return Ok(await Mediator.Send(new GetNotificationsQuery { IsRead = isRead, OrderId = orderId }));
             });
         }
 

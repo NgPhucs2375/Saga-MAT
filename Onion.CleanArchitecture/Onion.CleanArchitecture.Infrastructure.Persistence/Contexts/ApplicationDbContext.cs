@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MassTransit;
 
 namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
 {
@@ -59,6 +60,8 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.AddTransactionalOutboxEntities();
+
             //All Decimals will have 18,6 Range
             foreach (var property in builder.Model.GetEntityTypes()
             .SelectMany(t => t.GetProperties())

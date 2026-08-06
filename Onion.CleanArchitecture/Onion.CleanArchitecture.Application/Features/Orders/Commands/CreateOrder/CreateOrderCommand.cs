@@ -59,7 +59,6 @@ namespace Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrd
 
             if (request.Items != null)
             {
-                // Tối ưu hóa N+1 query:
                 // 1. Lấy tất cả ProductId từ request.
                 var productIds = request.Items.Select(i => i.ProductId).ToList();
                 // 2. Truy vấn một lần duy nhất để lấy tất cả product.

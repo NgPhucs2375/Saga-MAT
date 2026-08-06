@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Infrastructure.Persistence;
+using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using OrderSubmitService;
@@ -42,6 +43,7 @@ var host = Host.CreateDefaultBuilder(args)
                 // BẮT BUỘC: Nhận ValidateOrderCommand từ Saga qua queue order-validation-queue
                 cfg.ReceiveEndpoint("order-validation-queue", e =>
                 {
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<OrderSubmitConsumer>(context);
                 });
             });

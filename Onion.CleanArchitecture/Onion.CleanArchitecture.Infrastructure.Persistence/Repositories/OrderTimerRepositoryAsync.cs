@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Onion.CleanArchitecture.Application.Filters;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
+using Onion.CleanArchitecture.Application.Wrappers;
 using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Enums;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Persistence.Repository;
+using Onion.CleanArchitecture.Infrastructure.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +34,19 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             return await _orderTimers
                 .Where(t => t.TimerStatus == TimerStatus.Pending && t.Timeout <= now)
                 .ToListAsync();
+        }
+
+        public async Task<PagedList<OrderTimer>> GetPagedFilteredAsync(RequestParameter request)
+        {
+            var query = _orderTimers.AsQueryable();
+            if (request._filter != null && request._filter.Count > 0)
+            {
+                query = MethodExtensions.ApplyFilters(query, request._filter);
+            }
+
+            return await PagedList<OrderTimer>.ToPagedList(
+                query.OrderByDynamic(request._sort, request._order).AsNoTracking(),
+                request._start, request._end);
         }
     }
 }

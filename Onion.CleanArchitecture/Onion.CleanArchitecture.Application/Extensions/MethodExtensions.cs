@@ -83,6 +83,20 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Extensions
                             query = query.Where(p => EF.Property<DateTime>(p, filterKey) >= startDate && EF.Property<DateTime>(p, filterKey) <= endDate);
                         }
                     }
+                    else if (propertyType == typeof(Guid))
+                    {
+                        if (Guid.TryParse(filterValue, out var guidFilterValue))
+                        {
+                            query = query.Where(p => EF.Property<Guid>(p, filterKey) == guidFilterValue);
+                        }
+                    }
+                    else if (propertyType == typeof(Guid?))
+                    {
+                        if (Guid.TryParse(filterValue, out var guidFilterValue))
+                        {
+                            query = query.Where(p => EF.Property<Guid?>(p, filterKey) == guidFilterValue);
+                        }
+                    }
                     else if (propertyType == typeof(string))
                     {
                         query = query.Where(p => EF.Property<string>(p, filterKey).Contains(filterValue));

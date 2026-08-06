@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Infrastructure.Persistence;
+using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using OrderAcceptService;
@@ -38,10 +39,25 @@ var host = Host.CreateDefaultBuilder(args)
                 cfg.AutoStart = true;
 
                 // Nhận các command/event theo tên queue cố định
-                cfg.ReceiveEndpoint("order-accept-queue", e => e.ConfigureConsumer<OrderAcceptConsumer>(context));
-                cfg.ReceiveEndpoint("order-cancel-queue", e => e.ConfigureConsumer<CancelOrderConsumer>(context));
-                cfg.ReceiveEndpoint("order-timeout-queue", e => e.ConfigureConsumer<OrderTimeoutConsumer>(context));
-                cfg.ReceiveEndpoint("order-complete-failed-queue", e => e.ConfigureConsumer<OrderCompleteFailedConsumer>(context));
+                cfg.ReceiveEndpoint("order-accept-queue", e =>
+                {
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<OrderAcceptConsumer>(context);
+                } );
+
+                cfg.ReceiveEndpoint("order-cancel-queue", e =>{ 
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<CancelOrderConsumer>(context);});
+
+                cfg.ReceiveEndpoint("order-timeout-queue", e => {
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<OrderTimeoutConsumer>(context);
+                });
+                
+                cfg.ReceiveEndpoint("order-complete-failed-queue", e => {
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<OrderCompleteFailedConsumer>(context);
+                });
             });
         });
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Nest;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Infrastructure.Persistence;
+using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using OrderCompleteService;
@@ -35,8 +36,14 @@ var host = Host.CreateDefaultBuilder(args)
                 cfg.AutoStart = true;
 
                 // Nhận command từ Saga theo tên queue cố định
-                cfg.ReceiveEndpoint("order-complete-queue", e => e.ConfigureConsumer<OrderCompleteConsumer>(context));
-                cfg.ReceiveEndpoint("release-inventory-queue", e => e.ConfigureConsumer<ReleaseInventoryConsumer>(context));
+                cfg.ReceiveEndpoint("order-complete-queue", e =>
+                {   e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<OrderCompleteConsumer>(context); });
+
+                cfg.ReceiveEndpoint("release-inventory-queue", e => {
+                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+                    e.ConfigureConsumer<ReleaseInventoryConsumer>(context);
+                });
             });
         });
         // Đăng ký EF + repositories + stub IAuthenticatedUserService

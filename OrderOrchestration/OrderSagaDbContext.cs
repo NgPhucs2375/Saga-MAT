@@ -22,6 +22,8 @@ namespace OrderOrchestration
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            // Tích hợp các bảng Outbox/Inbox/OutboxState của MassTransit vào DbContext
+            modelBuilder.AddTransactionalOutboxEntities();
         }
     }
 }

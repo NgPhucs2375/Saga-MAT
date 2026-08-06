@@ -89,6 +89,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence
             services.AddTransient<IOrderRepositoryAsync, OrderRepositoryAsync>();
             services.AddTransient<IOrderHistoryRepositoryAsync, OrderHistoryRepositoryAsync>();
             services.AddTransient<IOrderTimerRepositoryAsync, OrderTimerRepositoryAsync>();
+            services.AddTransient<IEventStoreRepositoryAsync, EventStoreRepositoryAsync>();
             services.AddTransient<INotificationRepositoryAsync, NotificationRepositoryAsync>();
             #endregion
         }
