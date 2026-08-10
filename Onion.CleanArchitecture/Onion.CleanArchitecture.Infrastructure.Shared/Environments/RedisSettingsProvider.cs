@@ -32,7 +32,6 @@ namespace Onion.CleanArchitecture.Infrastructure.Shared.Environments
                     Ssl = false,
                     ConnectTimeout = 5000,
                     Database = 0,
-                    ConnectRetry = 3,
                     Hosts = new RedisHost[]
                     {
                         new RedisHost

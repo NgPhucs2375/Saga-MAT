@@ -90,30 +90,27 @@ namespace OrderAcceptService
                     return;
                 }
 
-                // === XỬ LÝ THÀNH CÔNG ===
-                // 1. Cập nhật trạng thái Order
-                order.Status = OrderStatus.Accepted;
+                // === XỬ LÝ THÀNH CÔNG (ĐƠN SANG TRẠNG THÁI CHỜ DUYỆT) ===
+                // 1. Cập nhật trạng thái Order -> PendingApproval (chờ người duyệt)
+                order.Status = OrderStatus.PendingApproval;
                 // UpdateAsync sẽ tự động set UpdatedAt
                 await _orderRepository.UpdateAsync(order);
 
-                // 2. Tạo và lưu OrderTimer
+                // 2. Tạo và lưu OrderTimer hướng tới Reject (không duyệt -> tự từ chối)
                 var orderTimer = new OrderTimer
                 {
                     TimerId = NewId.NextGuid(),
                     OrderId = message.OrderId,
-                    Timeout = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("OrderAcceptTimeoutMinutes")),
-                    Status = TargetStatus.Completed,
+                    Timeout = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("OrderReviewTimeoutMinutes")),
+                    Status = TargetStatus.Rejected,
                     TimerStatus = TimerStatus.Pending,
                 };
                 await _orderTimerRepository.AddAsync(orderTimer);
 
-                // 3. Ghi lịch sử và publish event cho Saga
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "AcceptOrderCommand", "Re-Validate thành công, đơn hàng đã được chấp nhận.");
+                // 3. Ghi lịch sử và thông báo cho Saga/UI rằng đơn đang chờ duyệt
+                await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "AcceptOrderCommand", "Hàng hợp lệ, đơn hàng đang chờ người duyệt.");
 
-                await context.Publish(new OrderAcceptedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, _configuration.GetValue<int>("OrderAcceptTimeoutMinutes"), DateTime.UtcNow));
-
-                _logger.LogInformation("Accept thành công OrderId={OrderId}, Saga sẽ gửi CompleteOrderCommand", message.OrderId);
+                _logger.LogInformation("Accept thành công OrderId={OrderId}, đơn đang chờ người duyệt (PendingApproval)", message.OrderId);
             }
             catch (Exception ex)
             {

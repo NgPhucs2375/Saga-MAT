@@ -13,7 +13,14 @@ dotnet sln Onion.CleanArchitecture.sln add OrderCompleteService/OrderCompleteSer
 dotnet sln Onion.CleanArchitecture.sln add NotificationService/NotificationService.csproj
 
 # add reference mẫu 
-dotnet add OrderSubmitService\OrderSubmitService.csproj reference Onion.CleanArchitecture\Onion.CleanArchitecture.Application\Onion.CleanArchitecture.Application.csproj Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Persistence\Onion.CleanArchitecture.Infrastructure.Persistence.csproj Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Shared\Onion.CleanArchitecture.Infrastructure.Shared.csproj
+dotnet add OrderSubmitService\OrderSubmitService.csproj reference Onion.CleanArchitecture\Onion.CleanArchitecture.Application\Onion.CleanArchitecture.Application.csproj 
+
+Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Persistence\Onion.CleanArchitecture.Infrastructure.Persistence.csproj 
+
+Onion.CleanArchitecture\Onion.CleanArchitecture.Infrastructure.Shared\Onion.CleanArchitecture.Infrastructure.Shared.csproj
+
+# add transport Sql
+dotnet add package MassTransit.SqlTransport.PostgreSQL --version 8.5.7
 
 # Onion Architecture In ASP.NET Core With CQRS
 

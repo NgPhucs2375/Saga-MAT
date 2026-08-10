@@ -1,6 +1,6 @@
 using Onion.CleanArchitecture.Application.Interfaces;
 
-namespace NotificationService.Services
+namespace ApproveOrderService
 {
     public class SystemUserService : IAuthenticatedUserService
     {

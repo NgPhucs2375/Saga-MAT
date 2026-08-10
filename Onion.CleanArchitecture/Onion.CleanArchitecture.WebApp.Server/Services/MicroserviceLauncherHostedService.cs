@@ -31,7 +31,8 @@ public class MicroserviceLauncherHostedService : IHostedService
             ("OrderOrchestration", Path.Combine(repoRoot, "OrderOrchestration"), false),
             ("OrderAcceptService", Path.Combine(repoRoot, "OrderAcceptService"), false),
             ("OrderCompleteService", Path.Combine(repoRoot, "OrderCompleteService"), false),
-            ("NotificationService", Path.Combine(repoRoot, "NotificationService"), true),
+            ("ApproveOrderService", Path.Combine(repoRoot, "ApproveOrderService"), false),
+            ("SMSService", Path.Combine(repoRoot, "SMSService"), false),
         };
 
         foreach (var (name, project, useHttps) in services)

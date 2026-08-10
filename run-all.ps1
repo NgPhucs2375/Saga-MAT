@@ -12,7 +12,8 @@ $services = @(
     @{ Name = "OrderOrchestration";    Project = (Join-Path $root "OrderOrchestration");    Args = @("run", "--project", (Join-Path $root "OrderOrchestration")) },
     @{ Name = "OrderAcceptService";    Project = (Join-Path $root "OrderAcceptService");    Args = @("run", "--project", (Join-Path $root "OrderAcceptService")) },
     @{ Name = "OrderCompleteService";  Project = (Join-Path $root "OrderCompleteService");  Args = @("run", "--project", (Join-Path $root "OrderCompleteService")) },
-    @{ Name = "NotificationService";   Project = (Join-Path $root "NotificationService");   Args = @("run", "--project", (Join-Path $root "NotificationService"), "--launch-profile", "https") },
+    @{ Name = "ApproveOrderService";   Project = (Join-Path $root "ApproveOrderService");   Args = @("run", "--project", (Join-Path $root "ApproveOrderService")) },
+    @{ Name = "SMSService";            Project = (Join-Path $root "SMSService");            Args = @("run", "--project", (Join-Path $root "SMSService")) },
     @{ Name = "WebApp.Server";         Project = (Join-Path $root "Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server"); Args = @("run", "--project", (Join-Path $root "Onion.CleanArchitecture\Onion.CleanArchitecture.WebApp.Server"), "--launch-profile", "https") }
 )
 

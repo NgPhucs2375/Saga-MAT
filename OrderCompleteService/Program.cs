@@ -30,6 +30,13 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderCompleteConsumer>();
             x.AddConsumer<ReleaseInventoryConsumer>();
             x.SetKebabCaseEndpointNameFormatter();
+
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres(); // Khai báo dùng PostgreSQL provider
+                o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30); // Cửa sổ chống trùng lặp Inbox
+            });
+
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
@@ -37,11 +44,9 @@ var host = Host.CreateDefaultBuilder(args)
 
                 // Nhận command từ Saga theo tên queue cố định
                 cfg.ReceiveEndpoint("order-complete-queue", e =>
-                {   e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-                    e.ConfigureConsumer<OrderCompleteConsumer>(context); });
+                {   e.ConfigureConsumer<OrderCompleteConsumer>(context); });
 
                 cfg.ReceiveEndpoint("release-inventory-queue", e => {
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<ReleaseInventoryConsumer>(context);
                 });
             });

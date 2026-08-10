@@ -20,21 +20,14 @@ var host = Host.CreateDefaultBuilder(args)
             options.ConnectionString = ctx.Configuration.GetConnectionString("PostgresConnection");
         });
 
-        services.AddScoped<OrderCreatedActivity>();
-        services.AddScoped<OrderValidatedActivity>();
-        services.AddScoped<OrderValidationFailedActivity>();
-        services.AddScoped<OrderAcceptedActivity>();
-        services.AddScoped<OrderAcceptFailedActivity>();
-        services.AddScoped<OrderCompletedActivity>();
-        services.AddScoped<OrderCompleteFailedActivity>();
-        services.AddScoped<OrderTimeoutExpiredActivity>();
-        services.AddScoped<ReleaseInventoryCompensateActivity>();
-        services.AddScoped<CancelOrderCompensateActivity>();
+
 
         // 3. Đăng ký SagaStateMachine với repository EF Core (PostgreSQL) + transport PostgreSQL
         services.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
+            // Tự động scan và đăng ký toàn bộ Activities vào DI Container với đúng Scope
+            x.AddActivities(typeof(OrderCreatedActivity).Assembly);
 
             // Cấu hình EF Core Outbox gắn liền với OrderSagaDbContext
             x.AddEntityFrameworkOutbox<OrderSagaDbContext>(o =>
@@ -54,6 +47,9 @@ var host = Host.CreateDefaultBuilder(args)
             x.UsingPostgres((context, cfg) =>
             {
                 cfg.AutoStart = true;
+
+                // Saga receive endpoint + outbox được cấu hình tự động từ bus-level
+                // AddEntityFrameworkOutbox + UseBusOutbox (tránh double-tracking Outbox).
                 cfg.ConfigureEndpoints(context);
             });
         });

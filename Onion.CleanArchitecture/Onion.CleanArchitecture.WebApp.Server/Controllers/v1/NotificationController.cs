@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Onion.CleanArchitecture.Application.Features.Notifications.Commands.MarkNotificationAsRead;
 using Onion.CleanArchitecture.Application.Features.Notifications.Queries.GetNotifications;
+using Onion.CleanArchitecture.Application.Wrappers;
+using Onion.CleanArchitecture.Domain.Entities;
 using System;
+using System.Collections.Generic;
 
 namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
 {
@@ -21,7 +24,15 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
         {
             return await EnforcePermissionAndExecute("notifications", "list", async () =>
             {
-                return Ok(await Mediator.Send(new GetNotificationsQuery { IsRead = isRead, OrderId = orderId }));
+                var result = await Mediator.Send(new GetNotificationsQuery { IsRead = isRead, OrderId = orderId });
+                var items = result.Data ?? new List<Notification>();
+                return Ok(new Response<object>(new
+                {
+                    _start = 0,
+                    _end = items.Count,
+                    _total = items.Count,
+                    _data = items
+                }, "Success"));
             });
         }
 

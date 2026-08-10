@@ -1,5 +1,6 @@
 using MassTransit;
 using Onion.CleanArchitecture.Application;
+using Onion.CleanArchitecture.Application.Hubs;
 using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Infrastructure.Identity;
 using Onion.CleanArchitecture.Infrastructure.Persistence;
@@ -23,19 +24,18 @@ _services.AddIdentityRepositories(_config);
 _services.AddPersistenceRepositories(); // Đảm bảo dòng này vẫn được giữ lại nếu cần
 _services.AddSharedInfrastructure(_config);
 
+_services.AddSignalR();
+
 _services.Configure<SqlTransportOptions>(options =>
 {
     options.ConnectionString = _config.GetConnectionString("PostgresConnection");
 });
-// Tự động tạo schema transport (bảng, queues, functions như create_queue_v2...) cho MassTransit
-// BẮT BUỘC phải đăng ký TRƯỚC AddMassTransit để DB sẵn sàng trước khi bus khởi động
-_services.AddPostgresMigrationHostedService();
 // Đăng ký MassTransit để WebApp có thể publish events (kế tạo Saga)
 _services.AddMassTransit(x =>
 {
     x.SetKebabCaseEndpointNameFormatter();
-   
-        x.UsingPostgres((context, cfg) =>
+    
+    x.UsingPostgres((context, cfg) =>
     {        
         // Tự động khởi tạo cấu trúc bảng queue/transport nếu chưa có
         cfg.AutoStart = true;
@@ -91,6 +91,7 @@ app.UseAuthorization();
 app.UseErrorHandlingMiddleware();
 app.UseHealthChecks("/health");
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notification");
 
 app.MapFallbackToFile("/index.html");
 

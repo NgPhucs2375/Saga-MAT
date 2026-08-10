@@ -13,7 +13,9 @@ namespace Onion.CleanArchitecture.Application.Mappings
     {
         public GeneralProfile()
         {
-            CreateMap<Product, GetAllProductsViewModel>().ReverseMap();
+            CreateMap<Product, GetAllProductsViewModel>()
+                .ForMember(dest => dest.SLTKho, opt => opt.MapFrom(src => src.PhysicalQty))
+                .ReverseMap();
             CreateMap<CreateProductCommand, Product>();
             CreateMap<GetAllProductsQuery, GetAllProductsParameter>();
             CreateMap<GetAllOrderQuery, GetAllOrdersParameter>();

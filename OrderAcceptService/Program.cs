@@ -33,6 +33,14 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderTimeoutConsumer>();
             x.AddConsumer<OrderCompleteFailedConsumer>();
             x.AddConsumer<CancelOrderConsumer>();
+
+            // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
+            // "Instances of abstract classes cannot be created" ở OutboxConsumeFilter)
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres();
+            });
+
             x.UsingPostgres((context, cfg) =>
             {
                 // Tự động khởi tạo schema/bảng queue trong PostgreSQL nếu chưa có
@@ -41,23 +49,21 @@ var host = Host.CreateDefaultBuilder(args)
                 // Nhận các command/event theo tên queue cố định
                 cfg.ReceiveEndpoint("order-accept-queue", e =>
                 {
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<OrderAcceptConsumer>(context);
                 } );
 
                 cfg.ReceiveEndpoint("order-cancel-queue", e =>{ 
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<CancelOrderConsumer>(context);});
 
                 cfg.ReceiveEndpoint("order-timeout-queue", e => {
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<OrderTimeoutConsumer>(context);
                 });
                 
                 cfg.ReceiveEndpoint("order-complete-failed-queue", e => {
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<OrderCompleteFailedConsumer>(context);
                 });
+
+
             });
         });
 

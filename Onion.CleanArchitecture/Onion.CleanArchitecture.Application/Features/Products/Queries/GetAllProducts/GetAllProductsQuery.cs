@@ -3,6 +3,7 @@ using MediatR;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Application.Wrappers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllProducts
@@ -28,16 +29,20 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllPr
         public async Task<Response<object>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
         {
             var validFilter = _mapper.Map<GetAllProductsParameter>(request);
-            var product = await _productRepository.GetPagedProductsAsync(validFilter);
+            var pagedProducts = await _productRepository.GetPagedProductsAsync(validFilter);
+            
+            // Map entities to ViewModel to include SLTKho
+            var viewModels = _mapper.Map<List<GetAllProductsViewModel>>(pagedProducts);
+            
             return new Response<object>(true, new
             {
-                product._start,
-                product._end,
-                product._total,
-                product._hasNext,
-                product._hasPrevious,
-                product._pages,
-                _data = product
+                pagedProducts._start,
+                pagedProducts._end,
+                pagedProducts._total,
+                pagedProducts._hasNext,
+                pagedProducts._hasPrevious,
+                pagedProducts._pages,
+                _data = viewModels
             }, message: "Success");
         }
     }

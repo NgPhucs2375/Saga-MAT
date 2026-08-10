@@ -1,10 +1,10 @@
 import { Card, Statistic, Typography, Tag, Spin, Empty } from "antd";
 import { useList } from "@refinedev/core";
-import { IOrderTimer, TimerStatus, OrderStatusLabel } from "./types";
+import { IOrderTimer, TimerStatus, TimerTargetStatusLabel } from "./types";
 import { ClockCircleOutlined } from "@ant-design/icons";
 
 const { Countdown } = Statistic;
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 export const TimeoutManager = ({ orderId }: { orderId: string }) => {
   const { data, isLoading, isError } = useList<IOrderTimer>({
@@ -31,7 +31,7 @@ export const TimeoutManager = ({ orderId }: { orderId: string }) => {
   return (
     <Card title="Quản lý Thời gian chờ (OrderTimer)">
       {isLoading && <Spin />}
-      {isError && <Text type="danger">Không thể tải timers.</Text>}
+      {isError && <TypographyText type="danger">Không thể tải timers.</TypographyText>}
       {!isLoading && !isError && (timers.length > 0 ? timers.map((timer) => (
         <Card key={timer.TimerId} type="inner" style={{ marginBottom: 16 }}>
           <Countdown
@@ -41,12 +41,12 @@ export const TimeoutManager = ({ orderId }: { orderId: string }) => {
             valueStyle={{ color: "#cf1322" }}
           />
           <div style={{ marginTop: 16 }}>
-            <Text strong>Trạng thái Timer: </Text>
+            <TypographyText strong>Trạng thái Timer: </TypographyText>
             {getTimerStatusTag(timer.TimerStatus)}
           </div>
           <div>
-            <Text strong>Hành động khi hết giờ: </Text>
-            <Text type="warning">{OrderStatusLabel[timer.Status] ?? "Không xác định"}</Text>
+            <TypographyText strong>Hành động khi hết giờ: </TypographyText>
+            <TypographyText type="warning">{TimerTargetStatusLabel[timer.Status] ?? "Không xác định"}</TypographyText>
           </div>
         </Card>
       )) : (

@@ -29,7 +29,7 @@ interface FullOrderHistory extends IOrderHistory {
   Message: string;
   CreatedAt: string;
 }
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 enum HistoryStatus {
   Success = 1,
@@ -161,9 +161,9 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
           }}
         >
           <span style={{ fontSize: 18, color: svc.color }}>{svc.icon}</span>
-          <Text strong style={{ fontSize: 11, textAlign: "center", marginTop: 4 }}>
+          <TypographyText strong style={{ fontSize: 11, textAlign: "center", marginTop: 4 }}>
             {svc.label}
-          </Text>
+          </TypographyText>
           {state !== undefined && <Tag color={state === HistoryStatus.Success ? "success" : "error"} style={{ marginTop: 4 }}>{state === HistoryStatus.Success ? "OK" : "FAIL"}</Tag>}
         </div>
       </Tooltip>
@@ -213,9 +213,9 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
               }}
             />
           </div>
-          <Text style={{ fontSize: 11, color, textAlign: "center", marginTop: 2, whiteSpace: "nowrap" }}>
+          <TypographyText style={{ fontSize: 11, color, textAlign: "center", marginTop: 2, whiteSpace: "nowrap" }}>
             {hop.message}
-          </Text>
+          </TypographyText>
         </div>
       </div>
     );
@@ -229,18 +229,18 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
           Flow luồng Saga & State Machine
         </>
       }
-      extra={<Text type="secondary">NHẬN / GỬI message giữa các service</Text>}
+      extra={<TypographyText type="secondary">NHẬN / GỬI message giữa các service</TypographyText>}
       loading={isLoading}
     >
       {isError ? (
-        <Text type="danger">Không thể tải dữ liệu EventStore.</Text>
+        <TypographyText type="danger">Không thể tải dữ liệu EventStore.</TypographyText>
       ) : histories.length === 0 ? (
         <Empty description="Chưa có dữ liệu OrderHistory để vẽ luồng." />
       ) : (
         <>
           {/* Row 1: Saga State Machine (horizontal steps) */}
           <div style={{ marginBottom: 24 }}>
-            <Text strong>Trạng thái Saga (State Machine):</Text>
+            <TypographyText strong>Trạng thái Saga (State Machine):</TypographyText>
             <Steps
               size="small"
               style={{ marginTop: 8 }}
@@ -249,7 +249,7 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
               items={currentState.items}
             />
             <div style={{ marginTop: 8 }}>
-              <Tag icon={<Text strong>Trạng thái đơn:</Text>} color={orderStatus ? OrderStatusColor[orderStatus] : undefined}>
+              <Tag icon={<TypographyText strong>Trạng thái đơn:</TypographyText>} color={orderStatus ? OrderStatusColor[orderStatus] : undefined}>
                 {orderStatus ? OrderStatusLabel[orderStatus] : "Không xác định"}
               </Tag>
             </div>
@@ -257,7 +257,7 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
 
           {/* Row 2: Happy path pipeline */}
           <div style={{ overflowX: "auto", paddingBottom: 8 }}>
-            <Text strong>Luồng happy-path (command/event qua queue):</Text>
+            <TypographyText strong>Luồng happy-path (command/event qua queue):</TypographyText>
             <div style={{ display: "flex", alignItems: "center", marginTop: 12, gap: 0 }}>
               {renderHop(HAPPY_PATH[0])}
               {HAPPY_PATH.slice(1).map((hop) => (
@@ -273,16 +273,16 @@ export const SagaFlowDiagram: React.FC<Props> = ({ orderId, orderStatus }) => {
           {/* Row 3: state summary */}
           <div style={{ marginTop: 16, display: "flex", gap: 24, flexWrap: "wrap" }}>
             <span>
-              <CheckCircleOutlined style={{ color: "#52c41a" }} /> <Text>Hops đã thực hiện: {executedCount}</Text>
+              <CheckCircleOutlined style={{ color: "#52c41a" }} /> <TypographyText>Hops đã thực hiện: {executedCount}</TypographyText>
             </span>
             {failed ? (
               <span>
                 <CloseCircleOutlined style={{ color: "#f5222d" }} />{" "}
-                <Text type="danger">Thất bại tại hop: {failed} — sẽ kích hoạt Compensation nếu đã giữ chỗ tồn kho</Text>
+                <TypographyText type="danger">Thất bại tại hop: {failed} — sẽ kích hoạt Compensation nếu đã giữ chỗ tồn kho</TypographyText>
               </span>
             ) : (
               <span>
-                <CheckCircleOutlined style={{ color: "#52c41a" }} /> <Text type="success">Happy path đang tiến triển bình thường</Text>
+                <CheckCircleOutlined style={{ color: "#52c41a" }} /> <TypographyText type="success">Happy path đang tiến triển bình thường</TypographyText>
               </span>
             )}
           </div>

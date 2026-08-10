@@ -17,5 +17,7 @@ namespace OrderOrchestration
         public DateTime CreatedAt { get; set; }
         public int StepsCompleted { get; set; }
         public string ErrorReason { get; set; } = string.Empty;
+        public Guid ApprovalRequestorId { get; set; }
+        public DateTime ApprovalRequestedAt { get; set; }
     }
 }

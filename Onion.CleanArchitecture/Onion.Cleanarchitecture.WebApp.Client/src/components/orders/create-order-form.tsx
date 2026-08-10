@@ -1,204 +1,318 @@
-import React, { useMemo, useState } from "react";
-import { Form, Select, InputNumber, Button, FormProps, Input, Typography,  Table, Popconfirm, Card, FormListFieldData } from "antd";
-import { useList } from "@refinedev/core"; // Import Card here
-import { DeleteOutlined } from "@ant-design/icons";
-import { IProduct, ICreateOrder } from "../../routes/orders/types";
+import React, { useState, useMemo, useEffect } from "react";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Space,
+  Card,
+  Row,
+  Col,
+  Typography,
+  Tooltip,
+  Empty,
+  message,
+  Spin,
+  Divider,
+  Badge,
+  Alert,
+  Select,
+  Checkbox,
+  Table,
+  Tag,
+  type FormProps,
+} from "antd";
+import { PlusOutlined, MinusOutlined, DeleteOutlined, SearchOutlined, ShoppingCartOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import { useList } from "@refinedev/core";
+import { ICreateOrder, ICreateOrderItem, IProduct } from "@routes/orders/types";
 
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 interface CreateOrderFormProps {
   formProps: FormProps<ICreateOrder>;
 }
 
 export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) => {
-  const { form } = formProps;
-  const { data, isLoading } = useList<IProduct>({
+  const [selectedProducts, setSelectedProducts] = useState<Record<string, { product: IProduct; quantity: number }>>({});
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+
+  const { data: productsData, isLoading: productsLoading } = useList<IProduct>({
     resource: "products",
-    pagination: { pageSize: 100 },
+    filters: [{ field: "IsActive", operator: "eq", value: true }],
+    pagination: { mode: "off" },
   });
 
-  const products = useMemo(() => data?.data ?? [], [data]);
+  const allProducts = useMemo(() => productsData?.data || [], [productsData?.data]);
 
-  const productById = useMemo(
-    () => new Map(products.map((p) => [p.ProductId, p])),
-    [products]
-  );
+  const filteredProducts = useMemo(() => {
+    let result = allProducts;
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      result = result.filter(p => p.Name.toLowerCase().includes(lower) || p.Code.toLowerCase().includes(lower));
+    }
+    if (showLowStockOnly) result = result.filter(p => p.AvailableQty <= 10 && p.AvailableQty > 0);
+    return result;
+  }, [allProducts, searchTerm, showLowStockOnly]);
 
-  const options = useMemo(
-    () =>
-      products
-        .filter((p) => p.ProductId && p.ProductId !== "00000000-0000-0000-0000-000000000000")
-        .map((p) => ({
-          label: `${p.Name} — còn ${p.AvailableQty}`,
-          value: p.ProductId,
-        })),
-    [products]
-  );
+  const productOptions = useMemo(() =>
+    filteredProducts.map(p => ({
+      label: `${p.Name} (${p.Code}) - ${p.Price.toLocaleString()} VND - Tồn: ${p.SLTKho} - Khả dụng: ${Math.max(0, p.AvailableQty - (selectedProducts[p.ProductId]?.quantity || 0))}`,
+      value: p.ProductId,
+    })), [filteredProducts, selectedProducts]);
 
-  const [selectedProducts, setSelectedProducts] = useState<Record<number, IProduct | undefined>>({});
+  const totalAmount = useMemo(() =>
+    Object.values(selectedProducts).reduce((sum, { product, quantity }) => sum + product.Price * quantity, 0)
+  , [selectedProducts]);
 
-  const items = Form.useWatch("Items", form);
+  const totalItems = useMemo(() =>
+    Object.values(selectedProducts).reduce((sum, { quantity }) => sum + quantity, 0)
+  , [selectedProducts]);
 
-  const totalAmount = useMemo(() => {
-    if (!items) return 0;
-    return items.reduce((acc, item) => {
-      if (!item || !item.ProductId || !item.Quantity) {
-        return acc;
+  useEffect(() => {
+    const items: ICreateOrderItem[] = Object.values(selectedProducts).map(({ product, quantity }) => ({
+      ProductId: product.ProductId,
+      Quantity: quantity,
+    }));
+    formProps.form?.setFieldsValue({ Items: items });
+  }, [selectedProducts, formProps.form]);
+
+  useEffect(() => {
+    if (formProps.initialValues?.Items && allProducts.length > 0) {
+      const initialSelected: Record<string, { product: IProduct; quantity: number }> = {};
+      (formProps.initialValues.Items as ICreateOrderItem[]).forEach(item => {
+        const product = allProducts.find(p => p.ProductId === item.ProductId);
+        if (product) initialSelected[product.ProductId] = { product, quantity: item.Quantity };
+      });
+      setSelectedProducts(initialSelected);
+    }
+  }, [formProps.initialValues, allProducts]);
+
+  const handleAddProduct = (product: IProduct) => {
+    setSelectedProducts(prev => {
+      const currentQty = prev[product.ProductId]?.quantity || 0;
+      if (currentQty >= product.SLTKho) {
+        message.warning(`${product.Name} đã hết hàng khả dụng!`);
+        return prev;
       }
-      const product = productById.get(item.ProductId);
-      if (!product) {
-        return acc;
-      }
-      return acc + product.Price * item.Quantity;
-    }, 0);
-  }, [items, productById]);
-
-  const handleProductChange = (name: number, value: string) => {
-    const product = productById.get(value);
-    setSelectedProducts((prev) => ({ ...prev, [name]: product }));
+      return { ...prev, [product.ProductId]: { product, quantity: currentQty + 1 } };
+    });
   };
 
-  const formatPrice = (price: number) => price?.toLocaleString("vi-VN") ?? "";
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    setSelectedProducts(prev => {
+      const item = prev[productId];
+      if (!item) return prev;
+      if (newQuantity <= 0) {
+        const next = { ...prev }; delete next[productId]; return next;
+      }
+      if (newQuantity > item.product.AvailableQty) {
+        message.warning(`${item.product.Name} chỉ còn ${item.product.AvailableQty} khả dụng.`);
+        return { ...prev, [productId]: { ...item, quantity: item.product.AvailableQty } };
+      }
+      return { ...prev, [productId]: { ...item, quantity: newQuantity } };
+    });
+  };
+
+  const handleRemoveProduct = (productId: string) => {
+    setSelectedProducts(prev => { const next = { ...prev }; delete next[productId]; return next; });
+  };
+
+  const hasOutOfStockItems = Object.values(selectedProducts).some(({ product, quantity }) => quantity > product.AvailableQty);
+
+  const getAvailableColor = (available: number) =>
+    available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a";
 
   return (
-    <Form {...formProps} layout="vertical" style={{ maxWidth: 900, margin: '0 auto' }}>
-      <Form.List name="Items">
-        {(fields, { add, remove }) => {
-          return (
-            <div>
-              <Table
-                dataSource={fields}
-                rowKey="key"
-                pagination={false}
-                summary={() => (
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell index={0} colSpan={3} align="right">
-                      <Text strong style={{ fontSize: '1.2em' }}>Tổng cộng:</Text>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1} align="right">
-                      <Typography.Title level={3} style={{ margin: 0, color: '#1677ff' }}>
-                        {formatPrice(totalAmount)} đ
-                      </Typography.Title>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={2}></Table.Summary.Cell> {/* For the "Thao tác" column */}
-                  </Table.Summary.Row>
-                )}
-              >
-                <Table.Column
-                  title="Sản phẩm"
-                  dataIndex="ProductId"
-                  key="ProductId"
-                  render={(_, field: FormListFieldData) => {
-                    return (
-                      <Form.Item
-                        name={[field.name, "ProductId"]}
-                        rules={[{ required: true, message: "Chọn sản phẩm" }]}
-                        style={{ margin: 0 }}
-                      >
-                        <Select
-                          showSearch
-                          optionFilterProp="label"
-                          loading={isLoading}
-                          placeholder="Chọn sản phẩm"
-                          options={options}
-                          onChange={(value) => handleProductChange(field.name, value as string)}
-                          style={{ minWidth: 250 }}
-                        />
-                      </Form.Item>
-                    );
-                  }}
-                />
-                <Table.Column
-                  title="Số lượng"
-                  dataIndex="Quantity"
-                  key="Quantity"
-                  width={120}
-                  render={(_, field: FormListFieldData) => (
-                    <Form.Item
-                      name={[field.name, "Quantity"]}
-                      rules={[{ required: true, message: "Nhập số lượng" }]}
-                      style={{ margin: 0 }}
-                    >
-                      <InputNumber<number> placeholder="SL" min={1} style={{ width: "100%" }} />
-                    </Form.Item>
-                  )}
-                />
-                <Table.Column
-                  title="Đơn giá"
-                  key="UnitPrice"
-                  width={150}
-                  align="right"
-                  render={(_, field: FormListFieldData) => {
-                    const selected = selectedProducts[field.name];
-                    return (
-                      <div style={{ padding: "5px 8px", background: "#f5f5f5", borderRadius: 4, textAlign: "right" }}>
-                        {selected ? (
-                          <>
-                            <Text strong>{formatPrice(selected.Price)} đ</Text>
-                            <br />
-                            <Text type={selected.AvailableQty > 0 ? "success" : "danger"}>
-                              Còn {selected.AvailableQty}
-                            </Text>
-                          </>
-                        ) : (
-                          <Text type="secondary">Chọn SP</Text>
-                        )}
-                      </div>
-                    );
-                  }}
-                />
-                <Table.Column
-                  title="Thành tiền"
-                  key="Subtotal"
-                  width={150}
-                  align="right"
-                  render={(_, field: FormListFieldData) => {
-                    const selected = selectedProducts[field.name];
-                    const currentItem = items?.[field.name];
-                    const quantity = currentItem?.Quantity;
-                    const subtotal = selected && quantity ? selected.Price * quantity : 0;
-                    return (
-                      <div style={{ padding: "5px 8px", background: "#f5f5f5", borderRadius: 4, textAlign: "right" }}>
-                        <Text strong style={{ color: "#1677ff" }}>
-                          {formatPrice(subtotal)} đ
-                        </Text>
-                      </div>
-                    );
-                  }}
-                />
-                <Table.Column
-                  title="Thao tác"
-                  key="action"
-                  width={80}
-                  align="center"
-                  render={(_, field: FormListFieldData) => (
-                    <Popconfirm
-                      title="Bạn có chắc muốn xóa sản phẩm này?"
-                      onConfirm={() => remove(field.name)}
-                      okText="Có"
-                      cancelText="Không"
-                    >
-                      <Button type="text" danger icon={<DeleteOutlined />} />
-                    </Popconfirm>
-                  )}
-                />
-              </Table>
-              <Button type="dashed" onClick={() => add()} style={{ marginTop: 16 }}>
-                + Thêm sản phẩm
-              </Button>
-            </div>
-          );
-        }}
-      </Form.List>
+    <Form {...formProps} layout="vertical" initialValues={{ ...formProps.initialValues, Items: [] }}>
+      {hasOutOfStockItems && (
+        <Alert message="Có sản phẩm vượt quá tồn kho" description="Vui lòng điều chỉnh số lượng trước khi lưu"
+          type="warning" showIcon style={{ marginBottom: 16 }} />
+      )}
 
-      <Card title="Thông tin giao vận & Ghi chú" style={{ marginTop: 24 }}>
-        <Form.Item label="Ghi chú" name="Note">
-          <Input.TextArea rows={3} placeholder="Nhập mô tả / ghi chú" />
-        </Form.Item>
-        <Form.Item label="Địa chỉ giao hàng" name="ShippingAddress" rules={[{ required: true, message: "Nhập địa chỉ" }]}>
-          <Input placeholder="Nhập địa chỉ giao hàng" />
-        </Form.Item>
-      </Card>
+      <Row gutter={[24, 24]}>
+        {/* LEFT: Shipping + Product Selection */}
+        <Col xs={24} lg={13}>
+          <Card title="Thông tin giao hàng" style={{ marginBottom: 16 }}>
+            <Form.Item label="Địa chỉ giao hàng" name="ShippingAddress"
+              rules={[{ required: true, message: "Vui lòng nhập địa chỉ giao hàng!" }]}>
+              <Input.TextArea rows={3} placeholder="Nhập địa chỉ giao hàng..." />
+            </Form.Item>
+            <Form.Item label="Ghi chú" name="Note">
+              <Input.TextArea rows={2} placeholder="Ghi chú thêm (nếu có)..." />
+            </Form.Item>
+          </Card>
+
+          <Card title="Chọn sản phẩm" size="small">
+            <div style={{ marginBottom: 16 }}>
+              <Space size="middle" wrap>
+                <Select
+                  placeholder="Tìm kiếm và chọn sản phẩm..."
+                  showSearch
+                  filterOption={(input, option) => option.label?.toLowerCase().includes(input.toLowerCase())}
+                  style={{ width: 400 }} allowClear maxTagCount={1} maxTagPlaceholder="Đã chọn"
+                  onSearch={setSearchTerm}
+                  notFoundContent={filteredProducts.length === 0 ? "Không tìm thấy sản phẩm" : undefined}
+                  dropdownRender={menu => (
+                    <>
+                      <div style={{ padding: 8, borderBottom: "1px solid #f0f0f0", display: "flex", gap: 8, alignItems: "center" }}>
+                        <Checkbox checked={showLowStockOnly} onChange={e => setShowLowStockOnly(e.target.checked)}>
+                          Chỉ hiện sắp hết hàng (≤10)
+                        </Checkbox>
+                        <Badge count={filteredProducts.length} color="blue" />
+                      </div>
+                      {menu}
+                    </>
+                  )}
+                >
+                  {productOptions.map(opt => <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>)}
+                </Select>
+              </Space>
+            </div>
+
+            <div style={{ maxHeight: 300, overflowY: "auto", border: "1px solid #f0f0f0", borderRadius: 6 }}>
+              {productsLoading ? (
+                <div style={{ textAlign: "center", padding: "40px 20px" }}><Spin tip="Đang tải sản phẩm..." size="large" /></div>
+              ) : filteredProducts.length === 0 ? (
+                <Empty description={searchTerm || showLowStockOnly ? "Không tìm thấy sản phẩm phù hợp." : "Chưa có sản phẩm nào."}
+                  image={Empty.PRESENTED_IMAGE_SIMPLE} imageStyle={{ height: 80 }} />
+              ) : (
+                <Table dataSource={filteredProducts} rowKey="ProductId" pagination={false} size="small"
+                  columns={[
+                    { title: "Sản phẩm", dataIndex: "Name", key: "Name", width: 200,
+                      render: (_, r: IProduct) => (
+                        <div><TypographyText strong>{r.Name}</TypographyText><br/>
+                          <TypographyText type="secondary" style={{ fontSize: 12 }}>Mã: {r.Code}</TypographyText></div>
+                      )},
+                    { title: "Đơn giá", dataIndex: "Price", key: "Price", width: 120, align: "right",
+                      render: (v: number) => <TypographyText>{v.toLocaleString()} VND</TypographyText> },
+                    {
+                      title: "Khả dụng", dataIndex: "AvailableQty", key: "AvailableQty", width: 110, align: "center",
+                      render: (value: number, record: IProduct) => {
+                        const selectedQty = selectedProducts[record.ProductId]?.quantity || 0;
+                        const available = value - selectedQty;
+                        const color = available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a";
+                        return (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
+                            <div style={{ fontWeight: 600, fontSize: 14, color: "#262626" }}>Tồn: {value}</div>
+                            {selectedProducts[record.ProductId]?.quantity && (
+                              <div style={{ fontSize: 12, color: "#1890ff" }}>Đã chọn: {selectedProducts[record.ProductId]?.quantity}</div>
+                            )}
+                            <div style={{ fontWeight: 600, fontSize: 13, color: available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a" }}>
+                              Khả dụng: {Math.max(0, available)}
+                            </div>
+                          </div>
+                        );
+                      }
+                    },
+                    {
+                      title: "Thao tác", key: "action", width: 130, fixed: "right",
+                      render: (_, record: IProduct) => {
+                        const selectedQty = selectedProducts[record.ProductId]?.quantity || 0;
+                        const available = record.AvailableQty - selectedQty;
+                        if (selectedQty > 0) {
+                          return (
+                            <Space size={4}>
+                              <Button size="small" icon={<MinusOutlined />} onClick={() => handleUpdateQuantity(record.ProductId, selectedQty - 1)} disabled={selectedQty <= 1} />
+                              <InputNumber min={1} max={record.AvailableQty} value={selectedQty}
+                                onChange={v => handleUpdateQuantity(record.ProductId, v || 0)} style={{ width: 60 }} controls={false} />
+                              <Button size="small" icon={<PlusOutlined />} onClick={() => handleUpdateQuantity(record.ProductId, selectedQty + 1)} disabled={selectedQty >= record.AvailableQty} />
+                            </Space>
+                          );
+                        }
+                        return (
+                          <Button type={available <= 0 ? "default" : "primary"} size="small" icon={<PlusOutlined />}
+                            onClick={() => handleAddProduct(record)} disabled={available <= 0}>
+                            {available <= 0 ? "Hết hàng" : "Thêm"}
+                          </Button>
+                        );
+                      }
+                    }
+                  ]}
+                />
+              )}
+            </div>
+          </Card>
+        </Col>
+
+        {/* RIGHT: Shopping Cart */}
+        <Col xs={24} lg={11}>
+          <Card title={<Space><ShoppingCartOutlined /><TypographyText>Giỏ hàng ({totalItems} món)</TypographyText></Space>} size="small" style={{ minHeight: 650 }}>
+            {Object.keys(selectedProducts).length === 0 ? (
+              <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                <Empty description="Chưa có sản phẩm nào trong giỏ hàng. Chọn sản phẩm bên trái để thêm."
+                  image={Empty.PRESENTED_IMAGE_SIMPLE} imageStyle={{ height: 100 }} />
+              </div>
+            ) : (
+              <div style={{ maxHeight: 500, overflowY: "auto" }}>
+                <Space direction="vertical" style={{ width: "100%" }} size="middle">
+                  {Object.values(selectedProducts).map(({ product, quantity }) => {
+                    const availableInCart = product.AvailableQty - quantity;
+                    const isOverStock = availableInCart < 0;
+                    const isLowStock = availableInCart <= 5 && availableInCart >= 0;
+                    const availableColor = getAvailableColor(availableInCart);
+                    return (
+                      <Card key={product.ProductId} size="small" bordered
+                        style={{ background: isOverStock ? "#fff1f0" : isLowStock ? "#fffbe6" : undefined,
+                          border: isOverStock ? "1px solid #ffa39e" : isLowStock ? "1px solid #ffe58f" : undefined, transition: "all 0.2s" }}>
+                        <Row align="middle" gutter={[16, 12]}>
+                          <Col xs={24} md={10} style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                              <TypographyText strong style={{ fontSize: 14, flex: 1, minWidth: 0 }} ellipsis>{product.Name}</TypographyText>
+                              <TypographyText type="secondary" style={{ fontSize: 12 }}>Mã: {product.Code}</TypographyText>
+                            </div>
+                            <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", fontSize: 13 }}>
+                              <span style={{ color: "#1890ff", fontWeight: 500 }}>{product.Price.toLocaleString()} VND</span>
+                              <span style={{ color: "#262626" }}>Khả dụng: <strong>{product.AvailableQty}</strong></span>
+                              <span style={{ color: "#1890ff" }}>Đã chọn: <strong>{quantity}</strong></span>
+                              <span style={{ color: availableColor, fontWeight: 600 }}>Khả dụng: <strong>{Math.max(0, availableInCart)}</strong></span>
+                            </div>
+                          </Col>
+                          <Col xs={24} md={8} style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap" }}>
+                            <Input.Group compact style={{ width: 150 }}>
+                              <Button icon={<MinusOutlined />} onClick={() => handleUpdateQuantity(product.ProductId, quantity - 1)} disabled={quantity <= 1} />
+                              <InputNumber min={1} max={product.AvailableQty} value={quantity}
+                                onChange={v => handleUpdateQuantity(product.ProductId, v || 0)} style={{ textAlign: "center", width: 50 }} controls={false} />
+                              <Button icon={<PlusOutlined />} onClick={() => handleUpdateQuantity(product.ProductId, quantity + 1)} disabled={quantity >= product.AvailableQty} />
+                            </Input.Group>
+                            <TypographyText strong style={{ fontSize: 16, color: isOverStock ? "#ff4d4f" : undefined, whiteSpace: "nowrap" }}>
+                              {(quantity * product.Price).toLocaleString()} VND
+                            </TypographyText>
+                            <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleRemoveProduct(product.ProductId)} size="small">Xóa</Button>
+                          </Col>
+                        </Row>
+                      </Card>
+                    );
+                  })}
+                </Space>
+              </div>
+            )}
+
+            {Object.keys(selectedProducts).length > 0 && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
+                <Row justify="space-between" align="middle">
+                  <Col>
+                    <Space direction="vertical" size={2}>
+                      <TypographyText strong style={{ fontSize: 16 }}>Tổng cộng: {totalItems} sản phẩm</TypographyText>
+                      <TypographyText type="secondary" style={{ fontSize: 13 }}>Đã trừ tồn kho khả dụng khi đặt hàng</TypographyText>
+                    </Space>
+                  </Col>
+                  <Col>
+                    <div style={{ textAlign: "right" }}>
+                      <TypographyText strong style={{ fontSize: 24, color: "#1677ff" }}>
+                        <DollarCircleOutlined style={{ marginRight: 6 }} />
+                        {totalAmount.toLocaleString()} VND
+                      </TypographyText>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Form.Item name="Items" hidden><Input /></Form.Item>
     </Form>
   );
 };

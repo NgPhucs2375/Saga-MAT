@@ -8,5 +8,8 @@ export interface JwtTokenDecoded {
     exp: number
     iss: string
     aud: string
+    users?: string
+    roleclaims?: string
+    [key: string]: any
   }
   

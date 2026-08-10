@@ -1,10 +1,12 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using NotificationService.Hubs;
+using Microsoft.Extensions.Logging;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Events;
 
-namespace NotificationService.Services
+namespace Onion.CleanArchitecture.Application.Hubs
 {
     public interface INotificationDispatcher
     {

@@ -107,11 +107,42 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     const token = localStorage.getItem("access_token");
     if (!token) {
-      return [];
+      return JSON.stringify({ permissions: [] });
     }
 
     const decoded: JwtTokenDecoded = jwtDecode(token);
-    return decoded.roles ?? "";
+    
+    // SuperAdmin gets all permissions
+    const isSuperAdmin = decoded.roles?.includes("SuperAdmin") || 
+                         decoded.roles?.some((r: string) => r.includes("SuperAdmin")) ||
+                         decoded.roleclaims?.includes("SuperAdmin");
+    
+    if (isSuperAdmin) {
+      // Return all possible permissions for all resources
+      const allResources = ['orders', 'users', 'roles', 'products', 'categories', 'customers', 'reports', 'dashboard'];
+      const allActions = ['list', 'create', 'edit', 'delete', 'show', 'approve', 'reject', 'export', 'import'];
+      const permissions = allResources.flatMap(resource => 
+        allActions.map(action => ({ resource, action }))
+      );
+      return JSON.stringify({ permissions });
+    }
+
+    // Regular users - parse from JWT claims
+    const rolesRaw = decoded.roles ?? [];
+    const rolesArray = Array.isArray(rolesRaw) ? rolesRaw : [rolesRaw];
+    
+    const permissions: { resource: string; action: string }[] = [];
+    
+    Object.entries(decoded).forEach(([claimName, claimValue]) => {
+      if (claimName === 'roles' || claimName === 'users' || claimName === 'roleclaims') {
+        const actions = (claimValue as string).split('#');
+        actions.forEach(action => {
+          permissions.push({ resource: claimName, action });
+        });
+      }
+    });
+
+    return JSON.stringify({ permissions });
   },
   updatePassword: async ({ oldPassword, newPassword }) => {
     const response = await fetch("/api/account/update-password", {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllProducts
 {
@@ -19,5 +20,12 @@ namespace Onion.CleanArchitecture.Application.Features.Products.Queries.GetAllPr
         public int ReservedQty { get; set; }
         // Số lượng khả dụng để bán = PhysicalQty - ReservedQty
         public int AvailableQty => PhysicalQty - ReservedQty;
+        
+        // For frontend compatibility (SLTKho = PhysicalQty) - regular property for serialization
+        public int SLTKho { get; set; }
+        
+        public bool IsActive { get; set; } = true;
+        
+        public string? ImageUrl { get; set; }
     }
 }

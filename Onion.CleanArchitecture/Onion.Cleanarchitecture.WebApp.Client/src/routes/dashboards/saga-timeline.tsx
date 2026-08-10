@@ -8,7 +8,7 @@ import {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 enum HistoryStatus {
   Success = 1,
@@ -56,10 +56,10 @@ export const SagaTimeline = ({ orderId }: { orderId: string }) => {
       dot: icon,
       children: (
         <>
-          <Text strong>{history.ConsumerName}</Text>
-          <Text type="secondary" style={{ marginLeft: 8 }}>({history.EventType})</Text>
-          <p><Text type="secondary">{history.Message}</Text></p>
-          <Text style={{ fontSize: 12, color: "#999" }}>{new Date(history.CreatedAt).toLocaleString("vi-VN")}</Text>
+          <TypographyText strong>{history.ConsumerName}</TypographyText>
+          <TypographyText type="secondary" style={{ marginLeft: 8 }}>({history.EventType})</TypographyText>
+          <p><TypographyText type="secondary">{history.Message}</TypographyText></p>
+          <TypographyText style={{ fontSize: 12, color: "#999" }}>{new Date(history.CreatedAt).toLocaleString("vi-VN")}</TypographyText>
         </>
       ),
     };
@@ -68,7 +68,7 @@ export const SagaTimeline = ({ orderId }: { orderId: string }) => {
   return (
     <Card title="Giám sát Tiến trình Saga">
       {isLoading && <Spin />}
-      {isError && <Text type="danger">Không thể tải lịch sử.</Text>}
+      {isError && <TypographyText type="danger">Không thể tải lịch sử.</TypographyText>}
       {!isLoading && !isError && (histories.length > 0 ? <Timeline items={histories.map(getTimelineItem)} /> : <Empty description="Không có lịch sử xử lý cho đơn hàng này." />)}
     </Card>
   );

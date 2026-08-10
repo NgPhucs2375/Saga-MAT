@@ -1,3 +1,5 @@
+export { ProcessSteps } from "./process-steps";
+
 import { Card, Col, Row, Statistic, Typography } from "antd";
 import {
   ShoppingCartOutlined,
@@ -7,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Area, AreaConfig } from "@ant-design/plots";
 
-const { Title, Text } = Typography;
+const { Title, Text: TypographyText } = Typography;
 
 export const DashboardPage = () => {
   // Dữ liệu giả lập cho biểu đồ doanh thu
@@ -45,7 +47,7 @@ export const DashboardPage = () => {
   return (
     <div>
       <Title level={3}>Tổng quan</Title>
-      <Text type="secondary">Chào mừng trở lại, đây là tình hình kinh doanh của bạn hôm nay.</Text>
+      <TypographyText type="secondary">Chào mừng trở lại, đây là tình hình kinh doanh của bạn hôm nay.</TypographyText>
 
       {/* Hàng KPI */}
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
@@ -101,8 +103,8 @@ export const DashboardPage = () => {
         <Col xs={24} lg={8}>
           <Card title="Sản phẩm sắp hết hàng">
             {/* Widget "Sản phẩm sắp hết hàng" sẽ được triển khai ở đây */}
-            <Text>1. Sản phẩm A (còn 5)</Text><br/>
-            <Text>2. Sản phẩm B (còn 3)</Text>
+            <TypographyText>1. Sản phẩm A (còn 5)</TypographyText><br/>
+            <TypographyText>2. Sản phẩm B (còn 3)</TypographyText>
           </Card>
         </Col>
       </Row>

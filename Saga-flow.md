@@ -7,16 +7,20 @@ sequenceDiagram
     participant UI as UI/WebApp
     participant S as Saga (Orchestrator)
     participant Sub as OrderSubmitService
-    participant Acc as OrderAcceptService
+    participant Accept as OrderAcceptService
     participant Com as OrderCompleteService
     participant Noti as NotificationService
 
     UI->>S: publish OrderCreatedEvent
     S->>Sub: Send ValidateOrderCommand (order-validation-queue)
     Sub-->>S: publish OrderValidatedEvent
-    S->>Acc: Send AcceptOrderCommand (order-accept-queue)
-    Acc-->>S: publish OrderAcceptedEvent
-    Note over S: set NeedReleaseInventory=true
+    S->>Accept: Send AcceptOrderCommand (order-accept-queue)
+    Note over Accept: Re-validate sản phẩm, đơn -> PendingApproval, tạo timer Target=Rejected
+    S->>Noti: publish OrderSubmitSuccessResponse (đang chờ duyệt)
+    Note over UI: Người duyệt bấm Duyệt/Từ chối
+    UI->>Accept: publish ApproveOrderCommand (order-approve-queue)
+    Accept-->>S: publish OrderAcceptedEvent
+    Note over S: set NeedReleaseInventory=true, StepsCompleted=2
     S->>Com: Send CompleteOrderCommand (order-complete-queue)
     Com-->>S: publish OrderCompletedEvent
     S->>Noti: publish OrderCompleteSuccessResponse
@@ -44,30 +48,28 @@ sequenceDiagram
     Note over S: -> Cancelled
 ```
 
-## 3) Timeout — Saga quyết định
+## 3) Timeout — OrderAcceptService quyết định (chờ duyệt)
 
 ```mermaid
 sequenceDiagram
     participant TW as TimerWatcherBackgroundService
+    participant Acc as OrderAcceptService
     participant S as Saga (Orchestrator)
     participant Com as OrderCompleteService
-    participant Acc as OrderAcceptService
     participant Noti as NotificationService
 
-    TW-->>S: publish OrderTimeoutExpiredEvent(TargetAction)
-    alt TargetAction = Complete
-        S->>Com: Send CompleteOrderCommand -> Completing (tiếp happy path)
-    else TargetAction = Reject
-        S->>S: OrderTimeoutExpiredActivity, IsTimeout=true -> Compensating
-        alt NeedReleaseInventory = true
-            S->>Com: Send ReleaseInventoryCommand (LIFO 1)
-            Com-->>S: publish InventoryReleasedEvent
-        end
-        S->>Acc: Send CancelOrderCommand (LIFO 2)
-        Acc-->>S: publish OrderCancelledEvent
-        S->>Noti: publish OrderAcceptFailedResponse (timeout)
-        Note over S: -> Cancelled
+    Note over Acc: Timer Target=Rejected (chờ người duyệt quá hạn)
+    TW-->>Acc: publish OrderAutoTimeoutExpiredEvent(TargetAction=Reject)
+    Acc-->>S: publish OrderAcceptFailedEvent(reason=Timeout)
+    Note over S: PendingApproval -> Compensating
+    alt NeedReleaseInventory = true (StepsCompleted>=1)
+        S->>Com: Send ReleaseInventoryCommand (LIFO 1)
+        Com-->>S: publish InventoryReleasedEvent
     end
+    S->>Acc: Send CancelOrderCommand (LIFO 2)
+    Acc-->>S: publish OrderCancelledEvent
+    S->>Noti: publish OrderAcceptFailedResponse (timeout)
+    Note over S: -> Rejected
 ```
 
 ## 4) State machine
@@ -75,21 +77,20 @@ sequenceDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> Validating: OrderCreatedEvent
-    Validating --> Accepting: OrderValidatedEvent
-    Validating --> Cancelled: OrderValidationFailedEvent (không cần bù)
-    Accepting --> Completing: OrderAcceptedEvent (NeedReleaseInventory=true)
-    Accepting --> Cancelled: OrderAcceptFailedEvent (không có side-effect)
+    Validating --> PendingApproval: OrderValidatedEvent
+    Validating --> Rejected: OrderValidationFailedEvent (không cần bù)
+    PendingApproval --> Completing: OrderAcceptedEvent (duyệt, NeedReleaseInventory=true)
+    PendingApproval --> Rejected: OrderAcceptFailedEvent (từ chối/timeout, Step>=1 -> bù LIFO)
     Completing --> Completed: OrderCompletedEvent
     Completing --> Compensating: OrderCompleteFailedEvent
     Compensating --> Compensating: InventoryReleasedEvent -> Send CancelOrderCommand
-    Compensating --> Cancelled: OrderCancelledEvent -> publish response
-    Compensating --> Cancelled: ReleaseInventoryFailedEvent / CancelOrderFailedEvent
-    state "DuringAny" as DA {
-        [*] --> T1: OrderTimeoutExpiredEvent (TargetAction=Complete) -> Send CompleteOrderCommand -> Completing
-        [*] --> T2: OrderTimeoutExpiredEvent (Reject) -> Compensating
+    Compensating --> Rejected: OrderCancelledEvent -> publish response
+    Compensating --> Rejected: ReleaseInventoryFailedEvent / CancelOrderFailedEvent
+    state "Any" as DA {
+        [*] --> Rejected: OrderTimeoutExpiredEvent
     }
     Completed --> [*]
-    Cancelled --> [*]
+    Rejected --> [*]
 ```
 
 ## 5) Queue map
@@ -97,20 +98,26 @@ stateDiagram-v2
 | Queue | Producer | Consumer |
 |---|---|---|
 | `order-validation-queue` | Saga (`OrderCreatedActivity`) | `OrderSubmitService` |
-| `order-accept-queue` | Saga (`OrderValidatedActivity`) | `OrderAcceptService` |
-| `order-complete-queue` | Saga (`OrderAcceptedActivity`, `OrderTimeoutCompleteActivity`) | `OrderCompleteService` |
-| `order-release-inventory-queue` | Saga (`OrderCompleteFailedActivity`, `OrderTimeoutExpiredActivity`) | `OrderCompleteService` (`ReleaseInventoryConsumer`) |
-| `order-cancel-queue` | Saga (`InventoryReleasedActivity`, `OrderTimeoutExpiredActivity`) | `OrderAcceptService` (`CancelOrderConsumer`) |
+| `order-accept-queue` | Saga (`OrderValidatedActivity`) | `OrderAcceptService` (`OrderAcceptConsumer`) |
+| `order-approve-queue` | WebApp (`PUT /api/orders/{id}/approve`) | `OrderAcceptService` (`ApproveOrderConsumer`) |
+| `order-reject-queue` | WebApp (`PUT /api/orders/{id}/reject`) | `OrderAcceptService` (`RejectOrderConsumer`) |
+| `order-complete-queue` | Saga (`OrderAcceptedActivity`) | `OrderCompleteService` |
+| `order-release-inventory-queue` | Saga (`OrderCompleteFailedActivity`, `OrderAcceptFailedActivity`) | `OrderCompleteService` (`ReleaseInventoryConsumer`) |
+| `order-cancel-queue` | Saga (`InventoryReleasedActivity`) | `OrderAcceptService` (`CancelOrderConsumer`) |
+| `order-timeout-queue` | `OrderAcceptService` (TimerWatcher) | `OrderAcceptService` (`OrderTimeoutConsumer`) |
 | `notification-queue` | Các luồng publish `*Response` | `NotificationService` |
 
 ## 6) Idempotency guard
 
 | Consumer | Chỉ xử lý khi Order trạng thái |
 |---|---|
-| `OrderAcceptConsumer` | `Submitted` |
+| `OrderAcceptConsumer` | `Submitted` (chuyển → PendingApproval) |
+| `ApproveOrderConsumer` | `PendingApproval` (chuyển → Accepted) |
+| `RejectOrderConsumer` | `PendingApproval` |
 | `OrderCompleteConsumer` | `Accepted` |
-| `ReleaseInventoryConsumer` | `Completed` |
+| `ReleaseInventoryConsumer` | `IsReserved=true` |
 | `CancelOrderConsumer` | `Accepted` |
+| `OrderTimeoutConsumer` | Có timer `Pending` |
 
 ---
 

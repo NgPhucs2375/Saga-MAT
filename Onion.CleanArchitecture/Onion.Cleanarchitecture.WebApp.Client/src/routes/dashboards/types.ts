@@ -18,9 +18,10 @@ export { OrderStatus, OrderStatusLabel };
 export type { IOrderHistory };
 
 export enum EventStoreStatus {
-  Pending = 0,
-  Processed = 1,
-  Failed = 2,
+  Pending = 1,
+  Processed = 2,
+  Completed = 3,
+  Failed = 4,
 }
 
 export interface IEventStore {
@@ -42,11 +43,21 @@ export enum TimerStatus {
   Cancelled = 3,
 }
 
+export enum TimerTargetStatus {
+  Completed = 1,
+  Rejected = 2,
+}
+
+export const TimerTargetStatusLabel: Record<TimerTargetStatus, string> = {
+  [TimerTargetStatus.Completed]: "Hoàn thành (release tồn kho)",
+  [TimerTargetStatus.Rejected]: "Từ chối (release tồn kho)",
+};
+
 export interface IOrderTimer {
   TimerId: string;
   OrderId: string;
   Timeout: string;
-  Status: OrderStatus;
+  Status: TimerTargetStatus;
   TimerStatus: TimerStatus;
 }
 

@@ -5,6 +5,7 @@ namespace Onion.CleanArchitecture.Domain.Enums
         Submitted = 1,
         Accepted = 2,
         Completed = 3,
-        Rejected = 4
+        Rejected = 4,
+        PendingApproval = 5
     }
 }

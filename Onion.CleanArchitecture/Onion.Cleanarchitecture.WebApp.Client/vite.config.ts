@@ -71,7 +71,7 @@ export default defineConfig({
         secure: false,
       },
       "^/hubs": {
-        target: "https://localhost:7201",
+        target,
         secure: false,
         ws: true,
       },

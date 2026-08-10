@@ -32,8 +32,15 @@ var host = Host.CreateDefaultBuilder(args)
             // Định dạng tên Queue theo chuẩn kebab-case (ví dụ: order-submit-consumer)
             x.SetKebabCaseEndpointNameFormatter();
 
-// Đăng ký Consumer xử lý ValidateOrderCommand
+            // Đăng ký Consumer xử lý ValidateOrderCommand
             x.AddConsumer<OrderSubmitConsumer>();
+
+            // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
+            // "Instances of abstract classes cannot be created" ở OutboxConsumeFilter)
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres();
+            });
 
             x.UsingPostgres((context, cfg) =>
             {
@@ -43,7 +50,6 @@ var host = Host.CreateDefaultBuilder(args)
                 // BẮT BUỘC: Nhận ValidateOrderCommand từ Saga qua queue order-validation-queue
                 cfg.ReceiveEndpoint("order-validation-queue", e =>
                 {
-                    e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
                     e.ConfigureConsumer<OrderSubmitConsumer>(context);
                 });
             });

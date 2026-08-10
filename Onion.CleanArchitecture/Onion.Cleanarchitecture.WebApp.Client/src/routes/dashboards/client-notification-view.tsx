@@ -4,7 +4,7 @@ import { useList } from "@refinedev/core";
 import { INotification } from "./types";
 import { BellOutlined, CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined, WarningOutlined } from "@ant-design/icons";
 
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 export const ClientNotificationView = ({ orderId }: { orderId: string }) => {
   const { data, isLoading, isError } = useList<INotification>({
@@ -40,7 +40,7 @@ export const ClientNotificationView = ({ orderId }: { orderId: string }) => {
         <List.Item style={{ padding: "12px 24px", backgroundColor: item.IsRead ? "transparent" : "#e6f7ff" }}>
           <List.Item.Meta
             avatar={<Avatar icon={getIcon(item.Type)} style={{ backgroundColor: 'transparent' }} />}
-            title={<Text strong>{item.Title}</Text>}
+            title={<TypographyText strong>{item.Title}</TypographyText>}
             description={item.Message}
           />
         </List.Item>
@@ -50,7 +50,7 @@ export const ClientNotificationView = ({ orderId }: { orderId: string }) => {
 
   return (
     <Card title="Trải nghiệm Khách hàng (Notification)">
-      <Text>Mô phỏng chuông thông báo và danh sách người dùng sẽ thấy.</Text>
+      <TypographyText>Mô phỏng chuông thông báo và danh sách người dùng sẽ thấy.</TypographyText>
       <div style={{ marginTop: 20, textAlign: "center" }}>
         <Dropdown overlay={menu} trigger={["click"]}>
           <Badge count={unreadCount}>
@@ -59,7 +59,7 @@ export const ClientNotificationView = ({ orderId }: { orderId: string }) => {
         </Dropdown>
       </div>
       {isLoading && <Spin style={{ display: "block", marginTop: 16 }} />}
-      {isError && <Text type="danger">Không thể tải thông báo.</Text>}
+      {isError && <TypographyText type="danger">Không thể tải thông báo.</TypographyText>}
     </Card>
   );
 };

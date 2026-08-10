@@ -2,7 +2,6 @@ import {
   Table,
   Typography,
   Descriptions,
-  Timeline,
   Card,
   Row,
   Col,
@@ -16,20 +15,11 @@ import {
 } from "antd";
 import { DateField } from "@refinedev/antd";
 import { DollarCircleOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { IOrderDetail, IOrderItem, IOrderHistory, OrderStatusLabel } from "./types";
-
-type OrderStatus =
-  | "Submitted"
-  | "Validating"
-  | "Accepting"
-  | "Completing"
-  | "Completed"
-  | "Rejected"
-  | "Cancelled"
-  | "Compensating";
+import { IOrderDetail, IOrderItem, OrderStatusLabel } from "./types";
+import { ProcessSteps } from "@components/orders/process-steps";
 
 interface OrderStatusTagProps {
-  status: OrderStatus | string;
+  status: string; // Now directly takes the string label
 }
 
 export const OrderStatusTag: React.FC<OrderStatusTagProps> = ({ status }) => {
@@ -41,6 +31,8 @@ export const OrderStatusTag: React.FC<OrderStatusTagProps> = ({ status }) => {
     case "Validating":
     case "Accepting":
     case "Completing":
+    case "PendingApproval":
+    case "Chờ duyệt":
       color = "processing"; // Màu xanh dương (đang xử lý)
       break;
     case "Completed":
@@ -63,7 +55,7 @@ export const OrderStatusTag: React.FC<OrderStatusTagProps> = ({ status }) => {
   );
 };
 
-const { Text } = Typography;
+const { Text: TypographyText } = Typography;
 
 interface OrderShowContentProps {
   order?: IOrderDetail;
@@ -93,7 +85,7 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
       width: 150,
       align: "right",
       render: (value: number) => (
-        <Text>{value?.toLocaleString() ?? 0} VND</Text>
+        <TypographyText>{value?.toLocaleString() ?? 0} VND</TypographyText>
       ),
     },
     {
@@ -102,9 +94,9 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
       width: 150,
       align: "right",
       render: (_: unknown, item: IOrderItem) => (
-        <Text strong>
+        <TypographyText strong>
           {((item.Quantity ?? 0) * (item.UnitPrice ?? 0)).toLocaleString()} VND
-        </Text>
+        </TypographyText>
       ),
     },
   ];
@@ -142,7 +134,7 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
                         }
                       />
                     ) : (
-                      <Text>-</Text>
+                      <TypographyText>-</TypographyText>
                     )
                   }
                 />
@@ -153,9 +145,9 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
                   value={order?.TotalAmount ?? 0}
                   precision={0}
                   formatter={(value) => (
-                    <Text strong style={{ color: token.colorPrimary }}>
+                    <TypographyText strong style={{ color: token.colorPrimary }}>
                       {value?.toLocaleString()} VND
-                    </Text>
+                    </TypographyText>
                   )}
                   prefix={<DollarCircleOutlined />}
                 />
@@ -166,23 +158,23 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
           <Card title="Thông tin chi tiết">
             <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }} size="small">
               <Descriptions.Item label="Địa chỉ giao hàng" span={3}>
-                <Text>{order?.ShippingAddress ?? "-"}</Text>
+                <TypographyText>{order?.ShippingAddress ?? "-"}</TypographyText>
               </Descriptions.Item>
               <Descriptions.Item label="Ghi chú" span={3}>
-                <Text>{order?.Note || "-"}</Text>
+                <TypographyText>{order?.Note || "-"}</TypographyText>
               </Descriptions.Item>
               <Descriptions.Item label="Ngày tạo">
                 {order?.Created ? (
                   <DateField format="DD/MM/YYYY HH:mm" value={order.Created} />
                 ) : (
-                  <Text>-</Text>
+                  <TypographyText>-</TypographyText>
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày duyệt">
                 {order?.UpdatedAt ? (
                   <DateField format="DD/MM/YYYY HH:mm" value={order.UpdatedAt} />
                 ) : (
-                  <Text>-</Text>
+                  <TypographyText>-</TypographyText>
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="Hoàn tất">
@@ -192,7 +184,7 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
                     value={order.CompletedAt}
                   />
                 ) : (
-                  <Text>-</Text>
+                  <TypographyText>-</TypographyText>
                 )}
               </Descriptions.Item>
             </Descriptions>
@@ -217,12 +209,12 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
                   return (
                     <Table.Summary.Row>
                       <Table.Summary.Cell index={0} colSpan={3}>
-                        <Text strong>Tổng tiền đơn hàng</Text>
+                        <TypographyText strong>Tổng tiền đơn hàng</TypographyText>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell index={3}>
-                        <Text strong style={{ color: token.colorPrimary }}>
+                        <TypographyText strong style={{ color: token.colorPrimary }}>
                           {total.toLocaleString()}
-                        </Text>
+                        </TypographyText>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
                   );
@@ -237,37 +229,14 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
 
       <Col xl={8} lg={24} xs={24}>
         {(order?.OrderHistories?.length ?? 0) > 0 ? (
-          <Card title="Lịch sử xử lý (Saga Timeline)">
-            <Timeline
-              items={(order?.OrderHistories ?? []).map((h: IOrderHistory) => {
-                const isSuccess = h.Status === 1;
-                const color = isSuccess ? "green" : "red";
-                const statusLabel = isSuccess ? "THÀNH CÔNG" : "THẤT BẠI";
-
-                return {
-                  color: color,
-                  children: (
-                    <Space direction="vertical" style={{ gap: 2 }}>
-                      <Space>
-                        <Tag color={color}>{statusLabel}</Tag>
-                        <Text strong>{h.ConsumerName}</Text>
-                      </Space>
-                      <Text type="secondary">{h.Message}</Text>
-                      {h.CreatedAt && (
-                        <DateField
-                          style={{ fontSize: 12 }}
-                          value={h.CreatedAt}
-                          format="DD/MM/YYYY HH:mm:ss"
-                        />
-                      )}
-                    </Space>
-                  ),
-                };
-              })}
+          <Card title="Lịch sử xử lý (Saga Process)">
+            <ProcessSteps
+              histories={order?.OrderHistories ?? []}
+              orderStatus={order?.Status}
             />
           </Card>
         ) : (
-          <Card title="Lịch sử xử lý (Saga Timeline)">
+          <Card title="Lịch sử xử lý (Saga Process)">
             <Empty description="Không có lịch sử xử lý nào." />
           </Card>
         )}

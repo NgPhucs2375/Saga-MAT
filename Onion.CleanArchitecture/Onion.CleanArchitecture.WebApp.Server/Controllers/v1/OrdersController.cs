@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrder;
+using Onion.CleanArchitecture.Application.Features.Orders.Commands.ApproveOrder;
 using Onion.CleanArchitecture.Application.Features.Orders.Commands.CancelOrder;
+using Onion.CleanArchitecture.Application.Features.Orders.Commands.RejectOrder;
 using Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrders;
 using Onion.CleanArchitecture.Application.Features.Orders.Queries.GetOrderById;
 using Onion.CleanArchitecture.Application.Features.Products.Queries.GetProductById;
@@ -65,6 +67,26 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
             return await EnforcePermissionAndExecute("orders", "edit", async () =>
             {
                 return Ok(await Mediator.Send(new CancelOrderCommand { OrderId = id, Reason = request?.Reason }));
+            });
+        }
+
+        // PUT: api/orders/{id}/approve
+        [HttpPut("{id}/approve")]
+        public async Task<IActionResult> Approve(Guid id)
+        {
+            return await EnforcePermissionAndExecute("orders", "edit", async () =>
+            {
+                return Ok(await Mediator.Send(new ApproveOrderCommand { OrderId = id }));
+            });
+        }
+
+        // PUT: api/orders/{id}/reject
+        [HttpPut("{id}/reject")]
+        public async Task<IActionResult> Reject(Guid id, [FromBody] CancelOrderRequest request)
+        {
+            return await EnforcePermissionAndExecute("orders", "edit", async () =>
+            {
+                return Ok(await Mediator.Send(new RejectOrderCommand { OrderId = id, Reason = request?.Reason }));
             });
         }
     }

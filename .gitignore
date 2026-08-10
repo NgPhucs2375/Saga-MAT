@@ -4,3 +4,4 @@
 **/node_modules/
 /.vscode
 # Onion.CleanArchitecture/Onion.CleanArchitecture.WebApp.Server/wwwroot/policy.csv
+.env

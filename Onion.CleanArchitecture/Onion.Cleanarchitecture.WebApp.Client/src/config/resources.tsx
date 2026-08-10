@@ -1,12 +1,25 @@
 import type { IResourceItem } from "@refinedev/core";
+import { type ThemeConfig } from "antd";
 
 import {
   DashboardOutlined,
   TeamOutlined,
   ShoppingCartOutlined,
+  AppstoreOutlined,
   UserOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
+
+export const appTheme: ThemeConfig = {
+  token: {
+    colorPrimary: "#1677ff",
+    colorInfo: "#1677ff",
+    borderRadius: 6,
+  },
+  components: {
+    // Component-specific overrides can go here
+  },
+};
 
 export const resources: IResourceItem[] = [
   {
@@ -26,8 +39,8 @@ export const resources: IResourceItem[] = [
     show: "/products/:id",
     meta: {
       canDelete: true,
-      label: "Sản phẩm",
-      icon: <UserOutlined />,
+      label: "Sản phẩm", // Products
+      icon: <AppstoreOutlined />,
     },
   },
   {

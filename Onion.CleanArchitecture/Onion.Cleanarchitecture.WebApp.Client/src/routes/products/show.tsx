@@ -4,7 +4,7 @@ import { Show, NumberField } from "@refinedev/antd";
 import { Typography, Row, Col, Card, Descriptions, Image } from "antd";
 import { ProductStatusTag } from "./productcomponent";
 
-const { Title, Text } = Typography;
+const { Title, Text: TypographyText } = Typography;
 
 export const ShowProduct = () => {
   const {
@@ -31,9 +31,9 @@ export const ShowProduct = () => {
             <Card.Meta
               title={product?.Name}
               description={
-                <Text copyable>
+                <TypographyText copyable>
                   {product?.Barcode ? `Barcode: ${product.Barcode}` : "Chưa có mã vạch"}
-                </Text>
+                </TypographyText>
               }
             />
           </Card>
@@ -52,9 +52,9 @@ export const ShowProduct = () => {
                 />
               </Descriptions.Item>
               <Descriptions.Item label="Số lượng tồn kho">
-                <Text strong style={{ color: (product?.PhysicalQty ?? 0) > 0 ? 'inherit' : 'red' }}>
+                <TypographyText strong style={{ color: (product?.PhysicalQty ?? 0) > 0 ? 'inherit' : 'red' }}>
                   {product?.PhysicalQty ?? 0}
-                </Text>
+                </TypographyText>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
                 <ProductStatusTag isActive={product?.IsActive ?? false} />

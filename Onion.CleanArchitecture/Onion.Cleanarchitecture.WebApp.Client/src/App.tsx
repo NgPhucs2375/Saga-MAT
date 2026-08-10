@@ -13,7 +13,7 @@ import routerProvider, {
   NavigateToResource,
 } from "@refinedev/react-router-v6";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { resources, themeConfig } from "./config";
+import { resources, appTheme } from "./config";
 import { Authenticated, CanAccess, Refine } from "@refinedev/core";
 import { accessControlProvider, authProvider, dataProvider } from "./providers";
 import {
@@ -57,7 +57,7 @@ import { EditOrder } from "./routes/orders/edit"; // Added EditOrder import
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <ConfigProvider theme={themeConfig}>
+      <ConfigProvider theme={appTheme}>
         <AntdApp>
           <Refine
             dataProvider={dataProvider}
@@ -88,7 +88,7 @@ const App: React.FC = () => {
                             <ImageField
                               value="https://static.vietbank.com.vn/web/vietbank-logo.png"
                               title="Logo"
-                              style={{ width: 30, height: 30 }}
+                              style={{width: 28, height: 28, objectFit: "contain" }}
                             />
                           }
                           text="Admin"

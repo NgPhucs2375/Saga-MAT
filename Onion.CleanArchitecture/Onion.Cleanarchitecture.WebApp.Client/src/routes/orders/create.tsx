@@ -1,6 +1,6 @@
 import { useForm, Create } from "@refinedev/antd";
 import { CreateOrderForm } from "@components/orders/create-order-form";
-import { ICreateOrder } from "./types"; // Ensure this path is correct
+import { ICreateOrder } from "./types";
 import { BaseRecord, HttpError } from "@refinedev/core";
 
 export const CreateOrder = () => {
