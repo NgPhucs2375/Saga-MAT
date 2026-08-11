@@ -1,6 +1,21 @@
 import React, { useState } from "react";
-import { ImportButton, useImport, Create, Breadcrumb } from "@refinedev/antd";
-import { Space, Table, Tag } from "antd";
+import {
+  ImportButton,
+  useImport,
+  Create,
+  Breadcrumb,
+} from "@refinedev/antd";
+import {
+  Space,
+  Table,
+  Tag,
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Progress,
+  Typography,
+} from "antd";
 import type { TableProps } from "antd";
 import { HttpError } from "@refinedev/core";
 import { IProduct } from "./types";
@@ -15,6 +30,7 @@ export const CreateRangeProduct: React.FC = () => {
     processed: 0,
     total: 0,
   });
+  const [responses, setResponses] = useState<IProductError[]>([]);
 
   const handleSuccess = (successes: any[]) => {
     successes.forEach((success) => {
@@ -38,7 +54,6 @@ export const CreateRangeProduct: React.FC = () => {
     });
   };
 
-  const [responses, setResponses] = useState<IProductError[]>([]);
   const importProps = useImport<IProductError>({
     resource: "products",
     onFinish: (result) => {
@@ -64,65 +79,121 @@ export const CreateRangeProduct: React.FC = () => {
     batchSize: 5,
   });
 
+  const successCount = responses.filter((r) => r.Success).length;
+  const errorCount = responses.length - successCount;
+  const percent =
+    importProgress.total > 0
+      ? Math.round((importProgress.processed / importProgress.total) * 100)
+      : 0;
+
   const columns: TableProps<IProductError>["columns"] = [
     {
-      title: "Success",
+      title: "Kết quả",
       dataIndex: "Success",
       key: "Success",
+      width: 120,
       render: (value) =>
         value ? (
-          <Tag color={"green"} key={"loser"}>
-            {"Success"}
-          </Tag>
+          <Tag color="green">Thành công</Tag>
         ) : (
-          <Tag color={"red"} key={"volcano"}>
-            {"Error"}
-          </Tag>
+          <Tag color="red">Thất bại</Tag>
         ),
     },
     {
-      title: "Name",
+      title: "Tên sản phẩm",
       dataIndex: "Name",
       key: "Name",
     },
     {
-      title: "Barcode",
+      title: "Mã vạch",
       dataIndex: "Barcode",
       key: "Barcode",
     },
     {
-      title: "Message",
+      title: "Thông báo",
       dataIndex: "Message",
       key: "Message",
+      render: (value) => value || "—",
     },
   ];
 
   return (
     <Create
-      title="Create range products"
+      title="Nhập hàng loạt sản phẩm"
       breadcrumb={
         <Breadcrumb
           breadcrumbProps={{
             items: [
               {
-                title: "Products",
+                title: "Sản phẩm",
                 href: "/products",
               },
               {
-                title: "Create range",
+                title: "Nhập hàng loạt",
               },
             ],
           }}
         />
       }
     >
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col xs={12} md={6}>
+          <Card bordered={false}>
+            <Statistic
+              title="Đã xử lý"
+              value={importProgress.processed}
+              suffix={`/ ${importProgress.total}`}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} md={6}>
+          <Card bordered={false}>
+            <Statistic
+              title="Thành công"
+              value={successCount}
+              valueStyle={{ color: "#389e0d" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} md={6}>
+          <Card bordered={false}>
+            <Statistic
+              title="Lỗi"
+              value={errorCount}
+              valueStyle={{ color: "#cf1322" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} md={6}>
+          <Card bordered={false}>
+            <Typography.Text type="secondary">Tiến trình</Typography.Text>
+            <Progress
+              percent={percent}
+              status={percent === 100 ? "success" : "active"}
+              size="small"
+              format={() => `${importProgress.processed}/${importProgress.total}`}
+            />
+          </Card>
+        </Col>
+      </Row>
+
       <Space style={{ marginBottom: 16 }}>
-        <ImportButton {...importProps} accept=".csv" />
-        <span>
-          {importProgress.processed}/{importProgress.total}
-        </span>
+        <ImportButton {...importProps} accept=".csv">
+          Chọn file CSV
+        </ImportButton>
+        <Typography.Text type="secondary">
+          Nhập tệp CSV chứa danh sách sản phẩm để tạo hàng loạt.
+        </Typography.Text>
       </Space>
-      <Table columns={columns} dataSource={responses} />
+      <Table
+        columns={columns}
+        dataSource={responses}
+        rowKey={(record) =>
+          `${record.Success}-${record.Name}-${record.Barcode}-${record.Message}`
+        }
+        size="middle"
+        pagination={{ pageSize: 10, showSizeChanger: false }}
+      />
     </Create>
   );
 };

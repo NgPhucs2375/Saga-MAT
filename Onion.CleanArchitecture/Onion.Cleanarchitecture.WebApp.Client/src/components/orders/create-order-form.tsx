@@ -9,20 +9,18 @@ import {
   Row,
   Col,
   Typography,
-  Tooltip,
   Empty,
-  message,
+  App,
   Spin,
-  Divider,
   Badge,
   Alert,
   Select,
   Checkbox,
   Table,
-  Tag,
+  theme,
   type FormProps,
 } from "antd";
-import { PlusOutlined, MinusOutlined, DeleteOutlined, SearchOutlined, ShoppingCartOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined, MinusOutlined, DeleteOutlined, ShoppingCartOutlined, DollarCircleOutlined } from "@ant-design/icons";
 import { useList } from "@refinedev/core";
 import { ICreateOrder, ICreateOrderItem, IProduct } from "@routes/orders/types";
 
@@ -33,6 +31,8 @@ interface CreateOrderFormProps {
 }
 
 export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) => {
+  const { message } = App.useApp();
+  const { token } = theme.useToken();
   const [selectedProducts, setSelectedProducts] = useState<Record<string, { product: IProduct; quantity: number }>>({});
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
@@ -121,7 +121,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
   const hasOutOfStockItems = Object.values(selectedProducts).some(({ product, quantity }) => quantity > product.AvailableQty);
 
   const getAvailableColor = (available: number) =>
-    available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a";
+    available < 0 ? token.colorError : available <= 5 ? token.colorWarning : token.colorSuccess;
 
   return (
     <Form {...formProps} layout="vertical" initialValues={{ ...formProps.initialValues, Items: [] }}>
@@ -150,7 +150,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                   placeholder="Tìm kiếm và chọn sản phẩm..."
                   showSearch
                   filterOption={(input, option) => option.label?.toLowerCase().includes(input.toLowerCase())}
-                  style={{ width: 400 }} allowClear maxTagCount={1} maxTagPlaceholder="Đã chọn"
+                  style={{ width: "100%", maxWidth: 460 }} allowClear maxTagCount={1} maxTagPlaceholder="Đã chọn"
                   onSearch={setSearchTerm}
                   notFoundContent={filteredProducts.length === 0 ? "Không tìm thấy sản phẩm" : undefined}
                   dropdownRender={menu => (
@@ -191,14 +191,13 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                       render: (value: number, record: IProduct) => {
                         const selectedQty = selectedProducts[record.ProductId]?.quantity || 0;
                         const available = value - selectedQty;
-                        const color = available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a";
                         return (
                           <div style={{ display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
-                            <div style={{ fontWeight: 600, fontSize: 14, color: "#262626" }}>Tồn: {value}</div>
+                            <div style={{ fontWeight: 600, fontSize: 14, color: "rgba(0,0,0,0.88)" }}>Tồn: {value}</div>
                             {selectedProducts[record.ProductId]?.quantity && (
-                              <div style={{ fontSize: 12, color: "#1890ff" }}>Đã chọn: {selectedProducts[record.ProductId]?.quantity}</div>
+                              <div style={{ fontSize: 12, color: token.colorPrimary }}>Đã chọn: {selectedProducts[record.ProductId]?.quantity}</div>
                             )}
-                            <div style={{ fontWeight: 600, fontSize: 13, color: available < 0 ? "#ff4d4f" : available <= 5 ? "#faad14" : "#52c41a" }}>
+                            <div style={{ fontWeight: 600, fontSize: 13, color: available < 0 ? token.colorError : available <= 5 ? token.colorWarning : token.colorSuccess }}>
                               Khả dụng: {Math.max(0, available)}
                             </div>
                           </div>
@@ -253,8 +252,8 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                     const availableColor = getAvailableColor(availableInCart);
                     return (
                       <Card key={product.ProductId} size="small" bordered
-                        style={{ background: isOverStock ? "#fff1f0" : isLowStock ? "#fffbe6" : undefined,
-                          border: isOverStock ? "1px solid #ffa39e" : isLowStock ? "1px solid #ffe58f" : undefined, transition: "all 0.2s" }}>
+                            style={{ background: isOverStock ? token.colorErrorBg : isLowStock ? token.colorWarningBg : undefined,
+                              border: isOverStock ? `1px solid ${token.colorErrorBorder}` : isLowStock ? `1px solid ${token.colorWarningBorder}` : undefined, transition: "all 0.2s" }}>
                         <Row align="middle" gutter={[16, 12]}>
                           <Col xs={24} md={10} style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
@@ -262,9 +261,9 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                               <TypographyText type="secondary" style={{ fontSize: 12 }}>Mã: {product.Code}</TypographyText>
                             </div>
                             <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", fontSize: 13 }}>
-                              <span style={{ color: "#1890ff", fontWeight: 500 }}>{product.Price.toLocaleString()} VND</span>
-                              <span style={{ color: "#262626" }}>Khả dụng: <strong>{product.AvailableQty}</strong></span>
-                              <span style={{ color: "#1890ff" }}>Đã chọn: <strong>{quantity}</strong></span>
+                              <span style={{ color: token.colorPrimary, fontWeight: 500 }}>{product.Price.toLocaleString()} VND</span>
+                              <span style={{ color: "rgba(0,0,0,0.88)" }}>Khả dụng: <strong>{product.AvailableQty}</strong></span>
+                              <span style={{ color: token.colorPrimary }}>Đã chọn: <strong>{quantity}</strong></span>
                               <span style={{ color: availableColor, fontWeight: 600 }}>Khả dụng: <strong>{Math.max(0, availableInCart)}</strong></span>
                             </div>
                           </Col>
@@ -275,7 +274,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                                 onChange={v => handleUpdateQuantity(product.ProductId, v || 0)} style={{ textAlign: "center", width: 50 }} controls={false} />
                               <Button icon={<PlusOutlined />} onClick={() => handleUpdateQuantity(product.ProductId, quantity + 1)} disabled={quantity >= product.AvailableQty} />
                             </Input.Group>
-                            <TypographyText strong style={{ fontSize: 16, color: isOverStock ? "#ff4d4f" : undefined, whiteSpace: "nowrap" }}>
+                            <TypographyText strong style={{ fontSize: 16, color: isOverStock ? token.colorError : undefined, whiteSpace: "nowrap" }}>
                               {(quantity * product.Price).toLocaleString()} VND
                             </TypographyText>
                             <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleRemoveProduct(product.ProductId)} size="small">Xóa</Button>
@@ -299,7 +298,7 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({ formProps }) =
                   </Col>
                   <Col>
                     <div style={{ textAlign: "right" }}>
-                      <TypographyText strong style={{ fontSize: 24, color: "#1677ff" }}>
+                      <TypographyText strong style={{ fontSize: 24, color: token.colorPrimary }}>
                         <DollarCircleOutlined style={{ marginRight: 6 }} />
                         {totalAmount.toLocaleString()} VND
                       </TypographyText>

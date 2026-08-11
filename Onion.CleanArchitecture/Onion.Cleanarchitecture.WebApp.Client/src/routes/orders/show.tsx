@@ -1,9 +1,9 @@
 import { useShow, useNavigation, useCan } from "@refinedev/core";
 import { Show, EditButton, DeleteButton } from "@refinedev/antd";
 import { Typography, Space, Tooltip } from "antd";
-import { IOrderDetail, OrderStatus } from "./types";
+import { IOrderDetail, OrderStatus, OrderStatusLabel } from "./types";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { OrderShowContent } from "./ordercomponent";
+import { OrderShowContent, OrderStatusTag } from "./ordercomponent";
 const { Text: TypographyText } = Typography;
 
 export const ShowOrder = () => {
@@ -30,7 +30,24 @@ export const ShowOrder = () => {
   return (
     <Show
       isLoading={isLoading}
-      title={<TypographyText>Chi tiết Đơn hàng #{order?.OrderCode}</TypographyText>}
+      title={
+        <Space wrap>
+          <TypographyText>Chi tiết Đơn hàng</TypographyText>
+          {order && (
+            <>
+              <TypographyText strong>#{order.OrderCode}</TypographyText>
+              <OrderStatusTag
+                size="large"
+                status={
+                  order.Status != null
+                    ? OrderStatusLabel[order.Status] ?? String(order.Status)
+                    : "Unknown"
+                }
+              />
+            </>
+          )}
+        </Space>
+      }
       headerButtons={
         <Space>
           {order?.Status === OrderStatus.Submitted && canEdit?.can && (

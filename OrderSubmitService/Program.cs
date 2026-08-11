@@ -40,6 +40,9 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
             {
                 o.UsePostgres();
+                // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
+                // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
+                o.DisableInboxCleanupService();
             });
 
             x.UsingPostgres((context, cfg) =>

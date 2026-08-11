@@ -5,3 +5,4 @@
 /.vscode
 # Onion.CleanArchitecture/Onion.CleanArchitecture.WebApp.Server/wwwroot/policy.csv
 .env
+.run-logs/

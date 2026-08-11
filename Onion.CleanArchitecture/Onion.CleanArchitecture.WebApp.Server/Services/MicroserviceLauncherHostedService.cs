@@ -64,6 +64,16 @@ public class MicroserviceLauncherHostedService : IHostedService
         psi.ArgumentList.Add("run");
         psi.ArgumentList.Add("--project");
         psi.ArgumentList.Add(project);
+
+        // Nếu project đã restore (có obj/project.assets.json) thì bỏ restore để:
+        //   - 6 service chạy song song không đụng nhau khóa NuGet global cache
+        //   - các service lên nhanh hơn, đơn không bị kẹt ở Submitted chờ consumer
+        var assetsFile = Path.Combine(project, "obj", "project.assets.json");
+        if (File.Exists(assetsFile))
+        {
+            psi.ArgumentList.Add("--no-restore");
+        }
+
         if (useHttps)
         {
             psi.ArgumentList.Add("--launch-profile");
@@ -89,6 +99,31 @@ public class MicroserviceLauncherHostedService : IHostedService
             };
             proc.BeginOutputReadLine();
             proc.BeginErrorReadLine();
+
+            // Phát hiện crash: nếu service con thoát với exit code != 0 thì log ngay
+            // để biết service nào chết (đơn sẽ kẹt ở Submitted vì consumer không lắng nghe).
+            proc.EnableRaisingEvents = true;
+            var logger = _logger;
+            var serviceName = name;
+            proc.Exited += (_, _) =>
+            {
+                try
+                {
+                    var code = proc.ExitCode;
+                    if (code != 0)
+                    {
+                        logger.LogError("[Launcher] {Name} da thoat (ExitCode={Code}). Kiem tra loi o stdout/stderr ben tren.", serviceName, code);
+                    }
+                    else
+                    {
+                        logger.LogWarning("[Launcher] {Name} da thoat (ExitCode=0).", serviceName);
+                    }
+                }
+                catch
+                {
+                    // process object disposed; ignore
+                }
+            };
 
             _processes.Add(proc);
             _logger.LogInformation("[Launcher] Started {Name} (PID {Pid})", name, proc.Id);

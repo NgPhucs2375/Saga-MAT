@@ -1,0 +1,48 @@
+.order-stat-card {
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.order-stat-card:hover {
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.order-list-table .ant-table-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+.order-list-table .ant-table-tbody > tr.order-row-selected > td {
+  background-color: #e6f4ff;
+}
+
+.order-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.order-header-ring {
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-hero {
+  transition: box-shadow 0.25s ease;
+}
+
+.order-hero:hover {
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.12);
+}
+
+.order-item-table .ant-table-thead > tr > th {
+  font-weight: 600;
+}
+
+.order-item-table .ant-table-summary > tr > td {
+  border-top: 2px solid #f0f0f0;
+}

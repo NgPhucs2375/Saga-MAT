@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { App as AntdApp } from "antd";
@@ -53,6 +54,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   // và để toast tuân theo theme động.
   const { notification } = AntdApp.useApp();
 
+  // Giữ ref để effect không bị chạy lại mỗi khi `notification` đổi tham chiếu
+  const notificationRef = useRef(notification);
+  notificationRef.current = notification;
+
   useEffect(() => {
     if (!userId) return;
 
@@ -63,7 +68,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         { ...noti, id: nextId(), read: false },
         ...prev,
       ]);
-      notification.info({
+      notificationRef.current.info({
         message: noti.Title,
         description: noti.Message,
         placement: "topRight",
@@ -74,7 +79,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       unsubscribe();
       signalRService.stop();
     };
-  }, [userId, notification]);
+  }, [userId]);
 
   const markRead = useCallback((id: string) => {
     setNotifications((prev) =>

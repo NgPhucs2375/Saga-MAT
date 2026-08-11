@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.3.0" />
+    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.5.7" />
   </ItemGroup>
 
 </Project>

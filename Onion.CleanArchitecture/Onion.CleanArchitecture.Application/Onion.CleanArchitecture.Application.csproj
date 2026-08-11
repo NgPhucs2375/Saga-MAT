@@ -10,19 +10,19 @@
     <PackageReference Include="Casbin.NET" Version="2.7.0" />
     <PackageReference Include="FluentValidation" Version="10.3.6" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.1" />
     <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="MassTransit" Version="8.3.0" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+    <PackageReference Include="MassTransit" Version="8.5.7" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.7" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.1" />
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="Polly" Version="8.4.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.27" />
-    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="8.0.10" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="8.0.10" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="8.0.10" />
+    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="9.0.1" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="9.0.1" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Onion.CleanArchitecture.Domain\Onion.CleanArchitecture.Domain.csproj" />

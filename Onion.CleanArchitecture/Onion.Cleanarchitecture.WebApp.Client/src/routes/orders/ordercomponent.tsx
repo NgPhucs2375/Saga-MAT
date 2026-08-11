@@ -1,12 +1,10 @@
 import {
   Table,
   Typography,
-  Descriptions,
   Card,
   Row,
   Col,
   Space,
-  Statistic,
   theme,
   Empty,
   TableProps,
@@ -14,48 +12,91 @@ import {
   Skeleton,
 } from "antd";
 import { DateField } from "@refinedev/antd";
-import { DollarCircleOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { IOrderDetail, IOrderItem, OrderStatusLabel } from "./types";
+import {
+  DollarCircleOutlined,
+  EnvironmentOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
+import {
+  IOrderDetail,
+  IOrderItem,
+  OrderStatusLabel,
+  HistoryStatus,
+} from "./types";
 import { ProcessSteps } from "@components/orders/process-steps";
+import "./orders.css";
+
+const { Text: TypographyText } = Typography;
 
 interface OrderStatusTagProps {
   status: string; // Now directly takes the string label
+  size?: "small" | "large";
 }
 
-export const OrderStatusTag: React.FC<OrderStatusTagProps> = ({ status }) => {
-  let color;
-  switch (status) {
+const STATUS_PRESET_HEX: Record<string, string> = {
+  default: "#8c8c8c",
+  processing: "#1677ff",
+  success: "#52c41a",
+  error: "#ff4d4f",
+};
+
+function resolveStatusPreset(label: string): string {
+  switch (label) {
     case "Submitted":
-      color = "default"; // Màu xám
-      break;
+      return "default";
     case "Validating":
     case "Accepting":
     case "Completing":
     case "PendingApproval":
     case "Chờ duyệt":
-      color = "processing"; // Màu xanh dương (đang xử lý)
-      break;
+      return "processing";
     case "Completed":
-      color = "success"; // Màu xanh lá
-      break;
+      return "success";
     case "Rejected":
     case "Cancelled":
     case "Compensating":
-      color = "error"; // Màu đỏ
-      break;
+      return "error";
     default:
-      color = "default";
-      break;
+      return "default";
   }
+}
+
+export const OrderStatusTag: React.FC<OrderStatusTagProps> = ({
+  status,
+  size = "large",
+}) => {
+  const preset = resolveStatusPreset(status);
+  const dotColor = STATUS_PRESET_HEX[preset];
 
   return (
-    <Tag color={color} style={{ textTransform: "capitalize" }}>
-      {status.toLowerCase()}
-    </Tag>
+    <span style={{ display: "inline-flex", alignItems: "center" }} title={status}>
+      <span
+        className="order-status-dot"
+        style={{
+          backgroundColor: dotColor,
+          width: size === "small" ? 6 : 8,
+          height: size === "small" ? 6 : 8,
+        }}
+      />
+      <Tag
+        color={preset}
+        style={{
+          textTransform: "capitalize",
+          marginInlineEnd: 0,
+          fontSize: size === "small" ? 12 : 14,
+          lineHeight: size === "small" ? "20px" : "24px",
+          paddingInline: size === "small" ? 6 : 10,
+        }}
+      >
+        {status.toLowerCase()}
+      </Tag>
+    </span>
   );
 };
-
-const { Text: TypographyText } = Typography;
 
 interface OrderShowContentProps {
   order?: IOrderDetail;
@@ -70,27 +111,41 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
 
   const itemColumns: TableProps<IOrderItem>["columns"] = [
     {
-      dataIndex: "ProductName",
+      title: "#",
+      key: "index",
+      width: 60,
+      align: "center",
+      render: (_: unknown, __: IOrderItem, index: number) => index + 1,
+    },
+    {
       title: "Sản phẩm",
+      dataIndex: "ProductName",
+      key: "ProductName",
+      render: (value: string) => <TypographyText strong>{value}</TypographyText>,
     },
     {
-      dataIndex: "quantity",
       title: "SL",
-      width: 80,
-      align: "right",
+      dataIndex: "Quantity",
+      key: "Quantity",
+      width: 90,
+      align: "center",
+      render: (value: number) => (
+        <TypographyText>{value?.toLocaleString() ?? 0}</TypographyText>
+      ),
     },
     {
-      dataIndex: "price",
       title: "Đơn giá",
-      width: 150,
+      dataIndex: "UnitPrice",
+      key: "UnitPrice",
+      width: 140,
       align: "right",
       render: (value: number) => (
         <TypographyText>{value?.toLocaleString() ?? 0} VND</TypographyText>
       ),
     },
     {
-      key: "lineTotal",
       title: "Thành tiền",
+      key: "lineTotal",
       width: 150,
       align: "right",
       render: (_: unknown, item: IOrderItem) => (
@@ -109,116 +164,206 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
     return <Empty description="Không tìm thấy thông tin đơn hàng." />;
   }
 
+  const statusLabel =
+    order.Status != null
+      ? OrderStatusLabel[order.Status] ?? String(order.Status)
+      : "Unknown";
+  const accent = order.Status != null ? STATUS_PRESET_HEX[resolveStatusPreset(statusLabel)] : STATUS_PRESET_HEX.default;
+
+  const itemsCount = order.OrderItems?.length ?? 0;
+  const productCount =
+    order.OrderItems?.reduce((sum, it) => sum + (it.Quantity ?? 0), 0) ?? 0;
+  const totalAmount =
+    order.OrderItems?.reduce(
+      (sum, it) => sum + (it.Quantity ?? 0) * (it.UnitPrice ?? 0),
+      0
+    ) ?? order.TotalAmount ?? 0;
+
+  const histories = order.OrderHistories ?? [];
+  const failedCount = histories.filter(
+    (h) => h.Status === HistoryStatus.Failed
+  ).length;
+  const successCount = histories.length - failedCount;
+
+  const timeItems = [
+    {
+      icon: <CalendarOutlined />,
+      label: "Ngày tạo",
+      value: order.Created,
+    },
+    {
+      icon: <CheckCircleOutlined />,
+      label: "Ngày duyệt",
+      value: order.UpdatedAt,
+    },
+    {
+      icon: <DollarCircleOutlined />,
+      label: "Hoàn tất",
+      value: order.CompletedAt,
+    },
+    {
+      icon: <CloseCircleOutlined />,
+      label: "Từ chối",
+      value: order.RejectedAt,
+    },
+  ];
+
   return (
     <Row gutter={[16, 16]}>
       <Col xl={16} lg={24} xs={24}>
         <Space direction="vertical" style={{ width: "100%" }} size="large">
-          {/* Top section with key metrics */}
-          <Card>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={8}>
-                <Statistic
-                  title="Mã đơn hàng"
-                  value={order?.OrderCode || "-"}
-                  prefix={<ShoppingCartOutlined />}
-                />
-              </Col>
-              <Col xs={24} sm={8}>
-                <Statistic
-                  title="Trạng thái"
-                  valueRender={() =>
-                    order?.Status != null ? (
-                      <OrderStatusTag
-                        status={
-                          OrderStatusLabel[order.Status] ?? String(order.Status)
-                        }
-                      />
-                    ) : (
-                      <TypographyText>-</TypographyText>
-                    )
-                  }
-                />
-              </Col>
-              <Col xs={24} sm={8}>
-                <Statistic
-                  title="Tổng tiền"
-                  value={order?.TotalAmount ?? 0}
-                  precision={0}
-                  formatter={(value) => (
-                    <TypographyText strong style={{ color: token.colorPrimary }}>
-                      {value?.toLocaleString()} VND
+          {/* --- HERO SECTION --- */}
+          <Card
+            className="order-hero"
+            style={{
+              borderLeft: `4px solid ${accent}`,
+              background: `${accent}0d`,
+            }}
+          >
+            <Row gutter={[16, 16]} align="middle">
+              <Col xs={24} md={14}>
+                <Space direction="vertical" size={6}>
+                  <Space align="center" size={12} wrap>
+                    <TypographyText strong style={{ fontSize: 20 }}>
+                      #{order.OrderCode}
                     </TypographyText>
-                  )}
-                  prefix={<DollarCircleOutlined />}
-                />
+                    <OrderStatusTag status={statusLabel} size="large" />
+                  </Space>
+                  <Space size={16} wrap>
+                    <TypographyText type="secondary" style={{ fontSize: 13 }}>
+                      <CalendarOutlined style={{ marginRight: 4 }} />
+                      {order.Created ? (
+                        <DateField
+                          format="DD/MM/YYYY HH:mm"
+                          value={order.Created}
+                        />
+                      ) : (
+                        "–"
+                      )}
+                    </TypographyText>
+                    <TypographyText type="secondary" style={{ fontSize: 13 }}>
+                      <ShoppingCartOutlined style={{ marginRight: 4 }} />
+                      {productCount} sản phẩm · {itemsCount} loại
+                    </TypographyText>
+                  </Space>
+                </Space>
+              </Col>
+              <Col xs={24} md={10}>
+                <div style={{ textAlign: "right" }}>
+                  <TypographyText
+                    type="secondary"
+                    style={{ fontSize: 13, display: "block", marginBottom: 2 }}
+                  >
+                    Tổng tiền
+                  </TypographyText>
+                  <TypographyText
+                    strong
+                    style={{ fontSize: 26, color: token.colorPrimary }}
+                  >
+                    <DollarCircleOutlined style={{ marginRight: 8 }} />
+                    {(order.TotalAmount ?? totalAmount).toLocaleString()} VND
+                  </TypographyText>
+                </div>
               </Col>
             </Row>
           </Card>
 
-          <Card title="Thông tin chi tiết">
-            <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }} size="small">
-              <Descriptions.Item label="Địa chỉ giao hàng" span={3}>
-                <TypographyText>{order?.ShippingAddress ?? "-"}</TypographyText>
-              </Descriptions.Item>
-              <Descriptions.Item label="Ghi chú" span={3}>
-                <TypographyText>{order?.Note || "-"}</TypographyText>
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                {order?.Created ? (
-                  <DateField format="DD/MM/YYYY HH:mm" value={order.Created} />
-                ) : (
-                  <TypographyText>-</TypographyText>
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item label="Ngày duyệt">
-                {order?.UpdatedAt ? (
-                  <DateField format="DD/MM/YYYY HH:mm" value={order.UpdatedAt} />
-                ) : (
-                  <TypographyText>-</TypographyText>
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item label="Hoàn tất">
-                {order?.CompletedAt ? (
-                  <DateField
-                    format="DD/MM/YYYY HH:mm"
-                    value={order.CompletedAt}
-                  />
-                ) : (
-                  <TypographyText>-</TypographyText>
-                )}
-              </Descriptions.Item>
-            </Descriptions>
+          {/* --- SHIPPING INFO --- */}
+          <Card title="Thông tin giao hàng">
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+              <Space align="start" size={12}>
+                <EnvironmentOutlined
+                  style={{ fontSize: 16, color: token.colorPrimary, marginTop: 2 }}
+                />
+                <div>
+                  <TypographyText
+                    type="secondary"
+                    style={{ fontSize: 12, display: "block" }}
+                  >
+                    Địa chỉ giao hàng
+                  </TypographyText>
+                  <TypographyText strong>
+                    {order.ShippingAddress ?? "–"}
+                  </TypographyText>
+                </div>
+              </Space>
+              <Space align="start" size={12}>
+                <FileTextOutlined
+                  style={{ fontSize: 16, color: token.colorPrimary, marginTop: 2 }}
+                />
+                <div>
+                  <TypographyText
+                    type="secondary"
+                    style={{ fontSize: 12, display: "block" }}
+                  >
+                    Ghi chú
+                  </TypographyText>
+                  <TypographyText>{order.Note || "–"}</TypographyText>
+                </div>
+              </Space>
+            </Space>
           </Card>
 
-          <Card title="Danh sách sản phẩm">
-            {(order?.OrderItems?.length ?? 0) > 0 ? (
+          {/* --- TIMELINE --- */}
+          <Card title="Thời gian xử lý">
+            <Row gutter={[16, 16]}>
+              {timeItems.map((item) => (
+                <Col xs={12} lg={6} key={item.label}>
+                  <div>
+                    <span
+                      style={{
+                        color: token.colorPrimary,
+                        marginRight: 6,
+                        fontSize: 13,
+                      }}
+                    >
+                      {item.icon}
+                    </span>
+                    <TypographyText type="secondary" style={{ fontSize: 12 }}>
+                      {item.label}
+                    </TypographyText>
+                    <div style={{ marginTop: 4 }}>
+                      {item.value ? (
+                        <DateField
+                          format="DD/MM/YYYY HH:mm"
+                          value={item.value}
+                        />
+                      ) : (
+                        <TypographyText type="secondary">–</TypographyText>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+
+          {/* --- ORDER ITEMS --- */}
+          <Card title={`Danh sách sản phẩm${itemsCount > 0 ? ` (${itemsCount})` : ""}`}>
+            {itemsCount > 0 ? (
               <Table
-                dataSource={order?.OrderItems ?? []}
+                dataSource={order.OrderItems ?? []}
                 columns={itemColumns}
                 rowKey="OrderItemId"
                 pagination={false}
-                bordered
                 size="small"
-                summary={() => {
-                  const total =
-                    order?.OrderItems?.reduce(
-                      (sum, item) =>
-                        sum + (item.Quantity ?? 0) * (item.UnitPrice ?? 0),
-                      0
-                    ) ?? 0;
-                  return (
-                    <Table.Summary.Row>
-                      <Table.Summary.Cell index={0} colSpan={3}>
-                        <TypographyText strong>Tổng tiền đơn hàng</TypographyText>
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={3}>
-                        <TypographyText strong style={{ color: token.colorPrimary }}>
-                          {total.toLocaleString()}
-                        </TypographyText>
-                      </Table.Summary.Cell>
-                    </Table.Summary.Row>
-                  );
-                }}
+                className="order-item-table"
+                scroll={{ x: "max-content", y: 320 }}
+                summary={() => (
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell index={0} colSpan={4}>
+                      <TypographyText strong>Tổng tiền đơn hàng</TypographyText>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={4}>
+                      <TypographyText
+                        strong
+                        style={{ color: token.colorPrimary }}
+                      >
+                        {totalAmount.toLocaleString()} VND
+                      </TypographyText>
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                )}
               />
             ) : (
               <Empty description="Không có sản phẩm nào trong đơn hàng này." />
@@ -228,18 +373,30 @@ export const OrderShowContent: React.FC<OrderShowContentProps> = ({
       </Col>
 
       <Col xl={8} lg={24} xs={24}>
-        {(order?.OrderHistories?.length ?? 0) > 0 ? (
-          <Card title="Lịch sử xử lý (Saga Process)">
+        <Card
+          title="Lịch sử xử lý (Saga)"
+          extra={
+            histories.length > 0 ? (
+              <Space size={4}>
+                <Tag color="success">
+                  <CheckCircleOutlined /> {successCount}
+                </Tag>
+                <Tag color="error" style={{ marginInlineEnd: 0 }}>
+                  <CloseCircleOutlined /> {failedCount}
+                </Tag>
+              </Space>
+            ) : undefined
+          }
+        >
+          {histories.length > 0 ? (
             <ProcessSteps
-              histories={order?.OrderHistories ?? []}
-              orderStatus={order?.Status}
+              histories={order.OrderHistories ?? []}
+              orderStatus={order.Status}
             />
-          </Card>
-        ) : (
-          <Card title="Lịch sử xử lý (Saga Process)">
+          ) : (
             <Empty description="Không có lịch sử xử lý nào." />
-          </Card>
-        )}
+          )}
+        </Card>
       </Col>
     </Row>
   );

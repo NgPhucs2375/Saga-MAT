@@ -35,6 +35,7 @@ var host = Host.CreateDefaultBuilder(args)
                 o.UsePostgres(); // Sử dụng PostgreSQL Outbox
                 o.UseBusOutbox(); // Bật Outbox cho Bus (Gửi Command/Saga từ Saga)
                 o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30); // Thời gian phát hiện trùng lặp (Duplicate Detection) cho Outbox
+                o.DisableInboxCleanupService(); // Tắt InboxCleanupService: tránh spam lỗi FK ở phiên bản 8.3.0
             });
             // Saga State Machine 
             x.AddSagaStateMachine<OrderSagaStateMachine, OrderState>()

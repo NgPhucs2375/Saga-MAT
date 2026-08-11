@@ -5,3 +5,4 @@ export * from "./show";
 export * from "./types";
 export * from "./create-range";
 export * from "./clone";
+export * from "./product-form";

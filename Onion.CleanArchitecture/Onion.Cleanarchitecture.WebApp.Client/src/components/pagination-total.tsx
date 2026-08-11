@@ -15,7 +15,8 @@ export const PaginationTotal: FC<PaginationTotalProps> = ({
         marginLeft: "16px",
       }}
     >
-      <span className="ant-text secondary">{total}</span> {entityName} in total
+      Tổng cộng{" "}
+      <span className="ant-text secondary">{total}</span> {entityName}
     </span>
   );
 };

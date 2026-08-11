@@ -1,6 +1,7 @@
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace OrderOrchestration
 {
@@ -24,6 +25,18 @@ namespace OrderOrchestration
             base.OnModelCreating(modelBuilder);
             // Tích hợp các bảng Outbox/Inbox/OutboxState của MassTransit vào DbContext
             modelBuilder.AddTransactionalOutboxEntities();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            // Một số migration/snapshot được sinh bởi EF tool 10 (WSL) trong khi runtime là EF 9,
+            // gây PendingModelChangesWarning -> Migrate() ném exception chặn Saga khởi động.
+            // Đã loại bỏ các cột thừa (ApprovalRequestorId/ApprovalRequestedAt) trong OrderState,
+            // nên model đã khớp schema; bỏ qua warning này để Demo không bị crash.
+            optionsBuilder.ConfigureWarnings(w => w
+                .Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         }
     }
 }

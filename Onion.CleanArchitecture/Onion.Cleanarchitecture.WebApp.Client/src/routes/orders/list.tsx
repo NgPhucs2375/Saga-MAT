@@ -2,13 +2,15 @@ import { useState, useMemo } from "react";
 import {
   useTable,
   List,
+  FilterDropdown,
+  getDefaultSortOrder,
+  getDefaultFilter,
 } from "@refinedev/antd";
-import { useUpdate, useInvalidate } from "@refinedev/core";
-import { Button, Modal, Row, Col, Card, Statistic, Empty, Space, Spin, Typography, Tooltip, App, Drawer, Table } from "antd";
+import { useInvalidate } from "@refinedev/core";
+import { Button, Modal, Row, Col, Card, Empty, Space, Spin, Typography, Tooltip, App, Drawer, Table, Select, Input, theme } from "antd";
 import {
   useNavigation,
   CanAccess,
-  useOne,
   useDelete,
   useList,
 } from "@refinedev/core";
@@ -20,16 +22,19 @@ import {
   DollarCircleOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
+  EyeOutlined,
   CheckOutlined,
   CloseOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { IOrderDetail, OrderStatus, OrderStatusLabel } from "./types";
 import { OrderShowContent, OrderStatusTag } from "./ordercomponent";
+import "./orders.css";
 
 const { Text: TypographyText } = Typography;
 
 export const ListOrder = () => {
+  const { token } = theme.useToken();
   const { tableProps, filters, sorters } = useTable<IOrderDetail>({
     resource: "orders",
     sorters: { initial: [{ field: "Created", order: "desc" }] },
@@ -37,7 +42,7 @@ export const ListOrder = () => {
   const { message } = App.useApp();
   const invalidate = useInvalidate();
 
-  const { create, edit } = useNavigation();
+  const { create, edit, show } = useNavigation();
   const { mutate: deleteMutate } = useDelete();
 
   // State for drawer
@@ -111,8 +116,8 @@ export const ListOrder = () => {
       setDrawerOpen(false);
       setSelectedOrder(null);
       invalidate({ resource: "orders", invalidates: ["list", "many"] });
-    } catch (e: any) {
-      message.error(e?.message || "Thao tác thất bại.");
+    } catch (e) {
+      message.error((e as Error)?.message || "Thao tác thất bại.");
     }
   };
 
@@ -161,21 +166,50 @@ export const ListOrder = () => {
       dataIndex: "OrderCode",
       key: "OrderCode",
       width: 160,
-      render: (text: string) => <Typography.Text strong>{text}</Typography.Text>,
+      sorter: true,
+      defaultSortOrder: getDefaultSortOrder("OrderCode", sorters),
+      defaultFilteredValue: getDefaultFilter("OrderCode", filters),
+      filterDropdown: (props) => (
+        <FilterDropdown {...props}>
+          <Input placeholder="Tìm theo mã đơn..." allowClear style={{ minWidth: 220 }} />
+        </FilterDropdown>
+      ),
+      render: (text: string) => (
+        <Typography.Text strong style={{ color: token.colorPrimary }}>
+          {text}
+        </Typography.Text>
+      ),
     },
     {
       title: "Khách hàng",
       dataIndex: "CustomerId",
       key: "CustomerId",
       width: 140,
+      render: (value: string) => (
+        <Typography.Text ellipsis>{value || "-"}</Typography.Text>
+      ),
     },
     {
       title: "Trạng thái",
       dataIndex: "Status",
       key: "Status",
-      width: 140,
+      width: 160,
+      defaultFilteredValue: getDefaultFilter("Status", filters),
+      filterDropdown: (props) => (
+        <FilterDropdown {...props}>
+          <Select
+            style={{ minWidth: 220 }}
+            placeholder="Lọc theo trạng thái..."
+            allowClear
+            options={Object.entries(OrderStatusLabel).map(([value, label]) => ({
+              value,
+              label,
+            }))}
+          />
+        </FilterDropdown>
+      ),
       render: (status: OrderStatus) => (
-        <OrderStatusTag status={OrderStatusLabel[status] ?? String(status)} />
+        <OrderStatusTag size="small" status={OrderStatusLabel[status] ?? String(status)} />
       ),
     },
     {
@@ -184,13 +218,17 @@ export const ListOrder = () => {
       key: "TotalAmount",
       width: 160,
       align: "right",
+      sorter: true,
+      defaultSortOrder: getDefaultSortOrder("TotalAmount", sorters),
       render: (value: number) => <TypographyText strong>{value?.toLocaleString() ?? 0} VND</TypographyText>,
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "Created",
-      key: "Created",
+      title: "Ngày hoàn thành",
+      dataIndex: "CompletedAt",
+      key: "CompletedAt",
       width: 180,
+      sorter: true,
+      defaultSortOrder: getDefaultSortOrder("CompletedAt", sorters),
       render: (value: string) => value ? <TypographyText type="secondary">{new Date(value).toLocaleString("vi-VN")}</TypographyText> : <TypographyText>-</TypographyText>,
     },
     {
@@ -198,8 +236,20 @@ export const ListOrder = () => {
       key: "actions",
       width: 200,
       fixed: "right",
-      render: (_: any, record: IOrderDetail) => (
+      render: (_: unknown, record: IOrderDetail) => (
         <Space size={4}>
+          <CanAccess resource="orders" action="show" params={{ id: record.OrderId }}>
+            <Tooltip title="Xem chi tiết">
+              <Button
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  show("orders", record.OrderId);
+                }}
+              />
+            </Tooltip>
+          </CanAccess>
           <CanAccess resource="orders" action="edit" params={{ id: record.OrderId }}>
             <Tooltip title="Chỉnh sửa">
               <Button
@@ -270,46 +320,42 @@ export const ListOrder = () => {
       {/* --- STATS DASHBOARD --- */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Tổng số đơn hàng"
-              value={stats.totalOrders}
-              loading={statsIsLoading}
-              prefix={<ShoppingCartOutlined />}
-            />
-          </Card>
+          <StatCard
+            title="Tổng số đơn hàng"
+            value={stats.totalOrders}
+            loading={statsIsLoading}
+            icon={<ShoppingCartOutlined />}
+            color={token.colorPrimary}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Tổng doanh thu"
-              value={stats.totalRevenue}
-              loading={statsIsLoading}
-              prefix={<DollarCircleOutlined />}
-              suffix="VND"
-              formatter={(value) => value.toLocaleString()}
-            />
-          </Card>
+          <StatCard
+            title="Tổng doanh thu"
+            value={stats.totalRevenue}
+            loading={statsIsLoading}
+            icon={<DollarCircleOutlined />}
+            color={token.colorSuccess}
+            suffix=" VND"
+            formatter={(value) => value.toLocaleString()}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Đơn chờ xử lý"
-              value={stats.submittedOrders}
-              loading={statsIsLoading}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
+          <StatCard
+            title="Đơn chờ xử lý"
+            value={stats.submittedOrders}
+            loading={statsIsLoading}
+            icon={<ClockCircleOutlined />}
+            color={token.colorWarning}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Chờ duyệt"
-              value={stats.pendingApprovalOrders}
-              loading={statsIsLoading}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
+          <StatCard
+            title="Chờ duyệt"
+            value={stats.pendingApprovalOrders}
+            loading={statsIsLoading}
+            icon={<CheckCircleOutlined />}
+            color={token.colorInfo}
+          />
         </Col>
       </Row>
 
@@ -319,7 +365,8 @@ export const ListOrder = () => {
           {...tableProps}
           columns={columns}
           rowKey="OrderId"
-          rowClassName={(record) => selectedOrder?.OrderId === record.OrderId ? "selected-row" : ""
+          className="order-list-table"
+          rowClassName={(record) => selectedOrder?.OrderId === record.OrderId ? "order-row-selected" : ""
 }
           onRow={(record) => ({
             onClick: () => handleRowClick(record),
@@ -355,13 +402,20 @@ export const ListOrder = () => {
                   </Button>
                 </>
               )}
+              <CanAccess resource="orders" action="show" params={{ id: selectedOrder.OrderId }}>
+                <Tooltip title="Xem trang chi tiết">
+                  <Button icon={<EyeOutlined />} onClick={() => show("orders", selectedOrder.OrderId)}>
+                    Chi tiết
+                  </Button>
+                </Tooltip>
+              </CanAccess>
               <CanAccess resource="orders" action="edit" params={{ id: selectedOrder.OrderId }}>
                 <Button icon={<EditOutlined />} onClick={() => { setDrawerOpen(false); edit("orders", selectedOrder.OrderId); }}>
                   Chỉnh sửa
                 </Button>
               </CanAccess>
               <CanAccess resource="orders" action="delete" params={{ id: selectedOrder.OrderId }}>
-                <Button icon={<DeleteOutlined />} danger onClick={() => showDeleteConfirm(selectedOrder.OrderId, { stopPropagation: () => {} } as any)}>
+                <Button icon={<DeleteOutlined />} danger onClick={(e) => showDeleteConfirm(selectedOrder.OrderId, e)}>
                   Xóa
                 </Button>
               </CanAccess>
@@ -376,5 +430,67 @@ export const ListOrder = () => {
         )}
       </Drawer>
     </List>
+  );
+};
+
+interface StatCardProps {
+  title: string;
+  value: number;
+  loading?: boolean;
+  icon: React.ReactNode;
+  color: string;
+  suffix?: string;
+  formatter?: (value: number) => string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  loading,
+  icon,
+  color,
+  suffix,
+  formatter,
+}) => {
+  return (
+    <Card className="order-stat-card" styles={{ body: { padding: 20 } }}>
+      <Space align="start" size={14} style={{ width: "100%" }}>
+        <span
+          className="order-header-ring"
+          style={{
+            width: 44,
+            height: 44,
+            fontSize: 20,
+            color: "#fff",
+            background: color,
+            boxShadow: `0 6px 14px -4px ${color}66`,
+          }}
+        >
+          {icon}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <TypographyText type="secondary" style={{ fontSize: 13, lineHeight: "20px" }}>
+            {title}
+          </TypographyText>
+          <div style={{ marginTop: 2 }}>
+            {loading ? (
+              <Spin size="small" />
+            ) : (
+              <TypographyText
+                strong
+                style={{ fontSize: 22, lineHeight: "28px", color: "rgba(0,0,0,0.88)" }}
+              >
+                {formatter ? formatter(value) : value.toLocaleString()}
+                {suffix ? (
+                  <TypographyText type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
+                    {" "}{suffix}
+                  </TypographyText>
+                ) : null}
+              </TypographyText>
+            )}
+          </div>
+        </div>
+      </Space>
+    </Card>
   );
 };

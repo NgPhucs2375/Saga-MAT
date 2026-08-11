@@ -4,12 +4,12 @@ import { signalRService } from "@providers/signalr-provider";
 import { notification } from "antd";
 
 export const useSignalR = () => {
-  const { data: user } = useGetIdentity<{ id: string }>();
+  const { data: user } = useGetIdentity<{ Uid: string }>();
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.Uid) return;
 
-    signalRService.start(user.id);
+    signalRService.start(user.Uid);
 
     const unsubscribe = signalRService.onNotification((noti) => {
       notification.info({

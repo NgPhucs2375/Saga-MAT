@@ -45,6 +45,9 @@ builder.Services.AddMassTransit(x =>
     {
         o.UsePostgres();
         o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
+        // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
+        // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
+        o.DisableInboxCleanupService();
     });
 
     x.UsingPostgres((context, cfg) =>

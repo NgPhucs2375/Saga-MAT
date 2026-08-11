@@ -1,4 +1,5 @@
 using MassTransit;
+using Microsoft.AspNetCore.SignalR;
 using Onion.CleanArchitecture.Application;
 using Onion.CleanArchitecture.Application.Hubs;
 using Onion.CleanArchitecture.Application.Interfaces;
@@ -24,7 +25,12 @@ _services.AddIdentityRepositories(_config);
 _services.AddPersistenceRepositories(); // Đảm bảo dòng này vẫn được giữ lại nếu cần
 _services.AddSharedInfrastructure(_config);
 
-_services.AddSignalR();
+// SignalR dùng PascalCase để khớp type NotificationPayload trên Client
+// (mặc định SignalR serialize camelCase -> không khớp key FE đang đọc).
+_services.AddSignalR().AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+});
 
 _services.Configure<SqlTransportOptions>(options =>
 {
@@ -34,11 +40,16 @@ _services.Configure<SqlTransportOptions>(options =>
 _services.AddMassTransit(x =>
 {
     x.SetKebabCaseEndpointNameFormatter();
-    
+
+    // Đăng ký consumer nhận các Response event từ Saga -> đẩy Notification tới UI qua SignalR
+    x.AddConsumer<OrderNotificationConsumer>();
+
     x.UsingPostgres((context, cfg) =>
-    {        
+    {
         // Tự động khởi tạo cấu trúc bảng queue/transport nếu chưa có
         cfg.AutoStart = true;
+        // Auto-tạo receive endpoint --> OrderNotificationConsumer lắng nghe response từ Saga
+        cfg.ConfigureEndpoints(context);
     });
 });
 

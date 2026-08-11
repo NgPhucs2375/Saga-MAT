@@ -15,15 +15,15 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.2.0" />
-    <PackageReference Include="MassTransit" Version="8.3.0" />
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.3.0" />
-    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+    <PackageReference Include="MassTransit" Version="8.5.7" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.7" />
+    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.5.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.1" />
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

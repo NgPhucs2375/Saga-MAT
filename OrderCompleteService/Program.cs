@@ -35,6 +35,9 @@ var host = Host.CreateDefaultBuilder(args)
             {
                 o.UsePostgres(); // Khai báo dùng PostgreSQL provider
                 o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30); // Cửa sổ chống trùng lặp Inbox
+                // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
+                // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
+                o.DisableInboxCleanupService();
             });
 
             x.UsingPostgres((context, cfg) =>

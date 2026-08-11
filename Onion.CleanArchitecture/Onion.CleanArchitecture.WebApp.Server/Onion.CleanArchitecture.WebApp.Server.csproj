@@ -13,13 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.3.0" />
-    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.3.0" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.7" />
+    <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.5.7" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>8.*-*</Version>
     </PackageReference>
     
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -27,31 +27,31 @@
     <PackageReference Include="EPPlus" Version="7.7.2" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="MassTransit" Version="8.3.0" />
+    <PackageReference Include="MassTransit" Version="8.5.7" />
     <PackageReference Include="Casbin.NET" Version="2.19.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     <PackageReference Include="Microsoft.OpenApi" Version="3.9.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="4.0.0" />
     <PackageReference Include="NCrontab.Signed" Version="3.3.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
     <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="Stateless" Version="5.20.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="StackExchange.Redis" Version="2.11.3" />
-    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="8.0.10" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="8.0.10" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="8.0.10" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.10" />
+    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="9.0.1" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="9.0.1" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="9.0.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.1" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.10" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Onion.CleanArchitecture.Application\Onion.CleanArchitecture.Application.csproj" />
