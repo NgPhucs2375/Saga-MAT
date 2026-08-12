@@ -14,7 +14,8 @@ namespace Onion.CleanArchitecture.Domain.Events
         Guid TargetUserId,
         string Title,
         string Message,
-        string NotificationType, //
+        string NotificationType, 
+        Guid? OrderId,
         DateTime Timestamp
     );
 

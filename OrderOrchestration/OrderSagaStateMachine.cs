@@ -146,12 +146,28 @@ namespace OrderOrchestration
                             "Đơn hàng bị từ chối",
                             "Bồi hoàn tồn kho thất bại: " + ctx.Message.ErrorReason,
                             "Error",
+                            ctx.Saga.CorrelationId,
                             DateTime.UtcNow),
                         DateTime.UtcNow)))
                     .TransitionTo(Rejected));
 
             During(CompensatingCancel,
                 When(OrderCancelled)
+                    .Then(ctx => ctx.Publish(new OrderAcceptFailedResponse(
+                        NewId.NextGuid(),
+                        ctx.Saga.CorrelationId,
+                        ctx.Saga.CustomerId,
+                        ctx.Saga.ErrorReason ?? "Đơn hàng đã bị từ chối",
+                        new NotificationPayLoad(
+                            ctx.Saga.CustomerId,
+                            "Đơn hàng đã bị từ chối",
+                            "Đơn hàng của bạn đã bị từ chối.",
+                            "Error",
+                            ctx.Saga.CorrelationId,
+                            DateTime.UtcNow
+                        ),
+                        DateTime.UtcNow
+                    )))
                     .TransitionTo(Rejected),
                 When(CancelOrderFailed)
                     .Then(ctx => ctx.Publish(new OrderAcceptFailedResponse(
@@ -164,6 +180,7 @@ namespace OrderOrchestration
                             "Đơn hàng bị từ chối",
                             "Bồi hoàn hủy đơn thất bại: " + ctx.Message.ErrorReason,
                             "Error",
+                            ctx.Saga.CorrelationId,
                             DateTime.UtcNow),
                         DateTime.UtcNow)))
                     .TransitionTo(Rejected));

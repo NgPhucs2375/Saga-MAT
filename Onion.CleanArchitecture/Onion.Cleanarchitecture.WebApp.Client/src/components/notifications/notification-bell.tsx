@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Button, Dropdown, Space, Typography } from "antd";
 import { BellOutlined, CheckOutlined, DeleteOutlined } from "@ant-design/icons";
-import { useNotifications } from "./notification-context";
+import { useNotifications } from "./notification-context-model";
 import { NotificationList } from "./notification-list";
 
 export const NotificationBell: React.FC = () => {

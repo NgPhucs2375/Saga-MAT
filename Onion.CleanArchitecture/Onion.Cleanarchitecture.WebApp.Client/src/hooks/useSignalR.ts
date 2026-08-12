@@ -23,5 +23,5 @@ export const useSignalR = () => {
       unsubscribe();
       signalRService.stop();
     };
-  }, [user?.id]);
+  }, [user?.Uid]);
 };

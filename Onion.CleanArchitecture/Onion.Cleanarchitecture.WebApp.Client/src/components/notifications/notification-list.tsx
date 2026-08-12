@@ -4,7 +4,7 @@ import {
   NotificationTypeLabel,
   formatRelativeTime,
 } from "./notification-utils";
-import type { StoredNotification } from "./notification-context";
+import type { StoredNotification } from "./notification-context-model";
 
 interface NotificationListProps {
   notifications: StoredNotification[];

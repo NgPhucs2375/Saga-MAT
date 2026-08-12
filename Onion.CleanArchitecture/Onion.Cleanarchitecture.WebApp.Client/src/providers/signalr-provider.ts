@@ -7,6 +7,7 @@ export interface NotificationPayload {
   Title: string;
   Message: string;
   NotificationType: string;
+  OrderId?: string;
   Timestamp: string;
 }
 

@@ -70,6 +70,7 @@ namespace OrderOrchestration.Activities
                     "Đơn hàng đã được xác nhận",
                     "Đơn hàng của bạn đã được xác nhận hợp lệ và đang chờ duyệt.",
                     "Success",
+                    context.Saga.CorrelationId,
                     DateTime.UtcNow),
                 DateTime.UtcNow));
 
@@ -104,6 +105,7 @@ namespace OrderOrchestration.Activities
                         "Đơn hàng bị từ chối",
                         context.Message.ErrorMessage,
                         "Error",
+                        context.Saga.CorrelationId,
                         DateTime.UtcNow),
                     DateTime.UtcNow));
 
@@ -148,6 +150,7 @@ namespace OrderOrchestration.Activities
                     "Đơn hàng đã được duyệt",
                     "Đơn hàng của bạn đã được duyệt và đang được xử lý.",
                     "Success",
+                    context.Saga.CorrelationId,
                     DateTime.UtcNow),
                 DateTime.UtcNow));
 
@@ -182,6 +185,7 @@ namespace OrderOrchestration.Activities
                         "Đơn hàng bị từ chối",
                         context.Message.ErrorReason,
                         "Error",
+                        context.Saga.CorrelationId,
                         DateTime.UtcNow),
                     DateTime.UtcNow));
 
@@ -277,6 +281,7 @@ namespace OrderOrchestration.Activities
                         "Đơn hàng hoàn tất",
                         "Đơn hàng của bạn đã hoàn tất thành công.",
                         "Success",
+                        context.Saga.CorrelationId,
                         DateTime.UtcNow),
                     DateTime.UtcNow));
 
@@ -321,6 +326,7 @@ namespace OrderOrchestration.Activities
                         "Đơn hàng thất bại",
                         context.Message.ErrorReason,
                         "Error",
+                        context.Saga.CorrelationId,
                         DateTime.UtcNow),
                     DateTime.UtcNow));
 
@@ -355,6 +361,7 @@ namespace OrderOrchestration.Activities
                         "Đơn hàng bị từ chối",
                         "Đơn hàng của bạn đã bị từ chối tự động do quá thời gian xử lý.",
                         "Warning",
+                        context.Saga.CorrelationId,
                         DateTime.UtcNow),
                     DateTime.UtcNow));
 

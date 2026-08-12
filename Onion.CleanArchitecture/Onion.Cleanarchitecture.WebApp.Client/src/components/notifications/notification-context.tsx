@@ -1,62 +1,38 @@
 import React, {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { App as AntdApp } from "antd";
-import { useGetIdentity } from "@refinedev/core";
-import {
-  signalRService,
-  NotificationPayload,
-} from "@providers/signalr-provider";
+import { useGetIdentity, useInvalidate } from "@refinedev/core";
+import { signalRService } from "@providers/signalr-provider";
 import type { IUserByMe } from "@routes/identity/users";
-
-export interface StoredNotification extends NotificationPayload {
-  id: string;
-  read: boolean;
-}
-
-interface NotificationsContextValue {
-  notifications: StoredNotification[];
-  unreadCount: number;
-  markRead: (id: string) => void;
-  markAllRead: () => void;
-  clear: () => void;
-}
-
-const NotificationsContext = createContext<NotificationsContextValue>({
-  notifications: [],
-  unreadCount: 0,
-  markRead: () => {},
-  markAllRead: () => {},
-  clear: () => {},
-});
-
-export const useNotifications = () => useContext(NotificationsContext);
+import { NotificationsContext } from "./notification-context-model";
+import type { StoredNotification } from "./notification-context-model";
 
 let seq = 0;
 const nextId = () => `${Date.now()}-${++seq}`;
+
+const INVALIDATE_DEBOUNCE_MS = 500;
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { data: user } = useGetIdentity<IUserByMe>();
   const userId = user?.Uid;
+  const invalidate = useInvalidate();
 
   const [notifications, setNotifications] = useState<StoredNotification[]>([]);
 
-  // Dùng auth-notification từ context AntdApp thay vì hàm static `notification`,
-  // để tránh cảnh báo "Static function can not consume context like dynamic theme"
-  // và để toast tuân theo theme động.
   const { notification } = AntdApp.useApp();
 
-  // Giữ ref để effect không bị chạy lại mỗi khi `notification` đổi tham chiếu
   const notificationRef = useRef(notification);
   notificationRef.current = notification;
+
+  // Ref lưu danh sách timeout ID theo OrderId để xử lý debounce
+  const invalidateTimersRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (!userId) return;
@@ -64,22 +40,51 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     signalRService.start(userId);
 
     const unsubscribe = signalRService.onNotification((noti) => {
+      // 1. Giữ nguyên logic append danh sách thông báo
       setNotifications((prev) => [
         { ...noti, id: nextId(), read: false },
         ...prev,
       ]);
+
+      // 2. Giữ nguyên logic toast
       notificationRef.current.info({
         message: noti.Title,
         description: noti.Message,
         placement: "topRight",
       });
+
+      // 3. Debounce invalidate khi có orderId
+      if (noti.OrderId) {
+        const orderId = noti.OrderId;
+
+        if (invalidateTimersRef.current[orderId]) {
+          clearTimeout(invalidateTimersRef.current[orderId]);
+        }
+
+        invalidateTimersRef.current[orderId] = setTimeout(() => {
+          invalidate({
+            resource: "orders",
+            invalidates: ["list", "many"],
+          });
+          invalidate({
+            resource: "orders",
+            id: orderId,
+            invalidates: ["detail"],
+          });
+          delete invalidateTimersRef.current[orderId];
+        }, INVALIDATE_DEBOUNCE_MS);
+      }
     });
 
     return () => {
+      // Clean up các timer debounce còn tồn tại khi unmount/đổi user
+      Object.values(invalidateTimersRef.current).forEach(clearTimeout);
+      invalidateTimersRef.current = {};
+
       unsubscribe();
       signalRService.stop();
     };
-  }, [userId]);
+  }, [userId, invalidate]);
 
   const markRead = useCallback((id: string) => {
     setNotifications((prev) =>

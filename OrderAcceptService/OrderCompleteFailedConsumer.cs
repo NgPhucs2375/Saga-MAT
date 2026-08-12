@@ -84,6 +84,7 @@ namespace OrderAcceptService
                     "Đơn hàng bị từ chối",
                     $"Đơn hàng của bạn đã bị từ chối do có vấn đề ở khâu xử lý. Lý do: {message.ErrorReason}",
                     "Error",
+                    message.OrderId,
                     DateTime.UtcNow);
 
                 // Sử dụng OrderAcceptFailedResponse để UI có thể tái sử dụng logic hiển thị lỗi
