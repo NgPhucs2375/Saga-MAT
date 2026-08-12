@@ -1,5 +1,5 @@
 import { useForm, Create } from "@refinedev/antd";
-import { CreateOrderForm } from "@components/orders/create-order-form";
+import { CreateOrderWizard } from "@components/orders/create-order-wizard";
 import { ICreateOrder } from "./types";
 import { BaseRecord, HttpError } from "@refinedev/core";
 
@@ -10,8 +10,8 @@ export const CreateOrder = () => {
   });
 
   return (
-    <Create saveButtonProps={saveButtonProps} title="Tạo Đơn hàng ">
-      <CreateOrderForm formProps={formProps} />
+    <Create title="Tạo đơn hàng" headerButtons={false}>
+      <CreateOrderWizard formProps={formProps} saveButtonProps={saveButtonProps} />
     </Create>
   );
 };

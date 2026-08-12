@@ -46,3 +46,15 @@
 .order-item-table .ant-table-summary > tr > td {
   border-top: 2px solid #f0f0f0;
 }
+
+.order-wizard-steps .ant-steps {
+  padding: 8px 0;
+}
+
+.order-wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
