@@ -15,7 +15,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     {
         private readonly DbSet<EventStore> _eventStores;
 
-        public EventStoreRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public EventStoreRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _eventStores = dbContext.Set<EventStore>();
         }

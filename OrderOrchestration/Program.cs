@@ -12,12 +12,12 @@ var host = Host.CreateDefaultBuilder(args)
     {
         // 1. Saga DbContext (PostgreSQL) - lưu saga instance để resume sau crash
         services.AddDbContext<OrderSagaDbContext>(options =>
-            options.UseNpgsql(ctx.Configuration.GetConnectionString("PostgresConnection")));
+            options.UseNpgsql(ctx.Configuration.GetConnectionString("BusinessConnection")));
 
         // 2. Cấu hình Connection String cho PostgreSQL Message Broker via Options Pattern
         services.Configure<SqlTransportOptions>(options =>
         {
-            options.ConnectionString = ctx.Configuration.GetConnectionString("PostgresConnection");
+            options.ConnectionString = ctx.Configuration.GetConnectionString("BrokerConnection");
         });
 
 

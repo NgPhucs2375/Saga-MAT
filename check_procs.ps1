@@ -1,1 +1,0 @@
-Get-Process | Where-Object { $_.ProcessName -like '*Order*' -or $_.ProcessName -like '*Notification*' -or $_.ProcessName -eq 'sqlservr' -or $_.ProcessName -eq 'rabbitmq*' -or $_.ProcessName -like '*dotnet*' } | Select-Object Id, ProcessName | Format-Table -AutoSize

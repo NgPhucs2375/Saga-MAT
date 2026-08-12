@@ -11,9 +11,9 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repository
 {
     public class GenericRepositoryAsync<T> : IGenericRepositoryAsync<T> where T : class
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly DbContext _dbContext;
 
-        public GenericRepositoryAsync(ApplicationDbContext dbContext)
+        public GenericRepositoryAsync(DbContext dbContext)
         {
             _dbContext = dbContext;
         }

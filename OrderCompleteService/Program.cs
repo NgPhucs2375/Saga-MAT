@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,31 +10,33 @@ using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using OrderCompleteService;
+using OrderCompleteService.Context;
 using OrderCompleteService.Services;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
         //1. Đăng ký Provider trước khi AddNpgSqlPersistenceInfrastructure
-        services.AddTransient<IDatabaseSettingsProvider,DatabaseSettingsProvider>();
         services.AddScoped<IAuthenticatedUserService, SystemUserService>();
-        // DI ApplicationDbContext + Repositories + EF Core
-        services.AddNpgSqlPersistenceInfrastructure();
-        services.AddPersistenceRepositories();
         services.AddSharedInfrastructure(ctx.Configuration);
         services.Configure<SqlTransportOptions>(options =>
         {
-            options.ConnectionString = ctx.Configuration.GetConnectionString("PostgresConnection");
+            options.ConnectionString = ctx.Configuration.GetConnectionString("BrokerConnection");
         });
+
+        services.AddDbContext<FulfillmentDbContext>(o =>
+            o.UseNpgsql(ctx.Configuration.GetConnectionString("BusinessConnection")));
+
         services.AddMassTransit(x =>
         {
             x.AddConsumer<OrderCompleteConsumer>();
             x.AddConsumer<ReleaseInventoryConsumer>();
             x.SetKebabCaseEndpointNameFormatter();
 
-            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            x.AddEntityFrameworkOutbox<FulfillmentDbContext>(o =>
             {
                 o.UsePostgres(); // Khai báo dùng PostgreSQL provider
+                o.UseBusOutbox();
                 o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30); // Cửa sổ chống trùng lặp Inbox
                 // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
                 // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0

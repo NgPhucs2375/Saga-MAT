@@ -18,11 +18,8 @@ var _env = builder.Environment;
 _services.AddEnvironmentVariablesExtension();
 _services.AddIdentityLayer();
 _services.AddApplicationLayer();
-_services.AddNpgSqlPersistenceInfrastructure();
 _services.AddNpgSqlPersistenceInfrastructureIdentity();
 _services.AddIdentityRepositories(_config);
-//_services.AddSqlServerPersistenceInfrastructure(typeof(Program).Assembly.FullName); // Vô hiệu hóa dòng này
-_services.AddPersistenceRepositories(); // Đảm bảo dòng này vẫn được giữ lại nếu cần
 _services.AddSharedInfrastructure(_config);
 
 // SignalR dùng PascalCase để khớp type NotificationPayload trên Client
@@ -34,8 +31,11 @@ _services.AddSignalR().AddJsonProtocol(options =>
 
 _services.Configure<SqlTransportOptions>(options =>
 {
-    options.ConnectionString = _config.GetConnectionString("PostgresConnection");
+    options.ConnectionString = _config.GetConnectionString("BrokerConnection");
 });
+
+
+
 // Đăng ký MassTransit để WebApp có thể publish events (kế tạo Saga)
 _services.AddMassTransit(x =>
 {

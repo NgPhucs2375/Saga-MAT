@@ -1,15 +1,16 @@
 ﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SmsService.Consumer;
 using SmsService.Services;
+using SMSService.Context;
 using Onion.CleanArchitecture.Application.Interfaces;
-using Onion.CleanArchitecture.Infrastructure.Persistence;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using DotNetEnv;
-using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 Env.Load();
 
@@ -19,34 +20,33 @@ builder.Configuration.AddEnvironmentVariables();
 // Đăng ký DI cho SMS Provider
 builder.Services.AddHttpClient<ISmsProviderService, SmsProviderService>();
 
-// 1. Provider + stub user (phải trước AddNpgSqlPersistenceInfrastructure)
+// 1. Provider + stub user
 builder.Services.AddTransient<IDatabaseSettingsProvider, DatabaseSettingsProvider>();
 builder.Services.AddScoped<IAuthenticatedUserService, SystemUserService>();
 
-// 1b. DI ApplicationDbContext + Repositories + Shared (đăng ký IDateTimeService)
-builder.Services.AddNpgSqlPersistenceInfrastructure();
-builder.Services.AddPersistenceRepositories();
+// 2. DI SmsDbContext (riêng cho SMSService) + Shared (đăng ký IDateTimeService)
+builder.Services.AddDbContext<SmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BusinessConnection")));
 builder.Services.AddSharedInfrastructure(builder.Configuration);
 
-// 1c. Cấu hình Connection String cho PostgreSQL Transaction (Message Broker) qua Options Pattern
+// 3. Cấu hình Connection String cho PostgreSQL Broker (Message Broker) qua Options Pattern
 builder.Services.Configure<SqlTransportOptions>(options =>
 {
-    options.ConnectionString = builder.Configuration.GetConnectionString("PostgresConnection");
+    options.ConnectionString = builder.Configuration.GetConnectionString("BrokerConnection");
 });
 
-// 2. Cấu hình MassTransit
+// 4. Cấu hình MassTransit
 builder.Services.AddMassTransit(x =>
 {
     x.SetKebabCaseEndpointNameFormatter();
     x.AddConsumer<SmsConsumer>();
 
-    // Đăng ký Inbox cho SmsDbContext
-    x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+    // Đăng ký Outbox cho SmsDbContext
+    x.AddEntityFrameworkOutbox<SmsDbContext>(o =>
     {
         o.UsePostgres();
+        o.UseBusOutbox();
         o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
-        // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
-        // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
         o.DisableInboxCleanupService();
     });
 
@@ -65,4 +65,12 @@ builder.Services.AddMassTransit(x =>
 });
 
 var host = builder.Build();
+
+// Tự động migrate SmsDbContext khi start
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SmsDbContext>();
+    db.Database.Migrate();
+}
+
 await host.RunAsync();

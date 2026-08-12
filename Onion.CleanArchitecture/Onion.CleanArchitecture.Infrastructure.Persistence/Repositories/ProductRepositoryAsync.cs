@@ -16,9 +16,9 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     public class ProductRepositoryAsync : GenericRepositoryAsync<Product>, IProductRepositoryAsync
     {
         private readonly DbSet<Product> _products;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly DbContext _dbContext;
 
-        public ProductRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public ProductRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _products = dbContext.Set<Product>();
             _dbContext = dbContext;
@@ -54,9 +54,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
         }
             public async Task<List<Product>> GetProductsByIdsAsync(List<Guid> productIds)
         {
-            // Phương thức này sẽ được Entity Framework Core dịch thành câu lệnh SQL
-            // sử dụng `WHERE ProductId IN (...)`, rất hiệu quả.
-            return await _dbContext.Product
+            return await _dbContext.Set<Product>()
                 .Where(p => productIds.Contains(p.ProductId))
                 .ToListAsync();
         }
@@ -78,7 +76,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             // UPDATE Product SET ReservedQty += @q, Version = Version + 1
             // WHERE ProductId = @id AND (PhysicalQty - ReservedQty) >= @q
             // Nếu 0 dòng -> hết hàng khả dụng (hoặc bị ai đó chiếm trước) -> fail ngay tại bước giữ chỗ.
-            var updated = await _dbContext.Product
+            var updated = await _dbContext.Set<Product>()
                 .Where(p => p.ProductId == productId && p.PhysicalQty - p.ReservedQty >= quantity)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(p => p.ReservedQty, p => p.ReservedQty + quantity)
@@ -89,7 +87,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
 
         public async Task ReleaseAsync(Guid productId, int quantity)
         {
-            await _dbContext.Product
+            await _dbContext.Set<Product>()
                 .Where(p => p.ProductId == productId)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(p => p.ReservedQty, p => p.ReservedQty - quantity)

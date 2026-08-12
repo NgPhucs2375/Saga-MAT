@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,24 +9,24 @@ using Onion.CleanArchitecture.Infrastructure.Persistence.Contexts;
 using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using OrderAcceptService;
+using OrderAcceptService.Context;
 using OrderAcceptService.Services;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
-        // 1. Provider + stub user (phải trước AddNpgSqlPersistenceInfrastructure)
-        services.AddTransient<IDatabaseSettingsProvider, DatabaseSettingsProvider>();
         services.AddScoped<IAuthenticatedUserService, SystemUserService>();
 
-        // 2. DI ApplicationDbContext + Repositories + Shared
-        services.AddNpgSqlPersistenceInfrastructure();
-        services.AddPersistenceRepositories();
         services.AddSharedInfrastructure(ctx.Configuration);
-                // 2. Cấu hình Connection String cho PostgreSQL Message Broker via Options Pattern
+        // 2. Cấu hình Connection String cho PostgreSQL Message Broker via Options Pattern
         services.Configure<SqlTransportOptions>(options =>
         {
-            options.ConnectionString = ctx.Configuration.GetConnectionString("PostgresConnection");
+            options.ConnectionString = ctx.Configuration.GetConnectionString("BrokerConnection");
         });
+
+        // 
+        services.AddDbContext<ValidationDbContext>(o =>
+            o.UseNpgsql(ctx.Configuration.GetConnectionString("BusinessConnection")));
         // 3. MassTransit: OrderAcceptConsumer + OrderTimeoutConsumer
         services.AddMassTransit(x =>
         {
@@ -34,11 +35,10 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderCompleteFailedConsumer>();
             x.AddConsumer<CancelOrderConsumer>();
 
-            // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
-            // "Instances of abstract classes cannot be created" ở OutboxConsumeFilter)
-            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            x.AddEntityFrameworkOutbox<ValidationDbContext>(o =>
             {
                 o.UsePostgres();
+                o.UseBusOutbox();
                 // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
                 // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
                 o.DisableInboxCleanupService();

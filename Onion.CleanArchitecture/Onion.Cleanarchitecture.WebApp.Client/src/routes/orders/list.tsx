@@ -6,13 +6,15 @@ import {
   getDefaultSortOrder,
   getDefaultFilter,
 } from "@refinedev/antd";
+import type { FilterDropdownProps } from "antd/es/table/interface";
 import { useInvalidate } from "@refinedev/core";
+import { useMutation } from "@tanstack/react-query";
 import { Button, Modal, Row, Col, Card, Empty, Space, Spin, Typography, Tooltip, App, Drawer, Table, Select, Input, theme } from "antd";
 import {
   useNavigation,
   CanAccess,
   useDelete,
-  useList,
+  useShow,
 } from "@refinedev/core";
 import {
   EditOutlined,
@@ -45,22 +47,54 @@ export const ListOrder = () => {
   const { create, edit, show } = useNavigation();
   const { mutate: deleteMutate } = useDelete();
 
-  // State for drawer
-  const [selectedOrder, setSelectedOrder] = useState<IOrderDetail | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Fetch data for stats dashboard, respecting table filters
-  const { data: statsData, isLoading: statsIsLoading } = useList<IOrderDetail>({
-    resource: "orders",
-    pagination: {
-      mode: "off",
+  const approveMutate = useMutation({
+    mutationFn: async ({ id, action, reason }: { id: string; action: "approve" | "reject"; reason?: string }) => {
+      const opts: RequestInit = {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""}`,
+        },
+        body: action === "reject" && reason ? JSON.stringify({ reason }) : undefined,
+      };
+      const res = await fetch(`/api/orders/${id}/${action}`, opts);
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.message || "Thao tác thất bại.");
+      }
+      return res.json();
     },
-    filters: filters,
-    sorters: sorters,
+    onSuccess: () => {
+      message.success("Thao tác thành công.");
+      setDrawerOpen(false);
+      setSelectedOrderId(null);
+      invalidate({ resource: "orders", invalidates: ["list", "many", "detail"] });
+    },
+    onError: (error: Error) => {
+      message.error(error.message || "Thao tác thất bại.");
+    },
   });
 
+  // State for drawer
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Live data for drawer using useShow - auto-refetches on invalidate
+  const { queryResult: showQueryResult } = useShow<IOrderDetail>({
+    resource: "orders",
+    id: selectedOrderId ?? "",
+    queryOptions: {
+      enabled: !!selectedOrderId && drawerOpen,
+    },
+  });
+
+  const selectedOrder = showQueryResult.data?.data ?? null;
+  const isShowLoading = showQueryResult.isFetching;
+
+  // Stats derived from table data (same query key as useTable) - no separate useList needed
   const stats = useMemo(() => {
-    if (!statsData || !statsData.data) {
+    const orders = tableProps.dataSource ?? [];
+    if (!orders.length) {
       return {
         totalOrders: 0,
         totalRevenue: 0,
@@ -70,7 +104,6 @@ export const ListOrder = () => {
       };
     }
 
-    const orders = statsData.data;
     const totalRevenue = orders.reduce(
       (sum, order) => sum + order.TotalAmount,
       0
@@ -92,36 +125,13 @@ export const ListOrder = () => {
       pendingApprovalOrders,
       completedOrders,
     };
-  }, [statsData]);
+  }, [tableProps.dataSource]);
 
   const PENDING_APPROVAL_STATUS = OrderStatus.PendingApproval;
 
-  const runApproveReject = async (id: string, action: "approve" | "reject", reason?: string) => {
-    try {
-      const opts: RequestInit = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""}`,
-        },
-        body: action === "reject" && reason ? JSON.stringify({ reason }) : undefined,
-      };
-      const res = await fetch(`/api/orders/${id}/${action}`, opts);
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        message.error(err?.message || "Thao tác thất bại.");
-        return;
-      }
-      message.success(action === "approve" ? "Đã duyệt đơn hàng." : "Đã từ chối đơn hàng.");
-      setDrawerOpen(false);
-      setSelectedOrder(null);
-      invalidate({ resource: "orders", invalidates: ["list", "many"] });
-    } catch (e) {
-      message.error((e as Error)?.message || "Thao tác thất bại.");
-    }
+  const onApprove = (id: string) => {
+    approveMutate.mutate({ id, action: "approve" });
   };
-
-  const onApprove = (id: string) => runApproveReject(id, "approve");
 
   const onReject = (id: string) => {
     Modal.confirm({
@@ -130,7 +140,7 @@ export const ListOrder = () => {
       okText: "Từ chối",
       okButtonProps: { danger: true },
       cancelText: "Hủy",
-      onOk: () => runApproveReject(id, "reject", "Người duyệt từ chối"),
+      onOk: () => approveMutate.mutate({ id, action: "reject", reason: "Người duyệt từ chối" }),
     });
   };
 
@@ -145,9 +155,9 @@ export const ListOrder = () => {
       onOk() {
         deleteMutate({ resource: "orders", id }, {
           onSuccess: () => {
-            if (selectedOrder?.OrderId === id) {
+            if (selectedOrderId === id) {
               setDrawerOpen(false);
-              setSelectedOrder(null);
+              setSelectedOrderId(null);
             }
           }
         });
@@ -156,7 +166,7 @@ export const ListOrder = () => {
   };
 
   const handleRowClick = (record: IOrderDetail) => {
-    setSelectedOrder(record);
+    setSelectedOrderId(record.OrderId);
     setDrawerOpen(true);
   };
 
@@ -169,7 +179,7 @@ export const ListOrder = () => {
       sorter: true,
       defaultSortOrder: getDefaultSortOrder("OrderCode", sorters),
       defaultFilteredValue: getDefaultFilter("OrderCode", filters),
-      filterDropdown: (props) => (
+      filterDropdown: (props: FilterDropdownProps) => (
         <FilterDropdown {...props}>
           <Input placeholder="Tìm theo mã đơn..." allowClear style={{ minWidth: 220 }} />
         </FilterDropdown>
@@ -195,7 +205,7 @@ export const ListOrder = () => {
       key: "Status",
       width: 160,
       defaultFilteredValue: getDefaultFilter("Status", filters),
-      filterDropdown: (props) => (
+      filterDropdown: (props: FilterDropdownProps) => (
         <FilterDropdown {...props}>
           <Select
             style={{ minWidth: 220 }}
@@ -217,7 +227,7 @@ export const ListOrder = () => {
       dataIndex: "TotalAmount",
       key: "TotalAmount",
       width: 160,
-      align: "right",
+      align: "right" as const,
       sorter: true,
       defaultSortOrder: getDefaultSortOrder("TotalAmount", sorters),
       render: (value: number) => <TypographyText strong>{value?.toLocaleString() ?? 0} VND</TypographyText>,
@@ -235,7 +245,7 @@ export const ListOrder = () => {
       title: "Thao tác",
       key: "actions",
       width: 200,
-      fixed: "right",
+      fixed: "right" as const,
       render: (_: unknown, record: IOrderDetail) => (
         <Space size={4}>
           <CanAccess resource="orders" action="show" params={{ id: record.OrderId }}>
@@ -323,7 +333,7 @@ export const ListOrder = () => {
           <StatCard
             title="Tổng số đơn hàng"
             value={stats.totalOrders}
-            loading={statsIsLoading}
+            loading={!!tableProps.loading}
             icon={<ShoppingCartOutlined />}
             color={token.colorPrimary}
           />
@@ -332,7 +342,7 @@ export const ListOrder = () => {
           <StatCard
             title="Tổng doanh thu"
             value={stats.totalRevenue}
-            loading={statsIsLoading}
+            loading={!!tableProps.loading}
             icon={<DollarCircleOutlined />}
             color={token.colorSuccess}
             suffix=" VND"
@@ -343,7 +353,7 @@ export const ListOrder = () => {
           <StatCard
             title="Đơn chờ xử lý"
             value={stats.submittedOrders}
-            loading={statsIsLoading}
+            loading={!!tableProps.loading}
             icon={<ClockCircleOutlined />}
             color={token.colorWarning}
           />
@@ -352,7 +362,7 @@ export const ListOrder = () => {
           <StatCard
             title="Chờ duyệt"
             value={stats.pendingApprovalOrders}
-            loading={statsIsLoading}
+            loading={!!tableProps.loading}
             icon={<CheckCircleOutlined />}
             color={token.colorInfo}
           />
@@ -386,7 +396,7 @@ export const ListOrder = () => {
       <Drawer
         title={selectedOrder ? `Chi tiết đơn hàng #${selectedOrder.OrderCode}` : "Chi tiết đơn hàng"}
         open={drawerOpen}
-        onClose={() => { setDrawerOpen(false); setSelectedOrder(null); }}
+        onClose={() => { setDrawerOpen(false); setSelectedOrderId(null); }}
         placement="right"
         width={720}
         extra={
@@ -424,7 +434,7 @@ export const ListOrder = () => {
         }
       >
         {selectedOrder ? (
-          <OrderShowContent isLoading={false} order={selectedOrder} />
+          <OrderShowContent isLoading={isShowLoading} order={selectedOrder} />
         ) : (
           <Empty description="Chọn một đơn hàng để xem chi tiết" style={{ paddingTop: '100px' }} />
         )}

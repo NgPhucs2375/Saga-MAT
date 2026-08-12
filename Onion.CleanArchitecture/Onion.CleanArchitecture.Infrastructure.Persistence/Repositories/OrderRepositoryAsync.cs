@@ -19,7 +19,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
         private readonly DbSet<Order> _orders;
         private readonly DbSet<OrderItem> _orderItems;
 
-        public OrderRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public OrderRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _orders = dbContext.Set<Order>();
             _orderItems = dbContext.Set<OrderItem>();

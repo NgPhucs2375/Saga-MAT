@@ -17,7 +17,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     {
         private readonly DbSet<OrderHistory> _orderHistories;
 
-        public OrderHistoryRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public OrderHistoryRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _orderHistories = dbContext.Set<OrderHistory>();
         }

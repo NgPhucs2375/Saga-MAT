@@ -34,10 +34,8 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<OrderHistory> OrderHistories => Set<OrderHistory>();
-        public DbSet<OrderTimer> OrderTimers => Set<OrderTimer>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<EventStore> EventStores => Set<EventStore>();
-        public DbSet<Product> Product => Set<Product>();
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -77,15 +75,6 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Contexts
                 .HasPrincipalKey(o => o.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // PhysicalQty giữ đúng cột "SLTKho" cũ (không đổi tên column để giữ dữ liệu hiện có)
-            builder.Entity<Product>()
-                .Property(p => p.PhysicalQty)
-                .HasColumnName("SLTKho");
-
-            // Optimistic Locking: Version là concurrency token
-            builder.Entity<Product>()
-                .Property(p => p.Version)
-                .IsConcurrencyToken();
 
             base.OnModelCreating(builder);
         }

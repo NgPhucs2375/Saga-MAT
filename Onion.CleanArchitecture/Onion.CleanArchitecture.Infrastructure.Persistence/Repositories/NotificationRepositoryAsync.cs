@@ -14,7 +14,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     {
         private readonly DbSet<Notification> _notifications;
 
-        public NotificationRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public NotificationRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _notifications = dbContext.Set<Notification>();
         }

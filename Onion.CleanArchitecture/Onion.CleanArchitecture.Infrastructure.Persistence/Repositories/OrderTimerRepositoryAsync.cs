@@ -18,7 +18,7 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
     {
         private readonly DbSet<OrderTimer> _orderTimers;
 
-        public OrderTimerRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+        public OrderTimerRepositoryAsync(DbContext dbContext) : base(dbContext)
         {
             _orderTimers = dbContext.Set<OrderTimer>();
         }

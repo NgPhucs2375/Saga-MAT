@@ -5,7 +5,7 @@ using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Enums;
 using Onion.CleanArchitecture.Domain.Events;
 
-namespace OrderSubmitService
+namespace OrderSubmitService.Consumer
 {
     /// <summary>
     /// Consumer xử lý ValidateOrderCommand từ Saga để validate sản phẩm & tồn kho
