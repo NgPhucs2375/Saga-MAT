@@ -1,3 +1,4 @@
+using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -5,6 +6,7 @@ using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Enums;
 using Onion.CleanArchitecture.Domain.Events;
+using OrderAcceptService.Services;
 
 namespace OrderAcceptService
 {
@@ -84,7 +86,11 @@ namespace OrderAcceptService
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
 
                     await context.Publish(new OrderAcceptFailedEvent(
-                        NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                        NewId.NextGuid(), 
+                        message.OrderId, 
+                        message.CustomerId, 
+                        errorReason, 
+                        DateTime.UtcNow));
 
                     _logger.LogWarning("Accept thất bại OrderId={OrderId}: {Errors}", message.OrderId, errorReason);
                     return;
@@ -96,19 +102,40 @@ namespace OrderAcceptService
                 // UpdateAsync sẽ tự động set UpdatedAt
                 await _orderRepository.UpdateAsync(order);
 
+                var minutes = _configuration.GetValue<int>("OrderReviewTimeoutMinutes");
+                var jobId = BackgroundJob.Schedule<OrderTimeoutJob>(
+                    j => j.ExecuteAsync(message.OrderId, nameof(TargetStatus.Rejected)),
+                    TimeSpan.FromMinutes(minutes));
+                
                 // 2. Tạo và lưu OrderTimer hướng tới Reject (không duyệt -> tự từ chối)
                 var orderTimer = new OrderTimer
                 {
                     TimerId = NewId.NextGuid(),
                     OrderId = message.OrderId,
-                    Timeout = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("OrderReviewTimeoutMinutes")),
+                    Timeout = DateTime.UtcNow.AddMinutes(minutes),
                     Status = TargetStatus.Rejected,
                     TimerStatus = TimerStatus.Pending,
+                    JobId = jobId
                 };
                 await _orderTimerRepository.AddAsync(orderTimer);
-
+                
+                
                 // 3. Ghi lịch sử và thông báo cho Saga/UI rằng đơn đang chờ duyệt
                 await RecordHistoryAsync(message.OrderId, HistoryStatus.Success, "AcceptOrderCommand", "Hàng hợp lệ, đơn hàng đang chờ người duyệt.");
+                
+                await context.Publish(new OrderSubmitSuccessResponse(
+                    NewId.NextGuid(),
+                    message.OrderId,
+                    message.CustomerId,
+                    new NotificationPayLoad(
+                        message.CustomerId,
+                        "Đơn hàng đã được xác nhận",
+                        "Đơn hàng của bạn đã được xác nhận hợp lệ và đang chờ duyệt.",
+                        "Success",
+                        message.OrderId,
+                        DateTime.UtcNow),
+                    DateTime.UtcNow
+                ));
 
                 _logger.LogInformation("Accept thành công OrderId={OrderId}, đơn đang chờ người duyệt (PendingApproval)", message.OrderId);
             }
@@ -127,7 +154,11 @@ namespace OrderAcceptService
                     await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
 
                     await context.Publish(new OrderAcceptFailedEvent(
-                        NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                        NewId.NextGuid(), 
+                        message.OrderId, 
+                        message.CustomerId, 
+                        errorReason, 
+                        DateTime.UtcNow));
                 }
                 // Không throw lại exception để message được coi là đã xử lý (consumed) và không bị retry.
             }

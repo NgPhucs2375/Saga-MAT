@@ -16,6 +16,9 @@ let seq = 0;
 const nextId = () => `${Date.now()}-${++seq}`;
 
 const INVALIDATE_DEBOUNCE_MS = 500;
+const COALESCE_MS = 100;
+const MAX_NOTIFICATIONS = 50;
+const TOAST_THROTTLE_MS = 2000;
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -31,29 +34,73 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const notificationRef = useRef(notification);
   notificationRef.current = notification;
 
+  const invalidateRef = useRef(invalidate);
+  invalidateRef.current = invalidate;
+
   // Ref lưu danh sách timeout ID theo OrderId để xử lý debounce
   const invalidateTimersRef = useRef<Record<string, number>>({});
+
+  // Bộ đệm gộp nhiều notification trong cửa sổ ngắn thành 1 state update
+  const pendingNotificationsRef = useRef<StoredNotification[]>([]);
+  const flushTimerRef = useRef<number | null>(null);
+  const lastToastAtRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (!userId) return;
 
     signalRService.start(userId);
 
-    const unsubscribe = signalRService.onNotification((noti) => {
-      // 1. Giữ nguyên logic append danh sách thông báo
-      setNotifications((prev) => [
-        { ...noti, id: nextId(), read: false },
-        ...prev,
-      ]);
+    const flushPending = () => {
+      flushTimerRef.current = null;
+      if (pendingNotificationsRef.current.length === 0) return;
 
-      // 2. Giữ nguyên logic toast
-      notificationRef.current.info({
-        message: noti.Title,
-        description: noti.Message,
-        placement: "topRight",
+      const batch = pendingNotificationsRef.current;
+      pendingNotificationsRef.current = [];
+
+      setNotifications((prev) => {
+        // Ghép batch mới lên đầu, loại trùng (cùng OrderId + Timestamp),
+        // giới hạn danh sách để không phình vô hạn
+        const merged = [...batch, ...prev];
+        const seen = new Set<string>();
+        const deduped = merged.filter((n) => {
+          const key = `${n.OrderId ?? ""}-${n.Timestamp}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        return deduped.slice(0, MAX_NOTIFICATIONS);
       });
+    };
 
-      // 3. Debounce invalidate khi có orderId
+    const scheduleFlush = () => {
+      if (flushTimerRef.current != null) return;
+      flushTimerRef.current = setTimeout(flushPending, COALESCE_MS);
+    };
+
+    const unsubscribe = signalRService.onNotification((noti) => {
+      // Toast có throttle theo OrderId/Timestamp để không spam re-render
+      const toastKey = noti.OrderId ?? noti.Timestamp;
+      const now = Date.now();
+      if (
+        !lastToastAtRef.current[toastKey] ||
+        now - lastToastAtRef.current[toastKey] > TOAST_THROTTLE_MS
+      ) {
+        lastToastAtRef.current[toastKey] = now;
+        notificationRef.current.info({
+          message: noti.Title,
+          description: noti.Message,
+          placement: "topRight",
+        });
+      }
+
+      pendingNotificationsRef.current.push({
+        ...noti,
+        id: nextId(),
+        read: false,
+      });
+      scheduleFlush();
+
+      // Debounce invalidate khi có orderId
       if (noti.OrderId) {
         const orderId = noti.OrderId;
 
@@ -62,11 +109,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         invalidateTimersRef.current[orderId] = setTimeout(() => {
-          invalidate({
+          invalidateRef.current({
             resource: "orders",
             invalidates: ["list", "many"],
           });
-          invalidate({
+          invalidateRef.current({
             resource: "orders",
             id: orderId,
             invalidates: ["detail"],
@@ -77,14 +124,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     return () => {
-      // Clean up các timer debounce còn tồn tại khi unmount/đổi user
+      // Clean up các timer còn tồn tại khi unmount/đổi user
       Object.values(invalidateTimersRef.current).forEach(clearTimeout);
       invalidateTimersRef.current = {};
+
+      if (flushTimerRef.current != null) {
+        clearTimeout(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      pendingNotificationsRef.current = [];
+      lastToastAtRef.current = {};
 
       unsubscribe();
       signalRService.stop();
     };
-  }, [userId, invalidate]);
+  }, [userId]);
 
   const markRead = useCallback((id: string) => {
     setNotifications((prev) =>

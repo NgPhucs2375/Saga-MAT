@@ -9,6 +9,8 @@ using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using ApproveOrderService;
 using ApproveOrderService.Consumers;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
@@ -57,8 +59,9 @@ var host = Host.CreateDefaultBuilder(args)
             });
         });
 
-        // 4. Worker quét timer hết hạn
-        // services.AddHostedService<TimerWatcherBackgroundService>(); // Not available in this service
+        services.AddHangfire(cfg => cfg.UsePostgreSqlStorage(ctx.Configuration.GetConnectionString("PostgresConnection")));
+
+
     })
     .Build();
 

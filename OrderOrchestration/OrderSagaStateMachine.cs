@@ -29,7 +29,6 @@ namespace OrderOrchestration
         public Event<RejectRequestedEvent> RejectRequested { get; private set; }
         public Event<OrderCompletedEvent> OrderCompleted { get; private set; }
         public Event<OrderCompleteFailedEvent> OrderCompleteFailed { get; private set; }
-        public Event<OrderTimeoutExpiredEvent> OrderTimeoutExpired { get; private set; }
         public Event<InventoryReleasedEvent> InventoryReleased { get; private set; }
         public Event<ReleaseInventoryFailedEvent> InventoryReleasedFailed { get; private set; }
         public Event<OrderCancelledEvent> OrderCancelled { get; private set; }
@@ -48,88 +47,46 @@ namespace OrderOrchestration
             Event(() => RejectRequested, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderCompleted, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderCompleteFailed, x => x.CorrelateById(m => m.Message.OrderId));
-            Event(() => OrderTimeoutExpired, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => InventoryReleased, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => InventoryReleasedFailed, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderCancelled, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => CancelOrderFailed, x => x.CorrelateById(m => m.Message.OrderId));
 
-            // Khoi tao OrderState khi nhan duoc OrderCreatedEvent
             Initially(
                 When(OrderCreated)
                     .Activity(x => x.OfType<OrderCreatedActivity>())
                     .TransitionTo(Validating));
-
-            // Trong khi Validating, neu OrderValidated -> PendingApproval,
-            //                       neu OrderValidationFailed -> Rejected
             During(Validating,
                 When(OrderValidated)
-                    .Then(x => x.Saga.StepsCompleted = 1)
                     .Activity(x => x.OfType<OrderValidatedActivity>())
                     .TransitionTo(PendingApproval),
                 When(OrderValidationFailed)
                     .Activity(x => x.OfType<OrderValidationFailedActivity>())
                     .TransitionTo(Rejected));
 
-            // Trong khi PendingApproval, neu OrderAccepted -> Completing,
-            //                       neu OrderAcceptFailed -> khi Step >= 1
-            //                       Activity(ReleaseInventoryCompensateActivity)
-            //                       -> CompensatingRelease
-            //                       else ->Rejected
-            // Transitions
-            // Trong khi PendingApproval:
-            //   - ApproveRequested -> gửi ApproveOrderCommand (ApproveOrderService duyệt), giữ PendingApproval
-            //   - RejectRequested   -> gửi RejectOrderCommand (ApproveOrderService từ chối), giữ PendingApproval
-            //   - OrderAccepted     -> sang Completing (gửi CompleteOrderCommand)
-            //   - OrderAcceptFailed -> Steps>=1 ? Compensation : Rejected
             During(PendingApproval,
                 When(ApproveRequested)
                     .Activity(x => x.OfType<SendApproveCommandActivity>()),
                 When(RejectRequested)
                     .Activity(x => x.OfType<SendRejectCommandActivity>()),
                 When(OrderAccepted)
-                    .Then(x => x.Saga.StepsCompleted = 2)
                     .Activity(x => x.OfType<OrderAcceptedActivity>())
                     .TransitionTo(Completing),
                 When(OrderAcceptFailed)
-                    .IfElse(
-                        x => x.Saga.StepsCompleted >= 1,
-                        then => then
                             .Activity(x => x.OfType<ReleaseInventoryCompensateActivity>())
-                            .TransitionTo(CompensatingRelease),
-                        @else => @else.TransitionTo(Rejected))
+                            .TransitionTo(CompensatingRelease)          
             );
 
-            // Trong khi Completing, neu OrderCompleted -> Completed,
-            //                       neu OrderCompleteFailed ->
-            //                           If Step >= 1 ReleaseInventoryCompensateActivity
-            //                           Else Rejected (hoac Compensate)
             During(Completing,
                 When(OrderCompleted)
-                    .Then(x => x.Saga.StepsCompleted = 3)
                     .Activity(x => x.OfType<OrderCompletedActivity>())
                     .TransitionTo(Completed),
                 When(OrderCompleteFailed)
-                    .Activity(x => x.OfType<OrderCompleteFailedActivity>())
                     .Then(x => x.Saga.ErrorReason = x.Message.ErrorReason)
-                    .IfElse(
-                        x => x.Saga.StepsCompleted >= 1,
-                        then => then
-                            .Activity(x => x.OfType<ReleaseInventoryCompensateActivityForCompleteFailed>())
-                            .TransitionTo(CompensatingRelease),
-                        @else => @else.TransitionTo(Rejected)));
+                        .Activity(x => x.OfType<ReleaseInventoryCompensateActivityForCompleteFailed>())
+                        .TransitionTo(CompensatingRelease)
+            );
 
-            // Trong khi Any state, neu OrderTimeoutExpired -> If Step >= 1 ReleaseInventoryCompensateActivity
-            DuringAny(
-                When(OrderTimeoutExpired)
-                    .Then(x => x.Saga.ErrorReason = "Đơn hàng quá thời gian xử lý (Timeout)")
-                    .Activity(x => x.OfType<OrderTimeoutExpiredActivity>())
-                    .IfElse(
-                        x => x.Saga.StepsCompleted >= 1,
-                        then => then
-                            .Activity(x => x.OfType<ReleaseInventoryCompensateActivityForTimeout>())
-                            .TransitionTo(CompensatingRelease),
-                        @else => @else.TransitionTo(Rejected)));
 
             During(CompensatingRelease,
                 When(InventoryReleased)

@@ -86,7 +86,7 @@ const App: React.FC = () => {
                           collapsed={collapsed}
                           icon={
                             <ImageField
-                              value="https://static.vietbank.com.vn/web/vietbank-logo.png"
+                              value="/public/logojack.jpg"
                               title="Logo"
                               style={{width: 28, height: 28, objectFit: "contain" }}
                             />

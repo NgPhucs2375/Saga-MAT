@@ -1,4 +1,6 @@
-﻿using MassTransit;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +33,6 @@ var host = Host.CreateDefaultBuilder(args)
         {
             x.AddConsumer<OrderAcceptConsumer>();
             x.AddConsumer<OrderTimeoutConsumer>();
-            x.AddConsumer<OrderCompleteFailedConsumer>();
             x.AddConsumer<CancelOrderConsumer>();
 
             // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
@@ -62,16 +63,13 @@ var host = Host.CreateDefaultBuilder(args)
                     e.ConfigureConsumer<OrderTimeoutConsumer>(context);
                 });
                 
-                cfg.ReceiveEndpoint("order-complete-failed-queue", e => {
-                    e.ConfigureConsumer<OrderCompleteFailedConsumer>(context);
-                });
 
 
             });
         });
 
-        // 4. Worker quét timer hết hạn
-        services.AddHostedService<TimerWatcherBackgroundService>();
+        services.AddHangfire(cfg => cfg.UsePostgreSqlStorage(ctx.Configuration.GetConnectionString("PostgresConnection")));
+        services.AddHangfireServer();
     })
     .Build();
 

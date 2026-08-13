@@ -14,7 +14,6 @@ namespace Onion.CleanArchitecture.Domain.Events
         Guid EventId,
         Guid OrderId,
         Guid CustomerId,
-        int AutoTimeoutMinutes, // so phut hen gio auto
         DateTime Timestamp
     ):IOrderEvent;
 }

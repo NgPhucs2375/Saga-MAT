@@ -1,3 +1,4 @@
+using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -61,6 +62,8 @@ namespace ApproveOrderService.Consumers
                 if (pendingTimer != null)
                 {
                     pendingTimer.TimerStatus = TimerStatus.Cancelled;
+                    if (!string.IsNullOrEmpty(pendingTimer.JobId))
+                        BackgroundJob.Delete(pendingTimer.JobId);
                     await _orderTimerRepository.UpdateAsync(pendingTimer);
                 }
 
@@ -68,7 +71,7 @@ namespace ApproveOrderService.Consumers
 
                 // Báo Saga -> Completing -> CompleteOrderCommand
                 await context.Publish(new OrderAcceptedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, 0, DateTime.UtcNow));
+                    NewId.NextGuid(), message.OrderId, message.CustomerId, DateTime.UtcNow));
 
                 _logger.LogInformation("Duyệt thành công OrderId={OrderId}. Saga sẽ gửi CompleteOrderCommand.", message.OrderId);
             }

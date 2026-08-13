@@ -15,7 +15,6 @@ namespace OrderOrchestration
         public decimal TotalAmount { get; set; }
         public List<OrderItemDto> Items { get; set; } = new();
         public DateTime CreatedAt { get; set; }
-        public int StepsCompleted { get; set; }
         public string ErrorReason { get; set; } = string.Empty;
     }
 }

@@ -29,13 +29,6 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(t => t.OrderId == orderId && t.TimerStatus == TimerStatus.Pending);
         }
 
-        public async Task<IReadOnlyList<OrderTimer>> GetExpiredPendingAsync(DateTime now)
-        {
-            return await _orderTimers
-                .Where(t => t.TimerStatus == TimerStatus.Pending && t.Timeout <= now)
-                .ToListAsync();
-        }
-
         public async Task<PagedList<OrderTimer>> GetPagedFilteredAsync(RequestParameter request)
         {
             var query = _orderTimers.AsQueryable();

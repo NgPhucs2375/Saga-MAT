@@ -44,20 +44,17 @@ export const authProvider: AuthProvider = {
       },
     });
 
-    if (response.status < 200 || response.status > 299) {
-      localStorage.removeItem("access_token");
-      // We're returning success: true to indicate that the logout operation was successful.
-    }
-
     const data = (await response.json()) as ResponseRoot;
-    if (!data.Succeeded) {
-      const errorResponse = (await response.json()) as ResponseRoot;
+
+    if (response.status < 200 || response.status > 299 || !data.Succeeded) {
+      localStorage.removeItem("access_token");
       const error: HttpError = {
-        message: errorResponse.Message,
-        statusCode: errorResponse.Code,
+        message: data.Message ?? "Unauthorized",
+        statusCode: data.Code ?? response.status,
       };
       return Promise.reject(error);
     }
+
     return data.Data as any;
   },
   login: async ({ email, password }) => {

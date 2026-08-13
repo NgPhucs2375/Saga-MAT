@@ -1,3 +1,4 @@
+using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
@@ -50,6 +51,12 @@ namespace OrderAcceptService
                 if (order.Status != OrderStatus.Accepted)
                 {
                     _logger.LogWarning("OrderId={OrderId} không ở trạng thái 'Accepted' (trạng thái hiện tại: {Status}). Bỏ qua bồi hoàn.", message.OrderId, order.Status);
+                    await context.Publish(new OrderCancelledEvent(
+                        NewId.NextGuid(), 
+                        message.OrderId, 
+                        message.CustomerId, 
+                        message.Reason, 
+                        DateTime.UtcNow));
                     return;
                 }
 
@@ -62,6 +69,8 @@ namespace OrderAcceptService
                 if (pendingTimer != null)
                 {
                     pendingTimer.TimerStatus = TimerStatus.Cancelled;
+                    if (!string.IsNullOrEmpty(pendingTimer.JobId))
+                        BackgroundJob.Delete(pendingTimer.JobId);
                     await _orderTimerRepository.UpdateAsync(pendingTimer);
                 }
 

@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { Empty, List, Tag, Typography } from "antd";
 import {
   NotificationTypeColor,
@@ -14,7 +15,7 @@ interface NotificationListProps {
   renderItem?: (item: StoredNotification) => React.ReactNode;
 }
 
-export const NotificationList: React.FC<NotificationListProps> = ({
+const NotificationListComponent: React.FC<NotificationListProps> = ({
   notifications,
   onItemRead,
   maxHeight = 400,
@@ -90,3 +91,5 @@ export const NotificationList: React.FC<NotificationListProps> = ({
     />
   );
 };
+
+export const NotificationList = memo(NotificationListComponent);

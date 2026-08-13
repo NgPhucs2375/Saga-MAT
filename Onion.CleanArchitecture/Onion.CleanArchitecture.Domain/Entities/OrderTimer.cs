@@ -11,5 +11,6 @@ namespace Onion.CleanArchitecture.Domain.Entities
         public DateTime Timeout { get; set; }
         public TargetStatus Status { get; set; }
         public TimerStatus TimerStatus { get; set; }
+        public string? JobId {get; set;}
     }
 }

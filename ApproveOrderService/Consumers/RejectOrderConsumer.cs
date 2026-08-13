@@ -1,3 +1,4 @@
+using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
@@ -57,6 +58,10 @@ namespace ApproveOrderService.Consumers
                 if (pendingTimer != null)
                 {
                     pendingTimer.TimerStatus = TimerStatus.Cancelled;
+                    if (!string.IsNullOrEmpty(pendingTimer.JobId))
+                    {
+                        BackgroundJob.Delete(pendingTimer.JobId);
+                    }
                     await _orderTimerRepository.UpdateAsync(pendingTimer);
                 }
 
