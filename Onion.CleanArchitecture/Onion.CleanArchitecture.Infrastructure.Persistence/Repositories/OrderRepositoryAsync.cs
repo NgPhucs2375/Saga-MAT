@@ -69,6 +69,10 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             {
                 orderQuery = MethodExtensions.ApplyFilters(orderQuery, request._filter);
             }
+            if(request.CustomerId != null)
+            {
+                orderQuery = orderQuery.Where(o => o.CustomerId == request.CustomerId);
+            }
 
             return await PagedList<Order>.ToPagedList(orderQuery.OrderByDynamic(request._sort, request._order).AsNoTracking(), request._start, request._end);
         }

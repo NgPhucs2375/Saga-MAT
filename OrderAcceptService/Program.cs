@@ -1,6 +1,4 @@
-﻿using Hangfire;
-using Hangfire.PostgreSql;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +32,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<OrderAcceptConsumer>();
             x.AddConsumer<OrderTimeoutConsumer>();
             x.AddConsumer<CancelOrderConsumer>();
+            x.AddSqlMessageScheduler();
 
             // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
             // "Instances of abstract classes cannot be created" ở OutboxConsumeFilter)
@@ -62,14 +61,11 @@ var host = Host.CreateDefaultBuilder(args)
                 cfg.ReceiveEndpoint("order-timeout-queue", e => {
                     e.ConfigureConsumer<OrderTimeoutConsumer>(context);
                 });
-                
 
+                cfg.UseSqlMessageScheduler();
 
             });
         });
-
-        services.AddHangfire(cfg => cfg.UsePostgreSqlStorage(ctx.Configuration.GetConnectionString("PostgresConnection")));
-        services.AddHangfireServer();
     })
     .Build();
 

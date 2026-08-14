@@ -11,28 +11,28 @@ namespace OrderOrchestration
     /// </summary>
     public class OrderSagaStateMachine : MassTransitStateMachine<OrderState>
     {
-        public State Submitted { get; private set; }
-        public State Validating { get; private set; }
-        public State PendingApproval { get; private set; }
-        public State Completing { get; private set; }
-        public State Completed { get; private set; }
-        public State Rejected { get; private set; }
-        public State CompensatingRelease { get; private set; }
-        public State CompensatingCancel { get; private set; }
+        public State Submitted { get; private set; } = default!;
+        public State Validating { get; private set; } = default!;
+        public State PendingApproval { get; private set; } = default!;
+        public State Completing { get; private set; } = default!;
+        public State Completed { get; private set; } = default!;
+        public State Rejected { get; private set; } = default!;
+        public State CompensatingRelease { get; private set; } = default!;
+        public State CompensatingCancel { get; private set; } = default!;
 
-        public Event<OrderCreatedEvent> OrderCreated { get; private set; }
-        public Event<OrderValidatedEvent> OrderValidated { get; private set; }
-        public Event<OrderValidationFailedEvent> OrderValidationFailed { get; private set; }
-        public Event<OrderAcceptedEvent> OrderAccepted { get; private set; }
-        public Event<OrderAcceptFailedEvent> OrderAcceptFailed { get; private set; }
-        public Event<ApproveRequestedEvent> ApproveRequested { get; private set; }
-        public Event<RejectRequestedEvent> RejectRequested { get; private set; }
-        public Event<OrderCompletedEvent> OrderCompleted { get; private set; }
-        public Event<OrderCompleteFailedEvent> OrderCompleteFailed { get; private set; }
-        public Event<InventoryReleasedEvent> InventoryReleased { get; private set; }
-        public Event<ReleaseInventoryFailedEvent> InventoryReleasedFailed { get; private set; }
-        public Event<OrderCancelledEvent> OrderCancelled { get; private set; }
-        public Event<CancelOrderFailedEvent> CancelOrderFailed { get; private set; }
+        public Event<OrderCreatedEvent> OrderCreated { get; private set; } = default!;
+        public Event<OrderValidatedEvent> OrderValidated { get; private set; } = default!;
+        public Event<OrderValidationFailedEvent> OrderValidationFailed { get; private set; } = default!;
+        public Event<OrderAcceptedEvent> OrderAccepted { get; private set; } = default!;
+        public Event<OrderAcceptFailedEvent> OrderAcceptFailed { get; private set; } = default!;
+        public Event<ApproveRequestedEvent> ApproveRequested { get; private set; } = default!;
+        public Event<RejectRequestedEvent> RejectRequested { get; private set; } = default!;
+        public Event<OrderCompletedEvent> OrderCompleted { get; private set; } = default!;
+        public Event<OrderCompleteFailedEvent> OrderCompleteFailed { get; private set; } = default!;
+        public Event<InventoryReleasedEvent> InventoryReleased { get; private set; } = default!;
+        public Event<ReleaseInventoryFailedEvent> InventoryReleasedFailed { get; private set; } = default!;
+        public Event<OrderCancelledEvent> OrderCancelled { get; private set; } = default!;
+        public Event<CancelOrderFailedEvent> CancelOrderFailed { get; private set; } = default!;
 
         public OrderSagaStateMachine()
         {
@@ -56,6 +56,7 @@ namespace OrderOrchestration
                 When(OrderCreated)
                     .Activity(x => x.OfType<OrderCreatedActivity>())
                     .TransitionTo(Validating));
+                    
             During(Validating,
                 When(OrderValidated)
                     .Activity(x => x.OfType<OrderValidatedActivity>())
@@ -83,6 +84,20 @@ namespace OrderOrchestration
                     .TransitionTo(Completed),
                 When(OrderCompleteFailed)
                     .Then(x => x.Saga.ErrorReason = x.Message.ErrorReason)
+                    .Then(ctx => ctx.Publish(
+                        new OrderCompleteFailedResponse(
+                            NewId.NextGuid(),
+                            ctx.Saga.CorrelationId,
+                            ctx.Saga.CustomerId,
+                            ctx.Message.ErrorReason,
+                            new NotificationPayLoad(
+                                ctx.Message.CustomerId,
+                                "Đơn hàng bị từ chối",
+                                "Xử lý hoàn tất đơn hàng thất bại:" + ctx.Message.ErrorReason,
+                                "Error",
+                                ctx.Saga.CorrelationId,
+                                DateTime.UtcNow),
+                                DateTime.UtcNow)))
                         .Activity(x => x.OfType<ReleaseInventoryCompensateActivityForCompleteFailed>())
                         .TransitionTo(CompensatingRelease)
             );

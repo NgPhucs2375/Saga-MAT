@@ -23,7 +23,7 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
         // GET: api/notifications?isRead=false&orderId=xxx
         // Client gửi theo convention _filter=OrderId:guid (như các resource khác)
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] bool? isRead = null, [FromQuery] Guid? orderId = null, [FromQuery] RequestParameter filter = null)
+        public async Task<IActionResult> Get([FromQuery] bool? isRead = null, [FromQuery] Guid? orderId = null, [FromQuery] RequestParameter? filter = null)
         {
             return await EnforcePermissionAndExecute("notifications", "list", async () =>
             {

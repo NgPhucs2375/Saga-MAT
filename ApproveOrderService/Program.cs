@@ -9,8 +9,7 @@ using Onion.CleanArchitecture.Infrastructure.Shared;
 using Onion.CleanArchitecture.Infrastructure.Shared.Environments;
 using ApproveOrderService;
 using ApproveOrderService.Consumers;
-using Hangfire;
-using Hangfire.PostgreSql;
+using ApproveOrderService.Services;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
@@ -33,6 +32,7 @@ var host = Host.CreateDefaultBuilder(args)
         {
             x.AddConsumer<ApproveOrderConsumer>();
             x.AddConsumer<RejectOrderConsumer>();
+            x.AddSqlMessageScheduler();
 
             // BẮT BUỘC: đăng ký EF Outbox trên bus (thiếu => lỗi
             // "Instances of abstract classes cannot be created" ở OutboxConsumeFilter)
@@ -56,11 +56,10 @@ var host = Host.CreateDefaultBuilder(args)
                 cfg.ReceiveEndpoint("order-reject-queue", e => {
                     e.ConfigureConsumer<RejectOrderConsumer>(context);
                 });
+
+                cfg.UseSqlMessageScheduler();
             });
         });
-
-        services.AddHangfire(cfg => cfg.UsePostgreSqlStorage(ctx.Configuration.GetConnectionString("PostgresConnection")));
-
 
     })
     .Build();

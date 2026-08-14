@@ -3,7 +3,7 @@ import { ThemeConfig } from "antd";
 export const appTheme: ThemeConfig = {
   token: {
     // 1. Màu sắc thương hiệu chuẩn Enterprise
-    colorPrimary: "#0052CC", // Blue Atlassian/Enterprise
+    colorPrimary: "#1677ff", // Blue Atlassian/Enterprise
     colorInfo: "#0052CC",
     colorSuccess: "#52c41a",
     colorWarning: "#faad14",
@@ -12,7 +12,7 @@ export const appTheme: ThemeConfig = {
 
     // 2. Phông chữ & Bo góc
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    borderRadius: 8,
+    borderRadius: 10,
     controlHeight: 38, // Chiều cao chuẩn cho các ô Input/Button
 
     // 3. Đổ bóng (Elevation/Shadow)
@@ -24,7 +24,7 @@ export const appTheme: ThemeConfig = {
       borderRadius: 6,
     },
     Card: {
-      boxShadowTertiary: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      boxShadowTertiary: "0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 6px -1px rgba(0, 0, 0, 0.02)",
       headerBg: "#ffffff",
     },
     Table: {

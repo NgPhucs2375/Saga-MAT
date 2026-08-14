@@ -64,7 +64,6 @@ namespace Onion.CleanArchitecture.Apllication.Features.Orders.Commands.CreateOrd
                 // 2. Truy vấn một lần duy nhất để lấy tất cả product.
                 var products = await _productRepository.GetProductsByIdsAsync(productIds);
                 // Loại bỏ các dòng có ProductId rỗng (rác trong DB) để ToDictionary không ném
-                // ArgumentException "An item with the same key has already been added" -> 500.
                 var productDict = products
                     .Where(p => p.ProductId != Guid.Empty)
                     .GroupBy(p => p.ProductId)

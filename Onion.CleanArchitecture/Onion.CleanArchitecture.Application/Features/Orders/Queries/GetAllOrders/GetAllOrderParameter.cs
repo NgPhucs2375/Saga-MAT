@@ -7,6 +7,6 @@ namespace Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrde
 {
     public class GetAllOrdersParameter : RequestParameter
     {
-
+        public string CustomerId { get; set; }
     }
 }

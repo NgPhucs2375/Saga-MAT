@@ -23,5 +23,6 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence
     internal class AuthenticatedUserServiceStub : IAuthenticatedUserService
     {
         public string UserId => "DesignTimeUser";
+        public bool IsSuperAdmin => true;
     }
 }

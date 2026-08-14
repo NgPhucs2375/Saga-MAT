@@ -1,4 +1,5 @@
 ﻿using Onion.CleanArchitecture.Application.Interfaces;
+using System;
 using System.Security.Claims;
 
 namespace Onion.CleanArchitecture.WebApp.Server.Services
@@ -8,8 +9,13 @@ namespace Onion.CleanArchitecture.WebApp.Server.Services
         public AuthenticatedUserService(IHttpContextAccessor httpContextAccessor)
         {
             UserId = httpContextAccessor.HttpContext?.User?.FindFirstValue("uid");
+            IsSuperAdmin = string.Equals(
+                httpContextAccessor.HttpContext?.User?.FindFirstValue("permission"),
+                "SuperAdmin",
+                StringComparison.OrdinalIgnoreCase);
         }
 
-        public string UserId { get; }
+        public string UserId { get; } = string.Empty;
+        public bool IsSuperAdmin { get; }
     }
 }

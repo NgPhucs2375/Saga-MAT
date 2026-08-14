@@ -1,4 +1,3 @@
-using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
@@ -19,17 +18,20 @@ namespace ApproveOrderService.Consumers
         private readonly IOrderTimerRepositoryAsync _orderTimerRepository;
         private readonly IOrderHistoryRepositoryAsync _orderHistoryRepository;
         private readonly ILogger<RejectOrderConsumer> _logger;
+        private readonly IMessageScheduler _messageScheduler;
 
         public RejectOrderConsumer(
             IOrderRepositoryAsync orderRepository,
             IOrderTimerRepositoryAsync orderTimerRepository,
             IOrderHistoryRepositoryAsync orderHistoryRepository,
-            ILogger<RejectOrderConsumer> logger)
+            ILogger<RejectOrderConsumer> logger,
+            IMessageScheduler messageScheduler)
         {
             _orderRepository = orderRepository;
             _orderTimerRepository = orderTimerRepository;
             _orderHistoryRepository = orderHistoryRepository;
             _logger = logger;
+            _messageScheduler = messageScheduler;
         }
 
         public async Task Consume(ConsumeContext<RejectOrderCommand> context)
@@ -58,9 +60,9 @@ namespace ApproveOrderService.Consumers
                 if (pendingTimer != null)
                 {
                     pendingTimer.TimerStatus = TimerStatus.Cancelled;
-                    if (!string.IsNullOrEmpty(pendingTimer.JobId))
+                    if (Guid.TryParse(pendingTimer.JobId, out var tokenId))
                     {
-                        BackgroundJob.Delete(pendingTimer.JobId);
+                        await _messageScheduler.CancelScheduledPublish<OrderAutoTimeoutExpiredEvent>(tokenId);
                     }
                     await _orderTimerRepository.UpdateAsync(pendingTimer);
                 }

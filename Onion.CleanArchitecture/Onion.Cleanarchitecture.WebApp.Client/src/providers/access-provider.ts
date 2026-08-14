@@ -16,7 +16,6 @@ export const accessControlProvider: AccessControlProvider = {
 
     const { permissions } = roles;
 
-    // if (role === "SuperAdmin") return { can: true };
 
     for (const permission of permissions) {
       if (

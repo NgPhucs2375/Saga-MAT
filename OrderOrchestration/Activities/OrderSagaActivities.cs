@@ -60,20 +60,6 @@ namespace OrderOrchestration.Activities
                     context.Message.CustomerId,
                     DateTime.UtcNow));
 
-            // Thông báo bước Submit thành công -> NotificationService đẩy SignalR
-            // await context.Publish(new OrderSubmitSuccessResponse(
-            //     NewId.NextGuid(),
-            //     context.Message.OrderId,
-            //     context.Message.CustomerId,
-            //     new NotificationPayLoad(
-            //         context.Message.CustomerId,
-            //         "Đơn hàng đã được xác nhận",
-            //         "Đơn hàng của bạn đã được xác nhận hợp lệ và đang chờ duyệt.",
-            //         "Success",
-            //         context.Saga.CorrelationId,
-            //         DateTime.UtcNow),
-            //     DateTime.UtcNow));
-
             await next.Execute(context);
         }
 

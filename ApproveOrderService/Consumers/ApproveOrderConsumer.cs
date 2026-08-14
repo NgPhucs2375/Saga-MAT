@@ -1,4 +1,3 @@
-using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -20,17 +19,20 @@ namespace ApproveOrderService.Consumers
         private readonly IOrderTimerRepositoryAsync _orderTimerRepository;
         private readonly IOrderHistoryRepositoryAsync _orderHistoryRepository;
         private readonly ILogger<ApproveOrderConsumer> _logger;
+        private readonly IMessageScheduler _messageScheduler;
 
         public ApproveOrderConsumer(
             IOrderRepositoryAsync orderRepository,
             IOrderTimerRepositoryAsync orderTimerRepository,
             IOrderHistoryRepositoryAsync orderHistoryRepository,
-            ILogger<ApproveOrderConsumer> logger)
+            ILogger<ApproveOrderConsumer> logger,
+            IMessageScheduler messageScheduler)
         {
             _orderRepository = orderRepository;
             _orderTimerRepository = orderTimerRepository;
             _orderHistoryRepository = orderHistoryRepository;
             _logger = logger;
+            _messageScheduler = messageScheduler;
         }
 
         public async Task Consume(ConsumeContext<ApproveOrderCommand> context)
@@ -62,8 +64,10 @@ namespace ApproveOrderService.Consumers
                 if (pendingTimer != null)
                 {
                     pendingTimer.TimerStatus = TimerStatus.Cancelled;
-                    if (!string.IsNullOrEmpty(pendingTimer.JobId))
-                        BackgroundJob.Delete(pendingTimer.JobId);
+                    if (Guid.TryParse(pendingTimer.JobId, out var tokenId))
+                    {
+                        await _messageScheduler.CancelScheduledPublish<OrderAutoTimeoutExpiredEvent>(tokenId);
+                    }
                     await _orderTimerRepository.UpdateAsync(pendingTimer);
                 }
 

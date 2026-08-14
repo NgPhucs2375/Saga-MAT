@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saga Pattern & Workflow Architecture - Order System</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --accent-amber: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .header {
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Layout 7 Swimlanes Grid */
+        .swimlanes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .swimlane {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .swimlane-header {
+            background-color: #0284c7;
+            color: #ffffff;
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .swimlane-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .node {
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .node-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .node-type {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Variant node colors */
+        .node.saga { border-left-color: var(--accent-purple); }
+        .node.consumer { border-left-color: var(--accent-amber); }
+        .node.decision { border-left-color: var(--accent-green); }
+        .node.compensate { border-left-color: var(--accent-red); }
+
+        /* Flow list section */
+        .flow-section {
+            margin-top: 40px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .flow-section h2 {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .flow-item {
+            background-color: var(--bg-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            font-size: 13px;
+        }
+
+        .flow-item span.event {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Kiến Trúc Quy Trình Luồng Đơn Hàng (Saga Pattern)</h1>
+        <p>Mô hình hóa dữ liệu hệ thống dựa trên sơ đồ quy trình phân tán</p>
+    </div>
+
+    <!-- 7 Swimlanes Display -->
+    <div class="swimlanes-container">
+        
+        <!-- Swimlane 1: WEB.Client -->
+        <div class="swimlane">
+            <div class="swimlane-header">1. WEB.Client</div>
+            <div class="swimlane-body">
+                <div class="node"><div class="node-title">Start Event</div><div class="node-type">Event</div></div>
+                <div class="node"><div class="node-title">Yêu cầu tạo đơn</div><div class="node-type">Process</div></div>
+                <div class="node"><div class="node-title">Từ chối</div><div class="node-type">Process</div></div>
+                <div class="node"><div class="node-title">Nhấn duyệt</div><div class="node-type">Process</div></div>
+                <div class="node"><div class="node-title">Thông báo</div><div class="node-type">Process</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 2: WEB.Server -->
+        <div class="swimlane">
+            <div class="swimlane-header">2. WEB.Server</div>
+            <div class="swimlane-body">
+                <div class="node"><div class="node-title">CreateOrderCommand</div><div class="node-type">Command</div></div>
+                <div class="node"><div class="node-title">ApproveOrderCommand</div><div class="node-type">Command</div></div>
+                <div class="node"><div class="node-title">RejectOrderCommand</div><div class="node-type">Command</div></div>
+                <div class="node"><div class="node-title">CancelOrderCommandHandler</div><div class="node-type">Handler</div></div>
+                <div class="node consumer"><div class="node-title">OrderNotificationConsumer</div><div class="node-type">Service Task</div></div>
+                <div class="node consumer"><div class="node-title">NotificationDispatcher</div><div class="node-type">Service Task</div></div>
+                <div class="node consumer"><div class="node-title">Hub</div><div class="node-type">SignalR Hub</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 3: Saga -->
+        <div class="swimlane">
+            <div class="swimlane-header">3. Saga Orchestrator</div>
+            <div class="swimlane-body">
+                <div class="node saga"><div class="node-title">OrderCreatedActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">OrderValidationFailedActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">OrderValidatedActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">SendRejectCommandActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">SendApproveCommandActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">OrderAcceptedActivity</div><div class="node-type">Activity</div></div>
+                <div class="node saga"><div class="node-title">OrderCompletedActivity</div><div class="node-type">Activity</div></div>
+                <div class="node compensate"><div class="node-title">ReleaseInventoryCompensateActivityForCompleteFailed</div><div class="node-type">Compensate Activity</div></div>
+                <div class="node compensate"><div class="node-title">CancelOrderCompensateActivity</div><div class="node-type">Compensate Activity</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 4: SubmitService -->
+        <div class="swimlane">
+            <div class="swimlane-header">4. SubmitService</div>
+            <div class="swimlane-body">
+                <div class="node consumer"><div class="node-title">OrderSubmitConsumer</div><div class="node-type">Consumer</div></div>
+                <div class="node decision"><div class="node-title">Kiểm tra sản phẩm có tồn tại + IsActive</div><div class="node-type">Decision (Gateway)</div></div>
+                <div class="node"><div class="node-title">Saga Publish OrderAcceptFailedResponse</div><div class="node-type">Process</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 5: AcceptService -->
+        <div class="swimlane">
+            <div class="swimlane-header">5. AcceptService</div>
+            <div class="swimlane-body">
+                <div class="node consumer"><div class="node-title">OrderAcceptConsumer</div><div class="node-type">Consumer</div></div>
+                <div class="node consumer"><div class="node-title">ReleaseInventoryConsumer</div><div class="node-type">Consumer</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 6: ApproveService -->
+        <div class="swimlane">
+            <div class="swimlane-header">6. ApproveService</div>
+            <div class="swimlane-body">
+                <div class="node consumer"><div class="node-title">RejectOrderConsumer</div><div class="node-type">Consumer</div></div>
+                <div class="node consumer"><div class="node-title">ApproveOrderConsumer</div><div class="node-type">Consumer</div></div>
+            </div>
+        </div>
+
+        <!-- Swimlane 7: CompleteService -->
+        <div class="swimlane">
+            <div class="swimlane-header">7. CompleteService</div>
+            <div class="swimlane-body">
+                <div class="node consumer"><div class="node-title">OrderCompleteConsumer</div><div class="node-type">Consumer</div></div>
+                <div class="node consumer"><div class="node-title">ReleaseInventoryConsumer</div><div class="node-type">Consumer</div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Key Event Transitions -->
+    <div class="flow-section">
+        <h2>Danh Sách Sự Kiện & Lệnh Điều Hướng Chính (Events & Commands)</h2>
+        <div class="flow-grid">
+            <div class="flow-item"><span class="event">OrderCreatedEvent:</span> CreateOrderCommand ➔ OrderCreatedActivity</div>
+            <div class="flow-item"><span class="event">ValidateOrderCommand:</span> OrderCreatedActivity ➔ OrderSubmitConsumer</div>
+            <div class="flow-item"><span class="event">OrderValidationFailedEvent:</span> Kiểm tra thất bại ➔ OrderValidationFailedActivity</div>
+            <div class="flow-item"><span class="event">OrderValidatedEvent:</span> Kiểm tra thành công ➔ OrderValidatedActivity</div>
+            <div class="flow-item"><span class="event">AcceptOrderCommand:</span> OrderValidatedActivity ➔ OrderAcceptConsumer</div>
+            <div class="flow-item"><span class="event">ApproveOrderCommand:</span> SendApproveCommandActivity ➔ ApproveOrderConsumer</div>
+            <div class="flow-item"><span class="event">RejectOrderCommand:</span> SendRejectCommandActivity ➔ RejectOrderConsumer</div>
+            <div class="flow-item"><span class="event">CompleteOrderCommand:</span> OrderAcceptedActivity ➔ OrderCompleteConsumer</div>
+            <div class="flow-item"><span class="event">ReleaseInventoryCommand:</span> Compensate ➔ ReleaseInventoryConsumer</div>
+            <div class="flow-item"><span class="event">CancelOrderCommand:</span> CancelOrderCompensate ➔ CancelOrderCommandHandler</div>
+        </div>
+    </div>
+
+</body>
+</html>

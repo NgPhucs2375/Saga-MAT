@@ -4,6 +4,6 @@ namespace Onion.CleanArchitecture.WebApp.Server.Models
 {
     public class CancelOrderRequest
     {
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
     }
 }

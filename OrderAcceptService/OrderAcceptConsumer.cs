@@ -1,4 +1,3 @@
-using Hangfire;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -103,9 +102,9 @@ namespace OrderAcceptService
                 await _orderRepository.UpdateAsync(order);
 
                 var minutes = _configuration.GetValue<int>("OrderReviewTimeoutMinutes");
-                var jobId = BackgroundJob.Schedule<OrderTimeoutJob>(
-                    j => j.ExecuteAsync(message.OrderId, nameof(TargetStatus.Rejected)),
-                    TimeSpan.FromMinutes(minutes));
+                var scheduled = await context.SchedulePublish(
+                    TimeSpan.FromMinutes(minutes),
+                    new OrderAutoTimeoutExpiredEvent(Guid.NewGuid(), message.OrderId, nameof(TargetStatus.Rejected), DateTime.UtcNow));
                 
                 // 2. Tạo và lưu OrderTimer hướng tới Reject (không duyệt -> tự từ chối)
                 var orderTimer = new OrderTimer
@@ -115,7 +114,7 @@ namespace OrderAcceptService
                     Timeout = DateTime.UtcNow.AddMinutes(minutes),
                     Status = TargetStatus.Rejected,
                     TimerStatus = TimerStatus.Pending,
-                    JobId = jobId
+                    JobId = scheduled.TokenId.ToString()
                 };
                 await _orderTimerRepository.AddAsync(orderTimer);
                 

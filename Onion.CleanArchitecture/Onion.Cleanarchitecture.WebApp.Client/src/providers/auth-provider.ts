@@ -1,7 +1,6 @@
 import { AuthProvider as BaseAuthProvider, HttpError } from "@refinedev/core";
 import { jwtDecode } from "jwt-decode";
 import { ResponseRoot } from "./types";
-import { JwtTokenDecoded } from "@routes/authens";
 interface ResponseAuthen {
   Succeeded: boolean;
   Message: string;
@@ -102,45 +101,63 @@ export const authProvider: AuthProvider = {
     return { error };
   },
   getPermissions: async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      return JSON.stringify({ permissions: [] });
-    }
-
-    const decoded: JwtTokenDecoded = jwtDecode(token);
-    
-    // SuperAdmin gets all permissions
-    const isSuperAdmin = decoded.roles?.includes("SuperAdmin") || 
-                         decoded.roles?.some((r: string) => r.includes("SuperAdmin")) ||
-                         decoded.roleclaims?.includes("SuperAdmin");
-    
-    if (isSuperAdmin) {
-      // Return all possible permissions for all resources
-      const allResources = ['orders', 'users', 'roles', 'products', 'categories', 'customers', 'reports', 'dashboard'];
-      const allActions = ['list', 'create', 'edit', 'delete', 'show', 'approve', 'reject', 'export', 'import'];
-      const permissions = allResources.flatMap(resource => 
-        allActions.map(action => ({ resource, action }))
-      );
-      return JSON.stringify({ permissions });
-    }
-
-    // Regular users - parse from JWT claims
-    const rolesRaw = decoded.roles ?? [];
-    const rolesArray = Array.isArray(rolesRaw) ? rolesRaw : [rolesRaw];
-    
-    const permissions: { resource: string; action: string }[] = [];
-    
-    Object.entries(decoded).forEach(([claimName, claimValue]) => {
-      if (claimName === 'roles' || claimName === 'users' || claimName === 'roleclaims') {
-        const actions = (claimValue as string).split('#');
-        actions.forEach(action => {
-          permissions.push({ resource: claimName, action });
-        });
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        return JSON.stringify({ permissions: [] });
       }
-    });
 
-    return JSON.stringify({ permissions });
-  },
+      try {
+        const decoded: any = jwtDecode(token);
+
+        // Đọc claim roles động từ JWT
+        const rolesClaim = decoded.roles ?? decoded.role ?? [];
+        
+        // Chuẩn hóa roles: hỗ trợ cả chuỗi đơn lẻ (string) lẫn mảng (array)
+        const rolesArray = Array.isArray(rolesClaim)
+          ? rolesClaim
+          : typeof rolesClaim === "string"
+          ? [rolesClaim]
+          : [];
+
+        const permissionsList: { resource: string; action: string }[] = [];
+
+        // Lặp qua danh sách roles thu thập từ JWT
+        rolesArray.forEach((roleItem: any) => {
+          let roleObj = roleItem;
+
+          // Nếu roleItem ở dạng JSON string thì parse sang Object
+          if (typeof roleItem === "string") {
+            try {
+              roleObj = JSON.parse(roleItem);
+            } catch {
+              return; // Bỏ qua nếu là chuỗi thuần không phải JSON cấu trúc
+            }
+          }
+
+          // Kiểm tra tính hợp lệ của mảng permissions trong object role
+          if (roleObj && Array.isArray(roleObj.permissions)) {
+            roleObj.permissions.forEach((p: { resource: string; action: string[] }) => {
+              if (p.resource && Array.isArray(p.action)) {
+                p.action.forEach((act: string) => {
+                  // Thêm vào mảng permissions nếu chưa tồn tại (tránh trùng lặp khi gộp nhiều role)
+                  const exists = permissionsList.some(
+                    (item) => item.resource === p.resource && item.action === act
+                  );
+                  if (!exists) {
+                    permissionsList.push({ resource: p.resource, action: act });
+                  }
+                });
+              }
+            });
+          }
+        });
+
+        return JSON.stringify({ permissions: permissionsList });
+      } catch (error) {
+        console.error("Lỗi khi giải mã JWT hoặc đọc permissions:", error);
+        return JSON.stringify({ permissions: [] });
+      }
+    },
   updatePassword: async ({ oldPassword, newPassword }) => {
     const response = await fetch("/api/account/update-password", {
       method: "POST",

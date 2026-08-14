@@ -29,3 +29,11 @@ p, SuperAdmin, order, create
 p, SuperAdmin, order, show
 p, SuperAdmin, order, edit
 p, SuperAdmin, order, delete
+p, Basic, products, list
+p, Basic, products, show
+p, Basic, orders, list
+p, Basic, orders, create
+p, Basic, orders, show
+p, Basic, orders, edit
+p, Basic, notifications, list
+p, Basic, notifications, edit

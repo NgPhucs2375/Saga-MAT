@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Onion.CleanArchitecture.Application.Interfaces;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Application.Wrappers;
 using System.Collections.Generic;
@@ -19,18 +20,26 @@ namespace Onion.CleanArchitecture.Application.Features.Orders.Queries.GetAllOrde
     {
         private readonly IOrderRepositoryAsync _orderRepository;
         private readonly IMapper _mapper;
+        private readonly IAuthenticatedUserService _authen;
         public GetAllOrderQueryHandler(
             IOrderRepositoryAsync orderRepository,
-            IMapper mapper
+            IMapper mapper,
+            IAuthenticatedUserService authen
         )
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
+            _authen = authen;
         }
 
         public async Task<Response<object>> Handle(GetAllOrderQuery request,CancellationToken ct)
         {
             var validFilter = _mapper.Map<GetAllOrdersParameter>(request);
+            // User thường chỉ được xem đơn của chính mình; SuperAdmin xem tất cả
+            if (!_authen.IsSuperAdmin)
+            {
+                validFilter.CustomerId = _authen.UserId;
+            }
             var pagedOrders = await _orderRepository.GetPagedOrdersAsync(validFilter);
             return new Response<object>(new
             {
