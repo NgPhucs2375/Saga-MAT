@@ -9,7 +9,7 @@ namespace Onion.CleanArchitecture.Application.Hubs
     /// Hub đẩy NotificationPayLoad real-time về UI Client.
     /// Client gọi Subscribe(userId) để nhận thông báo riêng của user đó.
     /// </summary>
-    [AllowAnonymous]
+   
     public class NotificationHub : Hub
     {
         // Client đăng ký vào group của riêng mình để nhận notification theo TargetUserId

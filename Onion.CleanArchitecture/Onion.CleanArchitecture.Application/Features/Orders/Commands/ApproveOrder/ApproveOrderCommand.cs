@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AppWrappers = Onion.CleanArchitecture.Application.Wrappers;
+using Onion.CleanArchitecture.Application.Interfaces;
 
 namespace Onion.CleanArchitecture.Application.Features.Orders.Commands.ApproveOrder
 {
@@ -19,19 +20,24 @@ namespace Onion.CleanArchitecture.Application.Features.Orders.Commands.ApproveOr
     {
         private readonly IOrderRepositoryAsync _orderRepository;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IAuthenticatedUserService _authen;
 
-        public ApproveOrderCommandHandler(IOrderRepositoryAsync orderRepository, IPublishEndpoint publishEndpoint)
+        public ApproveOrderCommandHandler(IOrderRepositoryAsync orderRepository, IPublishEndpoint publishEndpoint, IAuthenticatedUserService authenticatedUserService)
         {
             _orderRepository = orderRepository;
             _publishEndpoint = publishEndpoint;
+            _authen = authenticatedUserService;
         }
 
         public async Task<AppWrappers.Response<Guid>> Handle(ApproveOrderCommand request, CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            if(_authen.IsSuperAdmin == false){
+                throw new ApiException("Bạn không có quyền duyệt đơn hàng này.");
+            }
             if (order == null)
             {
-                throw new ApiException("Order Not Found.");
+                throw new ApiException("Không tìm thấy Đơn hàng.");
             }
 
             // Chỉ duyệt được khi đơn đang chờ duyệt

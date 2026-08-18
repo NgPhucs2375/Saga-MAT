@@ -96,6 +96,9 @@ const App: React.FC = () => {
                         />
                       )}
                     >
+
+
+                      
                       <Outlet /> // render các route con tương ứng 
                     </ThemedLayoutV2>
                   </Authenticated>

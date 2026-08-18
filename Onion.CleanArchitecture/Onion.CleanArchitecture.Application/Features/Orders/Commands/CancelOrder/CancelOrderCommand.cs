@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AppWrappers = Onion.CleanArchitecture.Application.Wrappers;
+using Onion.CleanArchitecture.Application.Interfaces;
 
 namespace Onion.CleanArchitecture.Application.Features.Orders.Commands.CancelOrder
 {
@@ -21,16 +22,23 @@ namespace Onion.CleanArchitecture.Application.Features.Orders.Commands.CancelOrd
     {
         private readonly IOrderRepositoryAsync _orderRepository;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IAuthenticatedUserService _authen;
 
-        public CancelOrderCommandHandler(IOrderRepositoryAsync orderRepository, IPublishEndpoint publishEndpoint)
+        public CancelOrderCommandHandler(IOrderRepositoryAsync orderRepository, IPublishEndpoint publishEndpoint,IAuthenticatedUserService authenticatedUserService)
         {
             _orderRepository = orderRepository;
             _publishEndpoint = publishEndpoint;
+            _authen = authenticatedUserService;
         }
 
         public async Task<AppWrappers.Response<Guid>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            if (_authen.IsSuperAdmin == false && order.CustomerId == _authen.UserId)
+            {
+                throw new ApiException("Bạn không có quyền hủy đơn hàng này.");
+            }
+            
             if (order == null)
             {
                 throw new ApiException("Không tìm thấy Đơn hàng.");

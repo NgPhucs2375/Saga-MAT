@@ -64,7 +64,7 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelOrderRequest request)
         {
-            return await EnforcePermissionAndExecute("orders", "edit", async () =>
+            return await EnforcePermissionAndExecute("orders", "cancel", async () =>
             {
                 return Ok(await Mediator.Send(new CancelOrderCommand { OrderId = id, Reason = request?.Reason }));
             });

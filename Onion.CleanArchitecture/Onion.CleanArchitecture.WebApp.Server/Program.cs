@@ -13,8 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 var _config = builder.Configuration;
 var _services = builder.Services;
 var _env = builder.Environment;
-// Add services to the container.
 
+// Đặt tên Policy CORS
+const string CorsPolicy = "AllowPortal5174";
+_services.AddCors(
+    options =>{
+        options.AddPolicy(CorsPolicy, policy =>{
+            policy.WithOrigins("http://localhost:5174", "https://localhost:5174")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
+
+// Add services to the container.
 _services.AddEnvironmentVariablesExtension();
 _services.AddIdentityLayer();
 _services.AddApplicationLayer();

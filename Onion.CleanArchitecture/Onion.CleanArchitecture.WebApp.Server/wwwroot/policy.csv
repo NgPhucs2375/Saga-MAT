@@ -35,7 +35,7 @@ p, Basic, products, show
 p, Basic, orders, list
 p, Basic, orders, create
 p, Basic, orders, show
-p, Basic, orders, edit
+p, Basic, orders, cancel
 p, Basic, notifications, list
 p, Basic, notifications, show
 p, Basic, notifications, edit
