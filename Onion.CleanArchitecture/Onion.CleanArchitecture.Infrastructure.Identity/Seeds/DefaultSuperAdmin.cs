@@ -40,11 +40,11 @@ namespace Onion.CleanArchitecture.Infrastructure.Identity.Seeds
                     new Claim("dashboard", "list"),
                     new Claim("products", "list#create#create-range#clone#edit#show#delete#delete-range"),
                     new Claim("orders", "list#create#clone#edit#show#delete"),
-                    new Claim("notifications", "list#edit"),
+                    new Claim("notifications", "list#show#edit"),
                     new Claim("users", "list#create#clone#edit#show#delete"),
                     new Claim("roles", "list#create#clone#edit#show#delete"),
-                    new Claim("roleclaims", "list#create#clone#edit#show#delete")
-                };
+                    new Claim("roleclaims", "list#create#clone#edit#show#delete"),
+                    new Claim("notifications","list#edit#show")                };
 
                 // Lấy danh sách Claims hiện có của Role để tránh thêm trùng (Idempotent)
                 var existingClaims = await roleManager.GetClaimsAsync(role);

@@ -4,11 +4,6 @@ using OrderOrchestration.Activities;
 
 namespace OrderOrchestration
 {
-    /// <summary>
-    /// Saga orchestrate: OrderCreated -> Validate -> Accept -> Complete -> Completed
-    /// Bất kỳ bước nào fail -> Rejected. Timeout (DuringAny) -> Compensate -> Rejected.
-    /// LIFO compensation: Complete fail -> ReleaseInventory -> Cancel -> Rejected.
-    /// </summary>
     public class OrderSagaStateMachine : MassTransitStateMachine<OrderState>
     {
         public State Submitted { get; private set; } = default!;
@@ -34,6 +29,13 @@ namespace OrderOrchestration
         public Event<OrderCancelledEvent> OrderCancelled { get; private set; } = default!;
         public Event<CancelOrderFailedEvent> CancelOrderFailed { get; private set; } = default!;
 
+        // === Command FAULT === //
+        public Event<Fault<ValidateOrderCommand>> ValidateOrderFaulted {get; private set;} = default!;
+        public Event<Fault<AcceptOrderCommand>> AcceptOrderFaulted {get; private set;} = default!;
+        public Event<Fault<CompleteOrderCommand>> CompleteOrderFaulted {get; private set;} = default!;
+        public Event<Fault<ReleaseInventoryCommand>> ReleaseInventoryFaulted {get; private set;} = default!;
+        public Event<Fault<CancelOrderCommand>> CancelOrderFaulted {get; private set;} = default!;
+
         public OrderSagaStateMachine()
         {
             InstanceState(x => x.CurrentState);
@@ -52,6 +54,12 @@ namespace OrderOrchestration
             Event(() => OrderCancelled, x => x.CorrelateById(m => m.Message.OrderId));
             Event(() => CancelOrderFailed, x => x.CorrelateById(m => m.Message.OrderId));
 
+            Event(() => ValidateOrderFaulted, x => x.CorrelateById(m => m.Message.Message.OrderId));
+            Event(() => AcceptOrderFaulted, x => x.CorrelateById(m => m.Message.Message.OrderId));
+            Event(() => CompleteOrderFaulted, x => x.CorrelateById(m => m.Message.Message.OrderId));
+            Event(() => ReleaseInventoryFaulted, x => x.CorrelateById(m => m.Message.Message.OrderId));
+            Event(() => CancelOrderFaulted, x => x.CorrelateById(m => m.Message.Message.OrderId));
+
             Initially(
                 When(OrderCreated)
                     .Activity(x => x.OfType<OrderCreatedActivity>())
@@ -65,6 +73,14 @@ namespace OrderOrchestration
                     .Activity(x => x.OfType<OrderValidationFailedActivity>())
                     .TransitionTo(Rejected));
 
+            During(Validating,
+                When(ValidateOrderFaulted)
+                    .Then(ctx => ctx.Saga.ErrorReason = "Lỗi hệ thống khi xác thực đơn hàng sau nhiều lần thử lại!")
+                    .Activity(x => x.OfType<OrderValidationFaultedActivity>())
+                    .TransitionTo(Rejected)
+            
+            );
+
             During(PendingApproval,
                 When(ApproveRequested)
                     .Activity(x => x.OfType<SendApproveCommandActivity>()),
@@ -76,6 +92,14 @@ namespace OrderOrchestration
                 When(OrderAcceptFailed)
                             .Activity(x => x.OfType<ReleaseInventoryCompensateActivity>())
                             .TransitionTo(CompensatingRelease)          
+            );
+
+            During(PendingApproval,
+                When(AcceptOrderFaulted)
+                    .Then(ctx => ctx.Saga.ErrorReason = "Lỗi hệ thống khi tiếp nhận đơn hàng sau nhiều lần thử lại!")
+                    .Activity(x => x.OfType<AcceptOrderFaultCompensateActivity>())
+                    .TransitionTo(CompensatingRelease)
+
             );
 
             During(Completing,
@@ -100,6 +124,13 @@ namespace OrderOrchestration
                                 DateTime.UtcNow)))
                         .Activity(x => x.OfType<ReleaseInventoryCompensateActivityForCompleteFailed>())
                         .TransitionTo(CompensatingRelease)
+            );
+
+            During(Completing,
+                When(CompleteOrderFaulted)
+                    .Then(ctx => ctx.Saga.ErrorReason = "Lỗi hệ thống khi hoàn tất đơn hàng sau nhiều lần thử lại!")
+                    .Activity(x => x.OfType<CompleteOrderFaultCompensateActivity>())
+                    .TransitionTo(CompensatingRelease)
             );
 
 

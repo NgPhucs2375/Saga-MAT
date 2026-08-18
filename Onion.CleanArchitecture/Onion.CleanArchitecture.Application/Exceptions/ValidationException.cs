@@ -8,7 +8,7 @@ namespace Onion.CleanArchitecture.Application.Exceptions
 {
     public class ValidationException : Exception
     {
-        public ValidationException() : base("One or more validation failures have occurred.")
+        public ValidationException() : base("1 hoặc nhiều lỗi xác thực đã xảy ra.")
         {
             Errors = new List<string>();
         }

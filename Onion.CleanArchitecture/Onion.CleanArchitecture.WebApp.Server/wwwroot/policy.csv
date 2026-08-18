@@ -18,6 +18,7 @@ p, SuperAdmin, products, delete
 p, SuperAdmin, products, delete-range
 p, SuperAdmin, dashboard, list
 p, SuperAdmin, notifications, list
+p, SuperAdmin, notifications, show
 p, SuperAdmin, notifications, edit
 p, SuperAdmin, orders, list
 p, SuperAdmin, orders, create
@@ -36,4 +37,5 @@ p, Basic, orders, create
 p, Basic, orders, show
 p, Basic, orders, edit
 p, Basic, notifications, list
+p, Basic, notifications, show
 p, Basic, notifications, edit

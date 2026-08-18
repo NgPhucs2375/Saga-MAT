@@ -39,6 +39,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
             {
                 o.UsePostgres();
+                o.UseBusOutbox();
                 // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
                 // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
                 o.DisableInboxCleanupService();
@@ -50,10 +51,38 @@ var host = Host.CreateDefaultBuilder(args)
                 cfg.AutoStart = true;
 
                 cfg.ReceiveEndpoint("order-approve-queue", e => {
+                    // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+                    
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
                     e.ConfigureConsumer<ApproveOrderConsumer>(context);
                 });
 
                 cfg.ReceiveEndpoint("order-reject-queue", e => {
+                    // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
                     e.ConfigureConsumer<RejectOrderConsumer>(context);
                 });
 

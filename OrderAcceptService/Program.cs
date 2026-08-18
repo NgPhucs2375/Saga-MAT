@@ -39,6 +39,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
             {
                 o.UsePostgres();
+                o.UseBusOutbox(); // Bật Outbox trên bus (tự động commit Outbox + publish event)
                 // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
                 // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
                 o.DisableInboxCleanupService();
@@ -52,13 +53,56 @@ var host = Host.CreateDefaultBuilder(args)
                 // Nhận các command/event theo tên queue cố định
                 cfg.ReceiveEndpoint("order-accept-queue", e =>
                 {
+                    
+                    // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+                    
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
                     e.ConfigureConsumer<OrderAcceptConsumer>(context);
                 } );
 
                 cfg.ReceiveEndpoint("order-cancel-queue", e =>{ 
+                    // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+                    
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
                     e.ConfigureConsumer<CancelOrderConsumer>(context);});
 
                 cfg.ReceiveEndpoint("order-timeout-queue", e => {
+                    // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+                    
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
                     e.ConfigureConsumer<OrderTimeoutConsumer>(context);
                 });
 

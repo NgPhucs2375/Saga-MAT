@@ -132,10 +132,12 @@ namespace OrderCompleteService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi hoàn tất OrderId={OrderId}. Kích hoạt bồi hoàn.", message.OrderId);
-                var errorReason = $"Lỗi hệ thống khi hoàn tất: {ex.Message}";
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", errorReason);
-                await context.Publish(new OrderCompleteFailedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+                // var errorReason = $"Lỗi hệ thống khi hoàn tất: {ex.Message}";
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "CompleteOrderCommand", errorReason);
+                // await context.Publish(new OrderCompleteFailedEvent(
+                //     NewId.NextGuid(), message.OrderId, message.CustomerId, errorReason, DateTime.UtcNow));
+
+                throw;
             }
         }
 

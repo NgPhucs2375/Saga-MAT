@@ -38,7 +38,6 @@ export const ListOrder = () => {
   const { tableProps, filters, sorters } = useTable<IOrderDetail>({
     resource: "orders",
     sorters: { initial: [{ field: "Created", order: "desc" }] },
-    queryOptions: { refetchInterval: 3000 },
   });
   const { message } = App.useApp();
   const invalidate = useInvalidate();
@@ -58,7 +57,6 @@ export const ListOrder = () => {
     },
     filters: filters,
     sorters: sorters,
-    queryOptions: { refetchInterval: 3000 },
   });
 
   const stats = useMemo(() => {

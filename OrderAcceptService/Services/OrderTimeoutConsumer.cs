@@ -83,7 +83,8 @@ namespace OrderAcceptService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi xử lý timeout cho OrderId={OrderId}", message.OrderId);
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "TimeoutProcessing", $"Xử lý timeout thất bại: {ex.Message}");
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "TimeoutProcessing", $"Xử lý timeout thất bại: {ex.Message}");
+                throw;
             }
         }
 

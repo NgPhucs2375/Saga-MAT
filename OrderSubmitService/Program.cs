@@ -40,6 +40,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
             {
                 o.UsePostgres();
+                o.UseBusOutbox(); // Bật Outbox trên bus (tự động commit Outbox + publish event)
                 // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
                 // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0
                 o.DisableInboxCleanupService();
@@ -53,6 +54,21 @@ var host = Host.CreateDefaultBuilder(args)
                 // BẮT BUỘC: Nhận ValidateOrderCommand từ Saga qua queue order-validation-queue
                 cfg.ReceiveEndpoint("order-validation-queue", e =>
                 {
+                      // Retry in-process 3 lần cho các lỗi thoáng qua (DB connection, timeout)
+                    e.UseMessageRetry(r => r.Exponential(
+                        3, 
+                        TimeSpan.FromSeconds(1), 
+                        TimeSpan.FromSeconds(10), 
+                        TimeSpan.FromSeconds(2)
+                    ));
+
+                    // Kết hợp Redelivery nếu lỗi kéo dài
+                    e.UseDelayedRedelivery(r => r.Intervals(
+                        TimeSpan.FromSeconds(5), 
+                        TimeSpan.FromSeconds(15)
+                    ));
+
+
                     e.ConfigureConsumer<OrderSubmitConsumer>(context);
                 });
             });

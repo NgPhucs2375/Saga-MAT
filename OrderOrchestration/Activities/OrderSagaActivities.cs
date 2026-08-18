@@ -397,4 +397,105 @@ namespace OrderOrchestration.Activities
             where TException : Exception =>
             next.Faulted(context);
     }
+
+    public class OrderValidationFaultedActivity : IStateMachineActivity<OrderState, Fault<ValidateOrderCommand>>
+    {
+        public void Probe(ProbeContext context) => context.CreateScope(nameof(OrderValidationFaultedActivity));
+
+        public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
+
+        public async Task Execute(
+            BehaviorContext<OrderState, Fault<ValidateOrderCommand>> context,
+            IBehavior<OrderState, Fault<ValidateOrderCommand>> next)
+        {
+            var command = context.Message.Message;
+            var errorMessage = context.Message.Exceptions.FirstOrDefault()?.Message
+                ?? "Lỗi hệ thống khi xác thực đơn hàng!";
+
+            await context.Publish(
+                new OrderSubmitFailedResponse(
+                    Guid.NewGuid(),
+                    command.OrderId,
+                    command.CustomerId,
+                    errorMessage,
+                    new NotificationPayLoad(
+                        command.CustomerId,
+                        "Đơn hàng bị từ chối",
+                        errorMessage,
+                        "Error",
+                        context.Saga.CorrelationId,
+                        DateTime.UtcNow),
+                    DateTime.UtcNow));
+
+            await next.Execute(context);
+        }
+
+        public Task Faulted<TException>(
+            BehaviorExceptionContext<OrderState, Fault<ValidateOrderCommand>, TException> context,
+            IBehavior<OrderState, Fault<ValidateOrderCommand>> next)
+            where TException : Exception =>
+            next.Faulted(context);
+    }
+
+    public class AcceptOrderFaultCompensateActivity : IStateMachineActivity<OrderState, Fault<AcceptOrderCommand>>
+    {
+        private static readonly Uri ReleaseQueueUri = new("queue:release-inventory-queue");
+
+        public void Probe(ProbeContext context) => context.CreateScope(nameof(AcceptOrderFaultCompensateActivity));
+
+        public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
+
+        public async Task Execute(
+            BehaviorContext<OrderState, Fault<AcceptOrderCommand>> context,
+            IBehavior<OrderState, Fault<AcceptOrderCommand>> next)
+        {
+            await context.Send(
+                ReleaseQueueUri,
+                new ReleaseInventoryCommand(
+                    NewId.NextGuid(),
+                    context.Saga.CorrelationId,
+                    context.Saga.CustomerId,
+                    context.Saga.Items,
+                    context.Saga.ErrorReason ?? "Compensate",
+                    DateTime.UtcNow));
+            await next.Execute(context);
+        }
+
+        public Task Faulted<TException>(
+            BehaviorExceptionContext<OrderState, Fault<AcceptOrderCommand>, TException> context,
+            IBehavior<OrderState, Fault<AcceptOrderCommand>> next)
+            where TException : Exception =>
+            next.Faulted(context);
+    }
+
+    public class CompleteOrderFaultCompensateActivity : IStateMachineActivity<OrderState, Fault<CompleteOrderCommand>>
+    {
+        private static readonly Uri ReleaseQueueUri = new("queue:release-inventory-queue");
+
+        public void Probe(ProbeContext context) => context.CreateScope(nameof(CompleteOrderFaultCompensateActivity));
+
+        public void Accept(StateMachineVisitor visitor) => visitor.Visit(this);
+
+        public async Task Execute(
+            BehaviorContext<OrderState, Fault<CompleteOrderCommand>> context,
+            IBehavior<OrderState, Fault<CompleteOrderCommand>> next)
+        {
+            await context.Send(
+                ReleaseQueueUri,
+                new ReleaseInventoryCommand(
+                    NewId.NextGuid(),
+                    context.Saga.CorrelationId,
+                    context.Saga.CustomerId,
+                    context.Saga.Items,
+                    context.Saga.ErrorReason ?? "Compensate",
+                    DateTime.UtcNow));
+            await next.Execute(context);
+        }
+
+        public Task Faulted<TException>(
+            BehaviorExceptionContext<OrderState, Fault<CompleteOrderCommand>, TException> context,
+            IBehavior<OrderState, Fault<CompleteOrderCommand>> next)
+            where TException : Exception =>
+            next.Faulted(context);
+    }
 }

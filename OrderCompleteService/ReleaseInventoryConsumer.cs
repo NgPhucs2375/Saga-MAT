@@ -95,11 +95,13 @@ namespace OrderCompleteService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi bồi hoàn tồn kho OrderId={OrderId}.", message.OrderId);
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "Compensate",
-                    $"Bồi hoàn tồn kho thất bại do lỗi hệ thống: {ex.Message}");
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "Compensate",
+                //     $"Bồi hoàn tồn kho thất bại do lỗi hệ thống: {ex.Message}");
 
-                await context.Publish(new ReleaseInventoryFailedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, $"Lỗi hệ thống khi bồi hoàn tồn kho: {ex.Message}", DateTime.UtcNow));
+                // await context.Publish(new ReleaseInventoryFailedEvent(
+                //     NewId.NextGuid(), message.OrderId, message.CustomerId, $"Lỗi hệ thống khi bồi hoàn tồn kho: {ex.Message}", DateTime.UtcNow));
+
+                throw;
             }
         }
 

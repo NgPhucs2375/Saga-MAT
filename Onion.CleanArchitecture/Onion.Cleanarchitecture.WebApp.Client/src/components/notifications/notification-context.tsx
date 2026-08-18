@@ -1,3 +1,4 @@
+// components/notifications/notification-context.tsx
 import React, {
   useCallback,
   useEffect,
@@ -26,10 +27,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: user } = useGetIdentity<IUserByMe>();
   const userId = user?.Uid;
   const invalidate = useInvalidate();
+  const { notification } = AntdApp.useApp();
 
   const [notifications, setNotifications] = useState<StoredNotification[]>([]);
-
-  const { notification } = AntdApp.useApp();
 
   const notificationRef = useRef(notification);
   notificationRef.current = notification;
@@ -37,12 +37,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const invalidateRef = useRef(invalidate);
   invalidateRef.current = invalidate;
 
-  // Ref lưu danh sách timeout ID theo OrderId để xử lý debounce
-  const invalidateTimersRef = useRef<Record<string, number>>({});
-
-  // Bộ đệm gộp nhiều notification trong cửa sổ ngắn thành 1 state update
-  const pendingNotificationsRef = useRef<StoredNotification[]>([]);
-  const flushTimerRef = useRef<number | null>(null);
+const invalidateTimersRef = useRef<Record<string, number>>({}); 
+ const pendingNotificationsRef = useRef<StoredNotification[]>([]);
+const flushTimerRef = useRef<number | null>(null);
   const lastToastAtRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -58,8 +55,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       pendingNotificationsRef.current = [];
 
       setNotifications((prev) => {
-        // Ghép batch mới lên đầu, loại trùng (cùng OrderId + Timestamp),
-        // giới hạn danh sách để không phình vô hạn
         const merged = [...batch, ...prev];
         const seen = new Set<string>();
         const deduped = merged.filter((n) => {
@@ -78,7 +73,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const unsubscribe = signalRService.onNotification((noti) => {
-      // Toast có throttle theo OrderId/Timestamp để không spam re-render
       const toastKey = noti.OrderId ?? noti.Timestamp;
       const now = Date.now();
       if (
@@ -100,23 +94,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       scheduleFlush();
 
-      // Debounce invalidate khi có orderId
       if (noti.OrderId) {
         const orderId = noti.OrderId;
-
         if (invalidateTimersRef.current[orderId]) {
           clearTimeout(invalidateTimersRef.current[orderId]);
         }
 
-        invalidateTimersRef.current[orderId] = setTimeout(() => {
+        // Tự động làm mới dữ liệu Table khi nhận event từ SignalR
+        invalidateTimersRef.current[orderId] = window.setTimeout(() => {
           invalidateRef.current({
             resource: "orders",
-            invalidates: ["list", "many"],
-          });
-          invalidateRef.current({
-            resource: "orders",
-            id: orderId,
-            invalidates: ["detail"],
+            invalidates: ["list", "many", "detail"],
           });
           delete invalidateTimersRef.current[orderId];
         }, INVALIDATE_DEBOUNCE_MS);
@@ -124,7 +112,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     return () => {
-      // Clean up các timer còn tồn tại khi unmount/đổi user
       Object.values(invalidateTimersRef.current).forEach(clearTimeout);
       invalidateTimersRef.current = {};
 

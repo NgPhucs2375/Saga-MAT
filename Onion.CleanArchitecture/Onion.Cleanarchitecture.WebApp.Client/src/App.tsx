@@ -52,19 +52,20 @@ import { Unauthorized } from "@components/unauthorized";
 import { Header } from "@components/header";
 import { NotificationProvider } from "@components/notifications/notification-context";
 import { ShowOrder } from "./routes/orders/show";
-import { EditOrder } from "./routes/orders/edit"; // Added EditOrder import
+import { EditOrder } from "./routes/orders/edit"; 
+import { ListNoti, ShowNoti } from "@routes/notifications";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ConfigProvider theme={appTheme}>
         <AntdApp>
-          <Refine
-            dataProvider={dataProvider}
-            authProvider={authProvider}
-            routerProvider={routerProvider}
-            accessControlProvider={accessControlProvider}
-            notificationProvider={useNotificationProvider}
+          <Refine // Center điều phối các provider
+            dataProvider={dataProvider} // Cách gọi API
+            authProvider={authProvider} // đăng nhập/identity
+            routerProvider={routerProvider} // Đồng bộ định tuyến của React Router v6 với resource nội bộ Refine
+            accessControlProvider={accessControlProvider} // phân quyền
+            notificationProvider={useNotificationProvider} // toast
             options={{
               syncWithLocation: true,
               warnWhenUnsavedChanges: true,
@@ -75,18 +76,18 @@ const App: React.FC = () => {
             <Routes>
               <Route
                 element={
-                  <Authenticated
+                  <Authenticated  // Kiểm tra xác thực
                     key="authenticated-routes"
                     fallback={<CatchAllNavigate to="/login" />}
                   >
-                    <ThemedLayoutV2
+                    <ThemedLayoutV2  // layout
                       Header={Header}
                       Title={({ collapsed }: { collapsed: boolean }) => (
                         <ThemedTitleV2
                           collapsed={collapsed}
                           icon={
                             <ImageField
-                              value="/public/logojack.jpg"
+                              value="/logojack.jpg"
                               title="Logo"
                               style={{width: 28, height: 28, objectFit: "contain" }}
                             />
@@ -95,7 +96,7 @@ const App: React.FC = () => {
                         />
                       )}
                     >
-                      <Outlet />
+                      <Outlet /> // render các route con tương ứng 
                     </ThemedLayoutV2>
                   </Authenticated>
                 }
@@ -108,7 +109,7 @@ const App: React.FC = () => {
                   <Route
                     index
                     element={
-                      <CanAccess
+                      <CanAccess // tự động gửi YC check đến accessProvider xem user có quyền truy cập resource/action hay không
                         resource="dashboard"
                         action="list"
                         fallback={<Unauthorized />}
@@ -367,6 +368,33 @@ const App: React.FC = () => {
                     }
                   />
                 </Route>
+                <Route path="notifications">
+                  <Route
+                    index
+                    element={
+                      <CanAccess
+                        resource="notifications"
+                        action="list"
+                        fallback={<Unauthorized />}
+                      >
+                        <ListNoti />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path=":id"
+                    element={
+                      <CanAccess
+                        resource="notifications"
+                        action="show"
+                        fallback={<Unauthorized />}
+                      >
+                        <ShowNoti />
+                      </CanAccess>
+                    }
+                  />
+                </Route>
+
                 <Route path="roleclaims">
                   <Route
                     index
@@ -447,17 +475,17 @@ const App: React.FC = () => {
                         <ThemedTitleV2
                           icon={
                             <ImageField
-                              value="https://static.vietbank.com.vn/web/vietbank-logo.png"
-                              title="Vietbank Logo"
+                              value="/logojack.jpg"
+                              title="Logo"
                               style={{ width: 30, height: 30 }}
                             />
                           }
-                          text="Vietbank Admin"
+                          text="Admin"
                           collapsed={false}
                         />
                       }
-                      forgotPasswordLink={false}
-                      registerLink={false}
+                      forgotPasswordLink={true}
+                      registerLink={true}
                       formProps={{
                         initialValues: {
                           email: "",

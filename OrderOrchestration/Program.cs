@@ -45,10 +45,16 @@ var host = Host.CreateDefaultBuilder(args)
                     r.UsePostgres();
                 });
 
+            
+
             x.UsingPostgres((context, cfg) =>
             {
                 cfg.AutoStart = true;
-
+                cfg.UseDelayedRedelivery( r => r.Intervals(
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromMinutes(15)
+                ));
                 // Saga receive endpoint + outbox được cấu hình tự động từ bus-level
                 // AddEntityFrameworkOutbox + UseBusOutbox (tránh double-tracking Outbox).
                 cfg.ConfigureEndpoints(context);

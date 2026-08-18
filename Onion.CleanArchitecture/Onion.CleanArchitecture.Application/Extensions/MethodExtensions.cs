@@ -7,6 +7,11 @@ using System.Linq.Expressions;
 
 namespace Onion.CleanArchitecture.Infrastructure.Shared.Extensions
 {
+    /// <summary>
+    /// Hỗ trợ lấy dữ liệu
+    /// </summary>
+    /// <method "OrderByDynamic"> sắp xếp theo yêu cầu của client
+    /// <method "ApplyFilters"> lọc theo yêu cầu của Client 
     public static class MethodExtensions
     {
         public static IQueryable<TSource> OrderByDynamic<TSource>(

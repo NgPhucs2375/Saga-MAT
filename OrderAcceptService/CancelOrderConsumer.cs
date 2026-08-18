@@ -95,12 +95,14 @@ namespace OrderAcceptService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi bồi hoàn OrderId={OrderId}.", message.OrderId);
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "Compensate",
-                    $"Bồi hoàn thất bại do lỗi hệ thống: {ex.Message}");
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "Compensate",
+                //     $"Bồi hoàn thất bại do lỗi hệ thống: {ex.Message}");
 
-                // Báo Saga bồi hoàn thất bại
-                await context.Publish(new CancelOrderFailedEvent(
-                    NewId.NextGuid(), message.OrderId, message.CustomerId, $"Lỗi hệ thống khi bồi hoàn: {ex.Message}", DateTime.UtcNow));
+                // // Báo Saga bồi hoàn thất bại
+                // await context.Publish(new CancelOrderFailedEvent(
+                //     NewId.NextGuid(), message.OrderId, message.CustomerId, $"Lỗi hệ thống khi bồi hoàn: {ex.Message}", DateTime.UtcNow));
+
+                throw;
             }
         }
 

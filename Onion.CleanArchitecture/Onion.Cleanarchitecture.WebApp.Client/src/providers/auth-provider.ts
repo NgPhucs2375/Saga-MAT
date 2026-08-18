@@ -18,24 +18,26 @@ interface AuthProvider extends BaseAuthProvider {
 }
 
 export const authProvider: AuthProvider = {
+  // kiểm tra xem người dùng đã đăng nhập hay chưa
   check: async () => {
-    // When logging in, we'll obtain an access token from our API and store it in the local storage.
-    // Now let's check if the token exists in the local storage.
-    // In the later steps, we'll be implementing the `login` and `logout` methods.
+    // lấy token từ localStorage
     const token = localStorage.getItem("access_token");
+    // nếu token tồn tại thì trả về authenticated: true, ngược lại trả về authenticated: false và thông báo lỗi
     if (Boolean(token)) {
       return { authenticated: true };
     }
     return {
       authenticated: false,
       error: {
-        message: "Check failed",
-        name: "Not authenticated",
+        message: "Kiểm tra thất bại",
+        name: "Không có được xác thực",
       },
       logout: true,
       redirectTo: "/login",
     };
   },
+
+  // Lấy thông tin định danh của người dùng từ API
   getIdentity: async () => {
     const response = await fetch("/api/account/me", {
       headers: {
@@ -56,6 +58,8 @@ export const authProvider: AuthProvider = {
 
     return data.Data as any;
   },
+
+  // đăng nhập bằng email và password, nếu thành công thì lưu token vào localStorage
   login: async ({ email, password }) => {
     const response = await fetch("/api/account/authenticate", {
       method: "POST",
@@ -90,6 +94,7 @@ export const authProvider: AuthProvider = {
       },
     };
   },
+  // đăng xuất bằng cách xóa token khỏi localStorage
   logout: async () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -97,16 +102,27 @@ export const authProvider: AuthProvider = {
     // We're returning success: true to indicate that the logout operation was successful.
     return { success: true };
   },
+  // xử lý lỗi khi gọi API, nếu lỗi là 401 thì xóa token khỏi localStorage và trả về error
   onError: async (error) => {
+    if (error.statusCode === 401) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+    }
     return { error };
   },
+
+  // lấy thông tin quyền của người dùng từ token JWT, nếu không có token thì trả về mảng rỗng
   getPermissions: async () => {
+    // lấy token từ localStorage
       const token = localStorage.getItem("access_token");
+      // nếu không có token thì trả về mảng rỗng
       if (!token) {
         return JSON.stringify({ permissions: [] });
       }
 
+      
       try {
+        // 
         const decoded: any = jwtDecode(token);
 
         // Đọc claim roles động từ JWT
@@ -158,6 +174,8 @@ export const authProvider: AuthProvider = {
         return JSON.stringify({ permissions: [] });
       }
     },
+
+  // Cập nhật mật khẩu bằng cách gọi API, nếu thành công thì trả về success: true, ngược lại trả về success: false và thông báo lỗi
   updatePassword: async ({ oldPassword, newPassword }) => {
     const response = await fetch("/api/account/update-password", {
       method: "POST",
@@ -187,6 +205,7 @@ export const authProvider: AuthProvider = {
       },
     };
   },
+  // làm mới token bằng cách gọi API, nếu thành công thì lưu token mới vào localStorage, ngược lại xóa token khỏi localStorage
   refresh: async () => {
     const refreshToken = localStorage.getItem("refresh_token");
     const accessToken = localStorage.getItem("access_token");

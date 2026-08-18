@@ -34,5 +34,10 @@ namespace Onion.CleanArchitecture.Infrastructure.Persistence.Repositories
             noti.IsRead = true;
             await base.UpdateAsync(noti);
         }
+
+        public async Task<Notification> GetByIdAsync(Guid NotifyId)
+        {
+            return await _notifications.FirstOrDefaultAsync(n => n.NotifyId == NotifyId);
+        }
     }
 }

@@ -44,6 +44,7 @@ builder.Services.AddMassTransit(x =>
     x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
     {
         o.UsePostgres();
+        o.UseBusOutbox(); // Bật Outbox trên bus (tự động commit Outbox + publish event)
         o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
         // Tắt InboxCleanupService: tránh spam lỗi FK (InboxState bị xóa
         // khi OutboxMessage còn tham chiếu) ở phiên bản 8.3.0

@@ -9,5 +9,6 @@ namespace Onion.CleanArchitecture.Application.Interfaces.Repositories
     {
         Task<IReadOnlyList<Notification>> GetByUserAsync(Guid targetUserId, bool? isRead = null);
         Task MarkAsReadAsync(Guid notifyId);
+        Task<Notification> GetByIdAsync(Guid id);
     }
 }

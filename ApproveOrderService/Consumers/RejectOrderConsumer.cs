@@ -79,7 +79,9 @@ namespace ApproveOrderService.Consumers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi từ chối OrderId={OrderId}", message.OrderId);
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "RejectOrderCommand", $"Lỗi hệ thống khi từ chối: {ex.Message}");
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "RejectOrderCommand", $"Lỗi hệ thống khi từ chối: {ex.Message}");
+
+                throw;
             }
         }
 

@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Onion.CleanArchitecture.Application.Exceptions;
 using Onion.CleanArchitecture.Application.Interfaces.Repositories;
 using Onion.CleanArchitecture.Domain.Entities;
 using Onion.CleanArchitecture.Domain.Enums;
@@ -43,15 +44,16 @@ namespace ApproveOrderService.Consumers
             var order = await _orderRepository.GetByIdAsync(message.OrderId);
             if (order == null)
             {
+
                 _logger.LogError("OrderId={OrderId} không tồn tại trong DB.", message.OrderId);
-                return;
+                throw new ApiException("OrderId={OrderId} không tồn tại trong DB.", message.OrderId);
             }
 
             // Idempotency: Chỉ duyệt đơn đang chờ duyệt (retry/duplicate -> bỏ qua)
             if (order.Status != OrderStatus.PendingApproval)
             {
                 _logger.LogWarning("OrderId={OrderId} không ở trạng thái PendingApproval (hiện tại: {Status}). Bỏ qua duyệt.", message.OrderId, order.Status);
-                return;
+                throw new ApiException($"Không thể duyệt đơn hàng ở trạng thái {order.Status}.");
             }
 
             try
@@ -82,7 +84,9 @@ namespace ApproveOrderService.Consumers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi duyệt OrderId={OrderId}", message.OrderId);
-                await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ApproveOrderCommand", $"Lỗi hệ thống khi duyệt: {ex.Message}");
+                // await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "ApproveOrderCommand", $"Lỗi hệ thống khi duyệt: {ex.Message}");
+            
+                throw;
             }
         }
 

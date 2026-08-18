@@ -8,12 +8,13 @@ import {
   AppstoreOutlined,
   UserOutlined,
   UserSwitchOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 
 export const appTheme: ThemeConfig = {
   token: {
-    colorPrimary: "#1677ff",
-    colorInfo: "#1677ff",
+    colorPrimary: "#9BABB8",
+    colorInfo: "#9BABB8",
     borderRadius: 6,
   },
   components: {
@@ -26,7 +27,7 @@ export const resources: IResourceItem[] = [
     name: "dashboard",
     list: "/dashboard",
     meta: {
-      label: "Bảng điều khiển",
+      label: "Tổng quan đơn hàng",
       icon: <DashboardOutlined />,
     },
   },
@@ -93,6 +94,15 @@ export const resources: IResourceItem[] = [
       label: "Quyền hạn",
       canDelete: true,
       icon: <TeamOutlined />,
+    },
+  },
+  {
+    name: "notifications",
+    list: "/notifications",
+    show: "/notifications/:id",
+    meta: {
+      label: "Thông báo",
+      icon: <BellOutlined />,
     },
   },
   // Thêm các resource sau để Refine nhận diện

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Onion.CleanArchitecture.Application.Features.Notifications.Commands.MarkNotificationAsRead;
+using Onion.CleanArchitecture.Application.Features.Notifications.Queries.GetNotificationById;
 using Onion.CleanArchitecture.Application.Features.Notifications.Queries.GetNotifications;
 using Onion.CleanArchitecture.Application.Filters;
 using Onion.CleanArchitecture.Application.Wrappers;
@@ -38,6 +39,17 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
                     }
                 }
 
+                if (isRead == null && filter?._filter != null)
+                {
+                    var readFilter = filter._filter
+                        .FirstOrDefault(f => f.StartsWith("IsRead:", StringComparison.OrdinalIgnoreCase));
+                    if (readFilter != null &&
+                        bool.TryParse(readFilter.Substring("IsRead:".Length), out var parsedIsRead))
+                    {
+                        isRead = parsedIsRead;
+                    }
+                }
+
                 var result = await Mediator.Send(new GetNotificationsQuery { IsRead = isRead, OrderId = orderId });
                 var items = result.Data ?? new List<Notification>();
                 return Ok(new Response<object>(new
@@ -57,6 +69,16 @@ namespace Onion.CleanArchitecture.WebApp.Server.Controllers.v1
             return await EnforcePermissionAndExecute("notifications", "edit", async () =>
             {
                 return Ok(await Mediator.Send(new MarkNotificationAsReadCommand { NotifyId = notifyId }));
+            });
+        }
+
+        // GET: api/notifications/show/{notifyId}
+        [HttpGet("show/{notifyId}")]
+        public async Task<IActionResult> GetById(Guid notifyId)
+        {
+            return await EnforcePermissionAndExecute("notifications", "show", async () =>
+            {
+                return Ok(await Mediator.Send(new GetNotificationByIdQuery { Id = notifyId }));
             });
         }
     }

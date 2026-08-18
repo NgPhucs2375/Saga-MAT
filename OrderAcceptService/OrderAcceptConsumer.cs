@@ -142,24 +142,25 @@ namespace OrderAcceptService
             {
                 _logger.LogError(ex, "Lỗi không mong muốn khi xử lý OrderAcceptConsumer cho OrderId={OrderId}", message.OrderId);
 
-                // Bồi hoàn nếu có thể: chuyển đơn hàng sang trạng thái Rejected để không retry vô hạn
-                if (order != null && order.Status == OrderStatus.Submitted)
-                {
-                    var errorReason = $"Lỗi hệ thống: {ex.Message}";
-                    order.Status = OrderStatus.Rejected;
-                    order.RejectedAt = DateTime.UtcNow;
-                    await _orderRepository.UpdateAsync(order);
+                // // Bồi hoàn nếu có thể: chuyển đơn hàng sang trạng thái Rejected để không retry vô hạn
+                // if (order != null && order.Status == OrderStatus.Submitted)
+                // {
+                //     var errorReason = $"Lỗi hệ thống: {ex.Message}";
+                //     order.Status = OrderStatus.Rejected;
+                //     order.RejectedAt = DateTime.UtcNow;
+                //     await _orderRepository.UpdateAsync(order);
 
-                    await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
+                //     await RecordHistoryAsync(message.OrderId, HistoryStatus.Failed, "AcceptOrderCommand", errorReason);
 
-                    await context.Publish(new OrderAcceptFailedEvent(
-                        NewId.NextGuid(), 
-                        message.OrderId, 
-                        message.CustomerId, 
-                        errorReason, 
-                        DateTime.UtcNow));
-                }
-                // Không throw lại exception để message được coi là đã xử lý (consumed) và không bị retry.
+                //     await context.Publish(new OrderAcceptFailedEvent(
+                //         NewId.NextGuid(), 
+                //         message.OrderId, 
+                //         message.CustomerId, 
+                //         errorReason, 
+                //         DateTime.UtcNow));
+                // }
+
+                throw;
             }
         }
 
